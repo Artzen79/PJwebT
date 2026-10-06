@@ -1,0 +1,94 @@
+# SportHub ระบบจองสนามกีฬาและยืมอุปกรณ์
+
+เว็บจองสนามกีฬาหลายประเภทพร้อมระบบยืมอุปกรณ์: ดูตารางว่างแบบเรียลไทม์ จองรายชั่วโมง จ่ายด้วย PromptPay เช็คอินด้วย QR คืนอุปกรณ์ รีวิว และแดชบอร์ดผู้ดูแลระบบ
+
+- **Frontend** React 19 + Vite + TypeScript + Tailwind CSS 4 + TanStack Query (`apps/web`)
+- **Backend** Node.js 24 + Express 5 + PostgreSQL 18 (`pg` เขียน SQL ตรง) + Zod 4 (`apps/api`)
+- **API Document** OpenAPI 3.1 สร้างจากโค้ด แสดงที่ `/docs` ครบทุก endpoint พร้อมตัวอย่างจริง
+- คู่มือฉบับพิมพ์: [`docs/SportHub-manual.pdf`](docs/SportHub-manual.pdf) (แก้จาก [`docs/manual/index.html`](docs/manual/index.html))
+
+## เริ่มใช้งาน
+
+ต้องมี Node.js 24, pnpm และ Docker Desktop
+
+```bash
+docker compose up -d   # PostgreSQL 18 (:5432) + Mailpit กล่องอีเมลทดสอบ (:8025)
+pnpm install
+pnpm db:migrate        # สร้างตาราง
+pnpm db:seed           # ข้อมูลตัวอย่าง: กีฬา 6 ประเภท สนาม 13 สนาม อุปกรณ์ และประวัติการจอง 2 สัปดาห์
+pnpm dev               # API http://localhost:3000 และเว็บ http://localhost:5173
+```
+
+| ที่อยู่ | ใช้ทำอะไร |
+|---|---|
+| http://localhost:5173 | เว็บไซต์ |
+| http://localhost:3000/docs | API Document |
+| http://localhost:8025 | อีเมลที่ระบบส่ง (Mailpit) |
+
+| บัญชีทดลอง | รหัสผ่าน |
+|---|---|
+| admin@sporthub.local (ผู้ดูแลระบบ) | admin1234 |
+| member@sporthub.local (สมาชิก) | member1234 |
+
+ค่าที่ตั้งได้ทั้งหมดอยู่ใน [`.env.example`](.env.example) (คัดลอกเป็น `.env`) ไม่มี `.env` ก็รันได้ด้วยค่าเริ่มต้นสำหรับเครื่องพัฒนา
+
+## คำสั่ง
+
+| คำสั่ง | ทำอะไร |
+|---|---|
+| `pnpm dev` | รัน API และเว็บพร้อมกัน (โหลดใหม่อัตโนมัติเมื่อแก้โค้ด) |
+| `pnpm test` | ชุดทดสอบ API 76 กรณี กับฐานข้อมูล `sporthub_test` (ล้างใหม่ทุกครั้ง) |
+| `pnpm db:reset` | **ลบข้อมูลทั้งหมดในฐานข้อมูลพัฒนา** แล้วสร้างข้อมูลตัวอย่างใหม่ (ใช้ก่อนสาธิต) |
+| `pnpm build` | build เว็บไปที่ `apps/web/dist` (API จะเสิร์ฟให้เองในโหมด production) |
+| `pnpm --filter api openapi:export` | เขียน `apps/api/openapi.json` และบอก endpoint ที่ยังไม่มีตัวอย่าง |
+| `pnpm --filter web gen:api` | สร้าง type ของเว็บใหม่จาก `openapi.json` หลังแก้ API |
+
+## โครงสร้าง
+
+```
+apps/api/
+  db/migrations/001_init.sql   ตารางทั้งหมด, VIEW booking_totals, exclusion constraint กันจองซ้อน
+  src/routes/*.ts              1 ไฟล์ต่อหมวด แต่ละ endpoint ประกาศด้วย route({...}) ครั้งเดียว
+  src/lib/route.ts             route() = Express route + ตรวจ input ด้วย Zod + รายการใน OpenAPI
+  src/openapi.ts               สร้างเอกสาร OpenAPI 3.1 จาก route ทั้งหมด
+  src/jobs.ts                  งานทุกนาที: หมดเวลาชำระ, เสร็จสิ้น, อีเมลเตือน, ล้างตะกร้าที่เลยเวลา
+  test/*.test.ts               Vitest + Supertest กับ PostgreSQL จริง
+  openapi-examples.json        ตัวอย่าง request/response ที่บันทึกจากการรันเทสต์ (แสดงใน /docs)
+apps/web/src/
+  pages/                       หน้าสมาชิก และ pages/admin/ หน้าผู้ดูแลระบบ
+  components/SlotBoard.tsx     กระดานเวลาว่าง (แถว = สนาม, คอลัมน์ = ชั่วโมง)
+  api-types.ts                 type ที่ generate จาก OpenAPI (ห้ามแก้มือ)
+```
+
+### จุดที่ควรรู้ก่อนแก้โค้ด
+
+- **กันจองซ้อนอยู่ที่ฐานข้อมูล** ช่วงเวลาในตะกร้ามี `active = false` ตอนยืนยันจึงเปลี่ยนเป็น `true` แล้ว exclusion constraint `no_overlap` ปฏิเสธเวลาที่ชนกัน (error `23P01` → `409 SLOT_TAKEN`)
+- **สต็อกอุปกรณ์** ตรวจซ้ำตอนยืนยันใน transaction โดย `SELECT ... FOR UPDATE` แถวอุปกรณ์ตามลำดับ id
+- **ยอดเงิน** ไม่ได้เก็บเป็นคอลัมน์ คำนวณจากรายการผ่าน VIEW `booking_totals` เสมอ
+- **เวลา** ใช้ `timestamptz` และ session timezone `Asia/Bangkok` ช่องจองละ 1 ชั่วโมง
+- เพิ่ม endpoint ใหม่: เขียน `route({...})` พร้อม schema แล้วเพิ่มเทสต์ที่เรียก endpoint นั้น ตัวอย่างในเอกสารจะถูกบันทึกเองตอน `pnpm test` และเทสต์จะ fail ถ้าผลลัพธ์จริงไม่ตรงกับ schema ในเอกสาร
+
+## Deploy
+
+`Dockerfile` สร้าง image เดียวที่ build เว็บแล้วรัน API (API เสิร์ฟเว็บบนโดเมนเดียวกัน จึงไม่มีปัญหา CORS หรือ cookie ข้ามโดเมน) และ migrate ฐานข้อมูลตอนเริ่ม
+
+```bash
+docker build -t sporthub .
+docker run -p 3000:3000 -e DATABASE_URL=postgres://... -e JWT_SECRET=<สุ่มยาวๆ> sporthub
+```
+
+บน Render หรือ Railway: สร้าง PostgreSQL ของผู้ให้บริการ แล้วสร้าง Web Service จาก repo นี้แบบ Docker ตั้ง `DATABASE_URL`, `JWT_SECRET`, `APP_URL`, `PROMPTPAY_ID` และ `SMTP_URL` (เช่น SMTP ของ Gmail แบบ App Password) health check คือ `/api/v1/health` ดิสก์ของแพ็กเกจฟรีจะล้างตอน deploy ใหม่ ถ้าต้องเก็บรูปที่อัปโหลดให้ต่อ persistent disk ที่ `/app/apps/api/uploads`
+
+## สาธิต 30 นาที (แนะนำ)
+
+1. `pnpm db:reset` ก่อนเริ่ม และตั้ง `CHECKIN_EARLY_MINUTES=1440` ใน `.env` เพื่อให้เช็คอินการจองวันนี้ได้ทันที
+2. เปิดเว็บสองหน้าต่าง (สมาชิก 2 คน) ที่ตารางสนามว่าง: คนแรกจองแล้วยืนยัน ให้ดูช่องของอีกจอพลิกเป็น "มีผู้จองแล้ว" ทันที
+3. ยืมอุปกรณ์ → ตะกร้า (ลบรายการ, ลบตะกร้า, ยืนยัน) → QR PromptPay → แนบสลิป
+4. ผู้ดูแลระบบ: ตรวจสลิปแล้วอนุมัติ → เปิด http://localhost:8025 ดูอีเมลพร้อม QR → เช็คอินด้วยเลขที่การจอง → รับคืนอุปกรณ์
+5. แดชบอร์ด, จัดการสนามและเปลี่ยนรูป, ระงับสมาชิกแล้วลองเข้าสู่ระบบด้วยบัญชีนั้น
+6. เปิด `/docs` อธิบาย endpoint หนึ่งตัว: parameter, ผลลัพธ์, ตัวอย่าง, กด Test Request
+7. `pnpm test` ให้เห็นเทสต์ยืนยันพร้อมกันสองคน ("exactly one wins")
+
+## คู่มือฉบับพิมพ์
+
+แก้ชื่อ-รหัสนิสิตในตารางหน้าปกของ `docs/manual/index.html` แล้วเปิดไฟล์ในเบราว์เซอร์และสั่งพิมพ์ (A4, เปิด Background graphics) หรือบันทึกเป็น PDF ภาพหน้าจออยู่ใน `docs/manual/img/`
