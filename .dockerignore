@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+apps/api/uploads
+.git
+.env
+.superpowers
+*.pdf
+docs
