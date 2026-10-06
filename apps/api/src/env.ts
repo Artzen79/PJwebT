@@ -18,7 +18,9 @@ export const env = {
   appUrl: process.env.APP_URL ?? 'http://localhost:5173',
   promptpayId: process.env.PROMPTPAY_ID ?? '0812345678',
   // how early before the first slot a booking may check in (calibration knob for demos)
-  checkinEarlyMinutes: Number(process.env.CHECKIN_EARLY_MINUTES ?? 30),
+  get checkinEarlyMinutes() {
+    return Number(process.env.CHECKIN_EARLY_MINUTES ?? 30);
+  },
   recordExamples: process.env.RECORD_EXAMPLES === '1',
   uploadDir: fileURLToPath(new URL('../uploads/', import.meta.url)),
   webDist: fileURLToPath(new URL('../../web/dist/', import.meta.url)),

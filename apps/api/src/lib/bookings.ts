@@ -31,7 +31,8 @@ const bookingSql = `
       SELECT json_agg(json_build_object(
         'id', p.id, 'amount', p.amount, 'status', p.status, 'note', p.note, 'createdAt', p.created_at, 'reviewedAt', p.reviewed_at
       ) ORDER BY p.created_at DESC)
-      FROM payments p WHERE p.booking_id = b.id), '[]') AS payments
+      FROM payments p WHERE p.booking_id = b.id), '[]') AS payments,
+    COALESCE((SELECT json_agg(r.court_id) FROM reviews r WHERE r.booking_id = b.id), '[]') AS "reviewedCourtIds"
   FROM bookings b JOIN users u ON u.id = b.user_id JOIN booking_totals t ON t.booking_id = b.id
   WHERE b.id = $1`;
 
@@ -67,6 +68,8 @@ export async function getVisibleBooking(id: number, user: User) {
 
 export const firstStart = (b: BookingRow) =>
   Math.min(...[...b.slots, ...b.equipment].map((i) => Date.parse(i.startAt)));
+export const lastEnd = (b: BookingRow) =>
+  Math.max(...[...b.slots, ...b.equipment].map((i) => Date.parse(i.endAt)));
 
 // The member's open cart, created on first use. Code = local date + zero-padded id, e.g. 202610070003.
 export async function cartIdFor(userId: number, db: Db = pool): Promise<number> {

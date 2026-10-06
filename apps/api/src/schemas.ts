@@ -146,6 +146,7 @@ export const Booking = z
     payments: z.array(PaymentSummary),
     checkinToken: z.string().nullable().describe('รหัสใน QR เช็คอิน (มีเมื่อชำระเงินแล้ว)'),
     checkinQr: z.string().nullable().describe('รูป QR เช็คอิน (data URL)'),
+    reviewedCourtIds: z.array(z.number().int()).describe('สนามที่รีวิวแล้วในการจองนี้'),
   })
   .meta({ id: 'Booking', description: 'การจอง (รวมถึงตะกร้า)' });
 

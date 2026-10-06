@@ -17,6 +17,10 @@ import './routes/equipment';
 import './routes/cart';
 import './routes/bookings';
 import './routes/payments';
+import './routes/checkin';
+import './routes/reviews';
+import './routes/events';
+import './routes/admin';
 
 const pgErrors: Record<string, [number, string, string]> = {
   '23P01': [409, 'SLOT_TAKEN', 'ช่วงเวลานี้มีผู้จองแล้ว'],
