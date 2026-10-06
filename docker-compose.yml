@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: sporthub
+      POSTGRES_PASSWORD: sporthub
+      POSTGRES_DB: sporthub
+      TZ: Asia/Bangkok
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./apps/api/db/docker-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  mail:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  pgdata:

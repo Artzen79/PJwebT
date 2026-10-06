@@ -1,0 +1,13 @@
+{
+  "name": "sporthub",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter api start",
+    "test": "pnpm --filter api test",
+    "db:migrate": "pnpm --filter api db:migrate",
+    "db:seed": "pnpm --filter api db:seed"
+  }
+}

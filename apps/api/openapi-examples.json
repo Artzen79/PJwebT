@@ -1,0 +1,9 @@
+{
+  "GET /health": {
+    "url": "/api/v1/health",
+    "response": {
+      "ok": true,
+      "db": true
+    }
+  }
+}
