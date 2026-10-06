@@ -3,10 +3,14 @@ import express, { type ErrorRequestHandler } from 'express';
 import helmet from 'helmet';
 import { z } from 'zod';
 import { env } from './env';
+import { join } from 'node:path';
+import { loadUser } from './lib/auth';
 import { HttpError } from './lib/http';
 import { mountRoutes } from './lib/route';
 import { buildOpenApi } from './openapi';
 import './routes/health';
+import './routes/auth';
+import './routes/users';
 
 const pgErrors: Record<string, [number, string, string]> = {
   '23P01': [409, 'SLOT_TAKEN', 'ช่วงเวลานี้มีผู้จองแล้ว'],
@@ -38,7 +42,9 @@ app.get('/openapi.json', (_req, res) => {
 // before helmet: the reference page loads its script from the Scalar CDN
 app.use('/docs', apiReference({ url: '/openapi.json', pageTitle: 'SportHub API' }));
 app.use(helmet());
+app.use('/uploads', express.static(join(env.uploadDir, 'public')));
 app.use(express.json());
+app.use(loadUser);
 app.use('/api/v1', mountRoutes());
 app.use('/api', (_req, _res, next) => next(new HttpError(404, 'NOT_FOUND', 'ไม่พบ endpoint นี้')));
 app.use(onError);

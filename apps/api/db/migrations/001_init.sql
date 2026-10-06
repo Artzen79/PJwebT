@@ -94,6 +94,13 @@ CREATE TABLE booking_equipment (
 );
 CREATE INDEX booking_equipment_active ON booking_equipment (equipment_id) WHERE active;
 
+-- single source of truth for a booking's price (items keep the price at the time they were added)
+CREATE VIEW booking_totals AS
+SELECT b.id AS booking_id,
+       COALESCE((SELECT sum(s.price) FROM booking_slots s WHERE s.booking_id = b.id), 0)
+     + COALESCE((SELECT sum(e.price) FROM booking_equipment e WHERE e.booking_id = b.id), 0) AS total
+FROM bookings b;
+
 CREATE TABLE payments (
   id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   booking_id int NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
