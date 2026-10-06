@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { api, ok, type Slot, useMe } from '../api';
 import { DateStrip } from '../components/Pickers';
-import { Empty, ErrorNote, LinkButton, Loading, Panel, SportArt, Stars } from '../components/ui';
+import { Empty, ErrorNote, Field, LinkButton, Loading, Panel, Select, SportArt, Stars } from '../components/ui';
 import { baht, bangkokDate, dateTh, hourLabel, timeRange } from '../lib/format';
 import { useSlotPicker } from '../lib/pick';
 
@@ -20,6 +21,7 @@ export default function CourtDetail() {
   const date = params.get('date') ?? bangkokDate();
   const me = useMe().data;
   const pick = useSlotPicker();
+  const [weeks, setWeeks] = useState(1);
   const court = useQuery({ queryKey: ['court', id], queryFn: () => ok(api.GET('/api/v1/courts/{id}', { params: { path: { id } } })) });
   const slots = useQuery({
     queryKey: ['availability', id, date],
@@ -49,7 +51,12 @@ export default function CourtDetail() {
         </div>
         <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-line bg-line">
           {[
-            ['ราคา', `${baht(c.pricePerHour)}/ชม.`],
+            [
+              'ราคา',
+              c.peakPricePerHour !== null && c.peakFromHour !== null
+                ? `${c.pricePerHour.toLocaleString('th-TH')} / ${c.peakPricePerHour.toLocaleString('th-TH')} บาท หลัง ${hourLabel(c.peakFromHour)}`
+                : `${baht(c.pricePerHour)}/ชม.`,
+            ],
             ['เวลาเปิด', `${hourLabel(c.openHour)}–${hourLabel(c.closeHour)}`],
             ['รีวิว', c.rating === null ? 'ยังไม่มี' : `${c.rating} จาก ${c.reviewCount} รีวิว`],
           ].map(([k, v]) => (
@@ -85,6 +92,16 @@ export default function CourtDetail() {
       <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-20">
         <h2 className="text-xl font-semibold">เลือกเวลา</h2>
         <DateStrip value={date} days={14} onChange={(d) => setParams({ date: d }, { replace: true })} />
+        <Field label="จองประจำ" hint="เพิ่มชั่วโมงเดียวกันทุกสัปดาห์ ถ้าสัปดาห์ใดไม่ว่างจะไม่เพิ่มเลย">
+          <Select value={weeks} onChange={(e) => setWeeks(Number(e.target.value))}>
+            <option value={1}>ครั้งเดียว</option>
+            {[2, 3, 4, 5, 6, 7, 8].map((n) => (
+              <option key={n} value={n}>
+                ทุกสัปดาห์ {n} สัปดาห์
+              </option>
+            ))}
+          </Select>
+        </Field>
         {slots.isPending ? (
           <Loading />
         ) : slots.error ? (
@@ -96,11 +113,12 @@ export default function CourtDetail() {
                 key={`${s.hour}-${s.status}`}
                 type="button"
                 disabled={s.status !== 'free' && s.status !== 'in_cart'}
-                onClick={() => pick({ courtId: c.id, courtName: c.name }, s)}
+                onClick={() => pick({ courtId: c.id, courtName: c.name }, s, weeks)}
                 className={`flip num rounded-lg border px-2 py-2 text-sm font-medium transition ${hourClass[s.status]}`}
                 aria-label={`${timeRange(s.startAt, s.endAt)} ${s.status === 'free' ? 'ว่าง' : s.status === 'in_cart' ? 'อยู่ในตะกร้า' : 'ไม่ว่าง'}`}
               >
                 {timeRange(s.startAt, s.endAt)}
+                {c.peakPricePerHour !== null && <span className="block text-xs opacity-80">{baht(s.price)}</span>}
               </button>
             ))}
           </div>

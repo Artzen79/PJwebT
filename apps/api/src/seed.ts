@@ -114,6 +114,15 @@ async function seed() {
       );
       courtRows.push({ id, price, open, close });
     }
+    // evening peak rates for the outdoor-lit courts, and two demo coupons
+    await db.query(
+      `UPDATE courts SET peak_price_per_hour = price_per_hour * 1.25, peak_from_hour = 17
+       WHERE sport_id IN (SELECT id FROM sports WHERE name IN ('ฟุตบอล', 'เทนนิส'))`,
+    );
+    await db.query(
+      `INSERT INTO coupons (code, percent_off, amount_off, min_total, max_uses) VALUES
+         ('WELCOME10', 10, NULL, 300, NULL), ('BAHT50', NULL, 50, 0, 100)`,
+    );
     const equipmentRows: { id: number; rent: number }[] = [];
     for (const [sport, name, description, qty, rent, deposit] of equipment) {
       const { id } = await one(

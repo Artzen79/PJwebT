@@ -89,6 +89,14 @@ export default function BookingDetail() {
                 {admin && !e.returnedAt && ['paid', 'checked_in', 'completed'].includes(b.status) && <ReturnForm bookingId={b.id} itemId={e.id} onDone={refresh} />}
               </div>
             ))}
+            {b.discount > 0 && (
+              <div className="num flex items-baseline justify-between p-4 text-muted">
+                <span>
+                  ส่วนลดคูปอง {b.couponCode} (จาก {baht(b.subtotal)})
+                </span>
+                <span>−{baht(b.discount)}</span>
+              </div>
+            )}
             <div className="flex items-baseline justify-between p-4">
               <span className="text-muted">ยอดรวม</span>
               <span className="num text-2xl font-semibold">{baht(b.total)}</span>

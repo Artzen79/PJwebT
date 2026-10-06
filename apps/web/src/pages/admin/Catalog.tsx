@@ -4,10 +4,10 @@ import { toast } from 'sonner';
 import { api, type Body, type Court, type Equipment, errorText, ok, type Sport, upload } from '../../api';
 import { useSports } from '../../components/Pickers';
 import { Badge, Button, ErrorNote, Field, Input, Loading, Modal, Select, SportArt, Textarea } from '../../components/ui';
-import { baht, hourLabel } from '../../lib/format';
+import { baht, dateTh, hourLabel } from '../../lib/format';
 import { formData } from '../../lib/pick';
 
-type Def = { name: string; label: string; kind?: 'text' | 'number' | 'textarea' | 'sport' | 'checkbox'; min?: number; max?: number; step?: number; hint?: string };
+type Def = { name: string; label: string; kind?: 'text' | 'number' | 'optional-number' | 'textarea' | 'sport' | 'checkbox'; min?: number; max?: number; step?: number; hint?: string };
 
 const courtFields: Def[] = [
   { name: 'name', label: 'ชื่อสนาม' },
@@ -15,6 +15,8 @@ const courtFields: Def[] = [
   { name: 'pricePerHour', label: 'ราคาต่อชั่วโมง (บาท)', kind: 'number', min: 0, step: 10 },
   { name: 'openHour', label: 'เปิด (ชั่วโมง)', kind: 'number', min: 0, max: 23 },
   { name: 'closeHour', label: 'ปิด (ชั่วโมง)', kind: 'number', min: 1, max: 24, hint: '24 = เที่ยงคืน' },
+  { name: 'peakPricePerHour', label: 'ราคาช่วง peak (บาท/ชม.)', kind: 'optional-number', min: 0, step: 10, hint: 'เว้นว่าง = ราคาเดียวทั้งวัน' },
+  { name: 'peakFromHour', label: 'peak เริ่มเวลา (ชั่วโมง)', kind: 'optional-number', min: 0, max: 23, hint: 'เช่น 17 = ตั้งแต่ 17:00 จนปิด' },
   { name: 'description', label: 'รายละเอียด', kind: 'textarea' },
   { name: 'isActive', label: 'เปิดให้จอง', kind: 'checkbox' },
 ];
@@ -54,6 +56,7 @@ function EntityForm({
         for (const d of defs) {
           if (d.kind === 'checkbox') values[d.name] = f.get(d.name) === 'on';
           else if (d.kind === 'number' || d.kind === 'sport') values[d.name] = Number(f.get(d.name));
+          else if (d.kind === 'optional-number') values[d.name] = f.get(d.name) === '' ? null : Number(f.get(d.name));
           else values[d.name] = String(f.get(d.name) ?? '');
         }
         onSubmit(values);
@@ -85,12 +88,12 @@ function EntityForm({
               ) : (
                 <Input
                   name={d.name}
-                  type={d.kind === 'number' ? 'number' : 'text'}
+                  type={d.kind === 'number' || d.kind === 'optional-number' ? 'number' : 'text'}
                   min={d.min}
                   max={d.max}
                   step={d.step}
-                  defaultValue={value === undefined ? '' : String(value)}
-                  required
+                  defaultValue={value === undefined || value === null ? '' : String(value)}
+                  required={d.kind !== 'optional-number'}
                 />
               )}
             </Field>
@@ -311,6 +314,97 @@ function SportsTable() {
   );
 }
 
+function CouponsTable() {
+  const qc = useQueryClient();
+  const coupons = useQuery({ queryKey: ['coupons'], queryFn: () => ok(api.GET('/api/v1/coupons')) });
+  const refresh = () => qc.invalidateQueries({ queryKey: ['coupons'] });
+  const create = useMutation({
+    mutationFn: (body: Body<'/api/v1/coupons', 'post'>) => ok(api.POST('/api/v1/coupons', { body })),
+    onSuccess: (c) => {
+      toast.success(`สร้างคูปอง ${c.code} แล้ว`);
+      refresh();
+    },
+  });
+  const toggle = useMutation({
+    mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
+      ok(api.PATCH('/api/v1/coupons/{id}', { params: { path: { id } }, body: { isActive } })),
+    onSuccess: refresh,
+    onError: (e) => toast.error(errorText(e)),
+  });
+  if (coupons.isPending) return <Loading />;
+  return (
+    <div className="space-y-4">
+      <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+        {coupons.data?.length === 0 && <li className="p-4 text-muted">ยังไม่มีคูปอง</li>}
+        {coupons.data?.map((c) => (
+          <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 p-3">
+            <span className="num min-w-28 font-semibold">{c.code}</span>
+            <span>{c.percentOff !== null ? `ลด ${c.percentOff}%` : `ลด ${baht(c.amountOff ?? 0)}`}</span>
+            <span className="text-sm text-muted">
+              {c.minTotal > 0 && `ขั้นต่ำ ${baht(c.minTotal)} `}
+              ใช้แล้ว {c.usedCount}
+              {c.maxUses !== null && `/${c.maxUses}`} ครั้ง {c.expiresAt ? `หมดอายุ ${dateTh(c.expiresAt)}` : 'ไม่มีวันหมดอายุ'}
+            </span>
+            <span className="ml-auto flex items-center gap-2">
+              {!c.isActive && <Badge tone="danger">ปิดอยู่</Badge>}
+              <Button size="sm" variant="quiet" onClick={() => toggle.mutate({ id: c.id, isActive: !c.isActive })}>
+                {c.isActive ? 'ปิดคูปอง' : 'เปิดคูปอง'}
+              </Button>
+            </span>
+          </li>
+        ))}
+      </ul>
+      <form
+        className="grid gap-3 rounded-2xl border border-dashed border-line p-4 sm:grid-cols-3"
+        onSubmit={(e) => {
+          const f = formData(e);
+          const value = Number(f.get('value'));
+          const expires = String(f.get('expires'));
+          create.mutate(
+            {
+              code: String(f.get('code')),
+              percentOff: f.get('type') === 'percent' ? value : null,
+              amountOff: f.get('type') === 'amount' ? value : null,
+              minTotal: Number(f.get('minTotal') || 0),
+              maxUses: f.get('maxUses') ? Number(f.get('maxUses')) : null,
+              expiresAt: expires ? `${expires}T23:59:59+07:00` : null,
+            },
+            { onSuccess: () => (e.target as HTMLFormElement).reset() },
+          );
+        }}
+      >
+        <Field label="รหัสคูปอง" hint="A-Z 0-9 3-30 ตัว">
+          <Input name="code" required pattern="[A-Za-z0-9_\-]{3,30}" className="uppercase" />
+        </Field>
+        <Field label="ประเภทส่วนลด">
+          <Select name="type" defaultValue="percent">
+            <option value="percent">ลดเป็นเปอร์เซ็นต์</option>
+            <option value="amount">ลดเป็นบาท</option>
+          </Select>
+        </Field>
+        <Field label="มูลค่า" hint="1-100 สำหรับเปอร์เซ็นต์">
+          <Input name="value" type="number" min={1} required />
+        </Field>
+        <Field label="ยอดขั้นต่ำ (บาท)">
+          <Input name="minTotal" type="number" min={0} defaultValue={0} />
+        </Field>
+        <Field label="ใช้ได้กี่ครั้ง" hint="เว้นว่าง = ไม่จำกัด">
+          <Input name="maxUses" type="number" min={1} />
+        </Field>
+        <Field label="หมดอายุ" hint="เว้นว่าง = ไม่มีวันหมดอายุ">
+          <Input name="expires" type="date" />
+        </Field>
+        <div className="sm:col-span-3">
+          <ErrorNote error={create.error} />
+        </div>
+        <Button type="submit" variant="primary" pending={create.isPending} className="sm:col-start-3">
+          สร้างคูปอง
+        </Button>
+      </form>
+    </div>
+  );
+}
+
 export default function Catalog() {
   const [params, setParams] = useSearchParams();
   const editing = params.get('edit');
@@ -319,10 +413,11 @@ export default function Catalog() {
     ['courts', 'สนาม'],
     ['equipment', 'อุปกรณ์'],
     ['sports', 'ประเภทกีฬา'],
+    ['coupons', 'คูปอง'],
   ];
   return (
     <div className="space-y-5">
-      <h1 className="text-3xl font-bold">สนามและอุปกรณ์</h1>
+      <h1 className="text-3xl font-bold">สนาม อุปกรณ์ และคูปอง</h1>
       <div className="flex gap-1 rounded-xl bg-sunken p-1 sm:w-fit" role="tablist">
         {tabs.map(([key, label]) => (
           <button
@@ -337,7 +432,7 @@ export default function Catalog() {
           </button>
         ))}
       </div>
-      {tab === 'sports' ? <SportsTable /> : <CatalogTable key={tab} kind={tab as Kind} />}
+      {tab === 'sports' ? <SportsTable /> : tab === 'coupons' ? <CouponsTable /> : <CatalogTable key={tab} kind={tab as Kind} />}
     </div>
   );
 }

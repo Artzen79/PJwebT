@@ -70,7 +70,7 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
                     disabled={!clickable}
                     onClick={() => onPick(row, slot)}
                     aria-label={`${row.courtName} ${hourLabel(hour)} ${statusText[slot.status]}`}
-                    title={`${hourLabel(hour)} ${statusText[slot.status]}`}
+                    title={`${hourLabel(hour)} ${statusText[slot.status]} ${baht(slot.price)}`}
                     className={`flip grid h-10 w-full place-items-center rounded-md text-xs font-semibold transition ${cellClass[slot.status]}`}
                     style={{ '--sport': sportColor(row.sportIcon, row.sportId), animationDelay: `${col * 18}ms` } as CSSProperties}
                     key={slot.status}

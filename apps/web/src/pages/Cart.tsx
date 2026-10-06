@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { errorText } from '../api';
-import { Badge, Button, Empty, ErrorNote, LinkButton, Loading, Panel } from '../components/ui';
+import { Badge, Button, Empty, ErrorNote, Input, LinkButton, Loading, Panel } from '../components/ui';
 import { useCart, useCartActions } from '../lib/cart';
 import { baht, dateTh, dayLabel, timeRange } from '../lib/format';
+import { formData } from '../lib/pick';
 
 export default function Cart() {
   const cart = useCart(true);
@@ -112,6 +113,44 @@ export default function Cart() {
               </table>
             </div>
             <div className="space-y-4 border-t border-line p-5">
+              {c.couponCode ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-turf-soft px-4 py-3">
+                  <span>
+                    คูปอง <span className="num font-semibold">{c.couponCode}</span>{' '}
+                    {c.discount > 0 ? (
+                      <span className="num">ลด {baht(c.discount)}</span>
+                    ) : (
+                      <span className="text-sm text-muted">ยอดยังไม่ถึงขั้นต่ำของคูปอง</span>
+                    )}
+                  </span>
+                  <Button size="sm" variant="quiet" pending={actions.removeCoupon.isPending} onClick={() => actions.removeCoupon.mutate()}>
+                    เอาคูปองออก
+                  </Button>
+                </div>
+              ) : (
+                <form
+                  className="flex max-w-md gap-2"
+                  onSubmit={(e) => {
+                    const code = String(formData(e).get('code')).trim();
+                    if (code) actions.applyCoupon.mutate(code, { onSuccess: () => toast.success('ใช้คูปองแล้ว'), onError: (err) => toast.error(errorText(err)) });
+                  }}
+                >
+                  <Input name="code" placeholder="รหัสคูปอง" aria-label="รหัสคูปอง" className="uppercase" />
+                  <Button type="submit" pending={actions.applyCoupon.isPending}>
+                    ใช้คูปอง
+                  </Button>
+                </form>
+              )}
+              {c.discount > 0 && (
+                <dl className="num ml-auto grid max-w-xs grid-cols-2 gap-y-1 text-right">
+                  <dt className="text-muted">ยอดก่อนส่วนลด</dt>
+                  <dd>{baht(c.subtotal)}</dd>
+                  <dt className="text-muted">ส่วนลด</dt>
+                  <dd>−{baht(c.discount)}</dd>
+                  <dt className="font-semibold">ยอดชำระ</dt>
+                  <dd className="font-semibold">{baht(c.total)}</dd>
+                </dl>
+              )}
               {c.depositTotal > 0 && <p className="text-sm text-muted">มัดจำอุปกรณ์ {baht(c.depositTotal)} จ่ายที่เคาน์เตอร์ตอนรับของ และได้คืนเมื่อคืนอุปกรณ์</p>}
               {anyTaken && <ErrorNote error="มีช่วงเวลาที่คนอื่นจองไปแล้ว กรุณาลบออกก่อนยืนยัน" />}
               <div className="flex flex-wrap items-center justify-between gap-3">

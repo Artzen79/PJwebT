@@ -12,12 +12,12 @@ export function useSlotPicker() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  return (court: { courtId: number; courtName: string }, slot: Slot) => {
+  return (court: { courtId: number; courtName: string }, slot: Slot, repeatWeeks = 1) => {
     if (!me) {
       navigate(`/login?next=${encodeURIComponent(location.pathname + location.search)}`);
       return;
     }
-    const label = `${court.courtName} ${timeRange(slot.startAt, slot.endAt)}`;
+    const label = `${court.courtName} ${timeRange(slot.startAt, slot.endAt)}${repeatWeeks > 1 ? ` ทุกสัปดาห์ ${repeatWeeks} สัปดาห์` : ''}`;
     if (slot.status === 'in_cart') {
       const item = cart?.slots.find((s) => s.courtId === court.courtId && Date.parse(s.startAt) === Date.parse(slot.startAt));
       if (item) {
@@ -29,7 +29,7 @@ export function useSlotPicker() {
       return;
     }
     addSlot.mutate(
-      { courtId: court.courtId, startAt: slot.startAt },
+      { courtId: court.courtId, startAt: slot.startAt, repeatWeeks },
       {
         onSuccess: () => toast.success(`เพิ่ม ${label} ลงตะกร้าแล้ว`, { action: { label: 'ไปที่ตะกร้า', onClick: () => navigate('/cart') } }),
         onError: (e) => toast.error(errorText(e)),

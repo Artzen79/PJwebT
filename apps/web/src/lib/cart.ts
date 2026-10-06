@@ -14,7 +14,7 @@ export function useCartActions() {
   };
   return {
     addSlot: useMutation({
-      mutationFn: (body: { courtId: number; startAt: string }) => ok(api.POST('/api/v1/cart/slots', { body })),
+      mutationFn: (body: { courtId: number; startAt: string; repeatWeeks?: number }) => ok(api.POST('/api/v1/cart/slots', { body })),
       onSuccess: changed,
     }),
     removeSlot: useMutation({
@@ -27,6 +27,14 @@ export function useCartActions() {
     }),
     removeEquipment: useMutation({
       mutationFn: (id: number) => ok(api.DELETE('/api/v1/cart/equipment/{id}', { params: { path: { id } } })),
+      onSuccess: changed,
+    }),
+    applyCoupon: useMutation({
+      mutationFn: (code: string) => ok(api.POST('/api/v1/cart/coupon', { body: { code } })),
+      onSuccess: changed,
+    }),
+    removeCoupon: useMutation({
+      mutationFn: () => ok(api.DELETE('/api/v1/cart/coupon')),
       onSuccess: changed,
     }),
     clear: useMutation({
