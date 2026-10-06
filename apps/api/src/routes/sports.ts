@@ -25,7 +25,7 @@ route({
   summary: 'ประเภทกีฬาทั้งหมด',
   description: 'พร้อมจำนวนสนามและอุปกรณ์ที่เปิดให้บริการของแต่ละกีฬา',
   response: z.array(Sport),
-  handler: () => query(`${sportSelect} ORDER BY s.name`),
+  handler: () => query(`${sportSelect} ORDER BY s.id`),
 });
 
 route({

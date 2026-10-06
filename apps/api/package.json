@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/migrate.ts",
     "db:seed": "tsx src/seed.ts",
-    "openapi:export": "tsx src/openapi-export.ts"
+    "openapi:export": "tsx src/openapi-export.ts",
+    "db:reset": "tsx src/reset.ts"
   },
   "dependencies": {
     "@scalar/express-api-reference": "^0.10.27",

@@ -49,7 +49,7 @@ route({
     query(
       `${equipmentSelect}
        WHERE ($1::int IS NULL OR e.sport_id = $1) AND ($2::text IS NULL OR e.name ILIKE '%' || $2 || '%') AND (e.is_active OR $3)
-       ORDER BY s.name, e.name`,
+       ORDER BY s.id, e.id`,
       [q.sport ?? null, q.q ?? null, Boolean(q.includeInactive && user?.role === 'admin')],
     ),
 });

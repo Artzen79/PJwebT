@@ -53,7 +53,7 @@ route({
     query(
       `${courtSelect}
        WHERE ($1::int IS NULL OR c.sport_id = $1) AND ($2::text IS NULL OR c.name ILIKE '%' || $2 || '%') AND (c.is_active OR $3)
-       ORDER BY s.name, c.name`,
+       ORDER BY s.id, c.id`,
       [q.sport ?? null, q.q ?? null, Boolean(q.includeInactive && user?.role === 'admin')],
     ),
 });
@@ -177,7 +177,7 @@ route({
     })
     .meta({ id: 'Board' }),
   handler: async ({ query: q, user }) => {
-    const courts = await query(`${courtSelect} WHERE c.is_active AND ($1::int IS NULL OR c.sport_id = $1) ORDER BY s.name, c.name`, [q.sport ?? null]);
+    const courts = await query(`${courtSelect} WHERE c.is_active AND ($1::int IS NULL OR c.sport_id = $1) ORDER BY s.id, c.id`, [q.sport ?? null]);
     const slots = await slotsFor(courts, q.date, user?.id ?? null);
     return {
       date: q.date,
