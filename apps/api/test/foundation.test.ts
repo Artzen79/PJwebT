@@ -15,6 +15,8 @@ describe('foundation', () => {
     expect(res.status).toBe(200);
     expect(res.body.openapi).toBe('3.1.0');
     expect(res.body.paths['/api/v1/health'].get.summary).toBeTruthy();
+    // code samples in the docs need a full URL, so the document names the server it came from
+    expect(res.body.servers[0].url).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
   });
 
   it('serves the Scalar API reference page', async () => {

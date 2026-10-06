@@ -50,9 +50,9 @@ let openapi: unknown;
 
 export const app = express();
 app.set('trust proxy', env.prod ? 1 : false);
-app.get('/openapi.json', (_req, res) => {
+app.get('/openapi.json', (req, res) => {
   openapi ??= buildOpenApi();
-  res.json(openapi);
+  res.json({ ...(openapi as object), servers: [{ url: `${req.protocol}://${req.get('host')}` }] });
 });
 // The API reference script is served from here, not a CDN, so the docs work offline at a demo.
 // Mounted before helmet: the page renders with an inline bootstrap script.
