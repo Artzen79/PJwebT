@@ -143,21 +143,75 @@ route({
   errors: { 404: 'ไม่พบสนาม (NOT_FOUND)' },
   handler: async ({ params, query: q, user }) => {
     const court = await getCourt(params.id);
-    const dayStart = atBangkok(q.date, 0);
-    const dayEnd = atBangkok(q.date, 24);
-    // held slots of anyone + this member's own cart items
-    const rows: { startAt: Date; endAt: Date; active: boolean; mine: boolean | null }[] = await query(
-      `SELECT s.start_at AS "startAt", s.end_at AS "endAt", s.active, b.user_id = $4 AS mine
-       FROM booking_slots s JOIN bookings b ON b.id = s.booking_id
-       WHERE s.court_id = $1 AND s.start_at < $3 AND s.end_at > $2
-         AND (s.active OR (b.status = 'cart' AND b.user_id = $4))`,
-      [court.id, dayStart, dayEnd, user?.id ?? null],
-    );
+    const slots = await slotsFor([court], q.date, user?.id ?? null);
+    return { courtId: court.id, date: q.date, slots: slots.get(court.id)! };
+  },
+});
+
+route({
+  method: 'get',
+  path: '/availability',
+  tag: 'Courts',
+  summary: 'กระดานเวลาว่างของทุกสนามในวันที่เลือก',
+  description: 'รวมตารางช่วงเวลาของทุกสนามที่เปิดให้บริการไว้ในครั้งเดียว (ใช้แสดงหน้าแรก) กรองตามกีฬาได้',
+  query: z.object({
+    date: z.iso.date().describe('วันที่ YYYY-MM-DD (เวลาประเทศไทย)'),
+    sport: z.coerce.number().int().optional().describe('กรองตามรหัสประเภทกีฬา'),
+  }),
+  response: z
+    .object({
+      date: z.iso.date(),
+      courts: z.array(
+        z
+          .object({
+            courtId: z.number().int(),
+            courtName: z.string(),
+            sportId: z.number().int(),
+            sportName: z.string(),
+            sportIcon: z.string(),
+            pricePerHour: z.number(),
+            slots: z.array(Slot),
+          })
+          .meta({ id: 'BoardRow' }),
+      ),
+    })
+    .meta({ id: 'Board' }),
+  handler: async ({ query: q, user }) => {
+    const courts = await query(`${courtSelect} WHERE c.is_active AND ($1::int IS NULL OR c.sport_id = $1) ORDER BY s.name, c.name`, [q.sport ?? null]);
+    const slots = await slotsFor(courts, q.date, user?.id ?? null);
+    return {
+      date: q.date,
+      courts: courts.map((c) => ({
+        courtId: c.id,
+        courtName: c.name,
+        sportId: c.sportId,
+        sportName: c.sportName,
+        sportIcon: c.sportIcon,
+        pricePerHour: c.pricePerHour,
+        slots: slots.get(c.id)!,
+      })),
+    };
+  },
+});
+
+type Hours = { id: number; openHour: number; closeHour: number };
+
+// One-hour slots per court for a local date: held slots of anyone, plus this member's own cart items.
+async function slotsFor(courts: Hours[], date: string, userId: number | null) {
+  const rows: { courtId: number; startAt: Date; endAt: Date; active: boolean; mine: boolean | null }[] = await query(
+    `SELECT s.court_id AS "courtId", s.start_at AS "startAt", s.end_at AS "endAt", s.active, b.user_id = $4 AS mine
+     FROM booking_slots s JOIN bookings b ON b.id = s.booking_id
+     WHERE s.court_id = ANY($1::int[]) AND s.start_at < $3 AND s.end_at > $2
+       AND (s.active OR (b.status = 'cart' AND b.user_id = $4))`,
+    [courts.map((c) => c.id), atBangkok(date, 0), atBangkok(date, 24), userId],
+  );
+  const result = new Map<number, { hour: number; startAt: string; endAt: string; status: string }[]>();
+  for (const court of courts) {
     const slots = [];
     for (let hour = court.openHour; hour < court.closeHour; hour++) {
-      const start = atBangkok(q.date, hour);
+      const start = atBangkok(date, hour);
       const end = new Date(start.getTime() + HOUR);
-      const hits = rows.filter((r) => r.startAt < end && r.endAt > start);
+      const hits = rows.filter((r) => r.courtId === court.id && r.startAt < end && r.endAt > start);
       const status =
         start.getTime() <= Date.now()
           ? 'past'
@@ -170,6 +224,7 @@ route({
                 : 'free';
       slots.push({ hour, startAt: bangkokIso(start), endAt: bangkokIso(end), status });
     }
-    return { courtId: court.id, date: q.date, slots };
-  },
-});
+    result.set(court.id, slots);
+  }
+  return result;
+}

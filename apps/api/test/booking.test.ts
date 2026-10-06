@@ -127,6 +127,22 @@ describe('confirming', () => {
     expect((await addSlot(other.token, at(date, 12))).body.error.code).toBe('SLOT_TAKEN');
   });
 
+  it('the all-courts board shows held slots as booked and filters by sport', async () => {
+    const { token } = await member();
+    const date = day(6);
+    await addSlot(token, at(date, 17));
+    await confirm(token).expect(200);
+    const court = (await api().get(`/api/v1/courts/${courtId}`)).body;
+    const res = await api().get('/api/v1/availability').query({ date, sport: court.sportId });
+    expect(res.status).toBe(200);
+    expect(res.body.date).toBe(date);
+    expect(res.body.courts).toHaveLength(1);
+    const row = res.body.courts[0];
+    expect(row).toMatchObject({ courtId, courtName: 'คอร์ท A', pricePerHour: 150 });
+    expect(row.slots.find((s: { hour: number }) => s.hour === 17).status).toBe('booked');
+    expect(row.slots.find((s: { hour: number }) => s.hour === 8).status).toBe('free');
+  });
+
   it('items of a confirmed booking can no longer be removed', async () => {
     const { token } = await member();
     const date = day(6);
