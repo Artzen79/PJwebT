@@ -12,6 +12,6 @@ export function fail(status: number, code: string, message: string): never {
   throw new HttpError(status, code, message);
 }
 
-export function found<T>(row: T | undefined, what: string): T {
+export function found<T>(row: T, what: string): NonNullable<T> {
   return row ?? fail(404, 'NOT_FOUND', `ไม่พบ${what}`);
 }
