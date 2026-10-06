@@ -96,6 +96,15 @@
         border: 1px solid var(--line);
         border-radius: 6px;
       }
+      body {
+        counter-reset: fig;
+      }
+      figure {
+        counter-increment: fig;
+      }
+      figcaption::before {
+        content: "รูปที่ " counter(fig) " ";
+      }
       figcaption {
         font-size: 9pt;
         color: var(--muted);
@@ -352,7 +361,7 @@
         <tr><td>ซื้อสินค้า (ตะกร้า, ลบรายการ, ลบตะกร้า, ยืนยัน)</td><td>ตะกร้าการจอง: ลบทีละรายการ ลบทั้งตะกร้า ยืนยันการจอง หลังยืนยันแก้ไขไม่ได้</td><td>สมาชิก</td></tr>
         <tr><td>ดูรายละเอียดการซื้อแต่ละครั้ง</td><td>หน้ารายละเอียดการจอง (รายการ ยอดรวม การชำระเงิน QR เช็คอิน)</td><td>สมาชิก, admin</td></tr>
         <tr><td>ดูรายการซื้อทั้งหมดของลูกค้าแต่ละคน</td><td>การจองของฉัน (สมาชิก) และประวัติการจองรายคนในเมนูสมาชิก (admin)</td><td>สมาชิก, admin</td></tr>
-        <tr><td>Backend REST API, PostgreSQL, Node.js + Express</td><td>Express 5 บน Node.js 24, PostgreSQL 18, REST API 50 endpoint ใต้ <code>/api/v1</code></td><td>-</td></tr>
+        <tr><td>Backend REST API, PostgreSQL, Node.js + Express</td><td>Express 5 บน Node.js 24, PostgreSQL 18, REST API 55 endpoint ใต้ <code>/api/v1</code></td><td>-</td></tr>
         <tr><td>API Document ออนไลน์</td><td>หน้า <code>/docs</code> อธิบายทุก endpoint พร้อม parameter ผลลัพธ์ ตัวอย่างการเรียกและตัวอย่างผลลัพธ์จริง</td><td>ทุกคน</td></tr>
       </tbody>
     </table>
@@ -365,7 +374,10 @@
       <li>ยืมอุปกรณ์ตามช่วงเวลา ตรวจสต็อกตามช่วงเวลาที่ทับซ้อน บันทึกการคืน สภาพ และค่าปรับ</li>
       <li>อีเมลแจ้งเตือน: ยืนยันการจอง ชำระสำเร็จ (พร้อม QR) สลิปไม่ผ่าน ยกเลิก และเตือนก่อนเวลา 1 ชั่วโมง</li>
       <li>รีวิวและให้คะแนนสนามหลังใช้บริการ แดชบอร์ดสถิติรายได้ ช่วงเวลายอดนิยม และสนามยอดนิยม</li>
-      <li>รองรับมือถือ โหมดมืด และภาษาไทยทั้งระบบ</li>
+      <li>ราคาช่วง peak (เช่น หลัง 17:00 แพงกว่า) ตั้งได้รายสนาม</li>
+      <li>จองประจำทุกสัปดาห์สูงสุด 8 สัปดาห์ในครั้งเดียว</li>
+      <li>คูปองส่วนลดแบบเปอร์เซ็นต์หรือจำนวนเงิน กำหนดยอดขั้นต่ำ จำนวนครั้ง และวันหมดอายุได้</li>
+      <li>รองรับมือถือ ติดตั้งเป็นแอปบนหน้าจอได้ (PWA) มีโหมดมืด และเป็นภาษาไทยทั้งระบบ</li>
     </ul>
     <h3>สถาปัตยกรรมและเทคโนโลยี</h3>
     <div class="arch">
@@ -376,7 +388,7 @@
       <div class="box"><b>PostgreSQL 18</b>ENUM, VIEW, exclusion constraint, transaction + row lock</div>
     </div>
     <p>
-      หน้าเว็บคุยกับ backend ผ่าน REST API เท่านั้น ชนิดข้อมูลฝั่งเว็บสร้างอัตโนมัติจาก API Document (OpenAPI 3.1) ทำให้ทั้งสองฝั่งตรงกันเสมอ ทดสอบ backend ด้วย Vitest + Supertest กับฐานข้อมูล PostgreSQL จริง 76 กรณี
+      หน้าเว็บคุยกับ backend ผ่าน REST API เท่านั้น ชนิดข้อมูลฝั่งเว็บสร้างอัตโนมัติจาก API Document (OpenAPI 3.1) ทำให้ทั้งสองฝั่งตรงกันเสมอ ทดสอบ backend ด้วย Vitest + Supertest กับฐานข้อมูล PostgreSQL จริง 88 กรณี
       และทดสอบ end-to-end ผ่านเบราว์เซอร์
     </p>
 
@@ -416,7 +428,7 @@
       <li>กรอกชื่อ-นามสกุล อีเมล เบอร์โทร (ไม่บังคับ) และรหัสผ่านอย่างน้อย 8 ตัวอักษร แล้วกด <b>สมัครสมาชิก</b> ระบบจะเข้าสู่ระบบให้ทันที</li>
       <li>ครั้งต่อไปเข้าสู่ระบบด้วยอีเมลและรหัสผ่าน ระบบจำการเข้าสู่ระบบไว้ 7 วัน</li>
     </ol>
-    <figure><img src="img/04-register.jpg" alt="" /><figcaption>รูปที่ 1 หน้าสมัครสมาชิก</figcaption></figure>
+    <figure><img src="img/04-register.jpg" alt="" /><figcaption>หน้าสมัครสมาชิก</figcaption></figure>
 
     <h3>3.2 ดูตารางสนามว่างและเลือกเวลา</h3>
     <p>หน้าแรกคือ <b>ตารางสนามว่าง</b> แต่ละแถวคือสนาม แต่ละคอลัมน์คือชั่วโมง เลือกวันที่ (ล่วงหน้าได้ 14 วันจากแถบวันที่) และกรองตามกีฬาได้</p>
@@ -426,10 +438,11 @@
       <li>ช่องลายเส้นคือมีผู้จองแล้ว ช่องที่มีดาวคือการจองของคุณ ช่องจางคือเลยเวลาแล้ว</li>
       <li>เมื่อมีคนยืนยันการจองจากเครื่องอื่น ช่องจะพลิกเปลี่ยนสถานะทันทีโดยไม่ต้องรีเฟรช</li>
     </ul>
-    <figure><img src="img/01-home.jpg" alt="" /><figcaption>รูปที่ 2 ตารางสนามว่างของทุกสนาม</figcaption></figure>
-    <figure><img src="img/05-home-cart.jpg" alt="" /><figcaption>รูปที่ 3 ช่องที่เลือกเปลี่ยนเป็นสีเหลือง และมีแจ้งเตือนพร้อมปุ่มไปที่ตะกร้า</figcaption></figure>
-    <p>กดชื่อสนามเพื่อดูรายละเอียด ราคา เวลาเปิด-ปิด รีวิว และเลือกเวลาของสนามนั้นจากแผงด้านขวา</p>
-    <figure><img src="img/02-court.jpg" alt="" /><figcaption>รูปที่ 4 หน้ารายละเอียดสนาม</figcaption></figure>
+    <figure><img src="img/01-home.jpg" alt="" /><figcaption>ตารางสนามว่างของทุกสนาม</figcaption></figure>
+    <figure><img src="img/05-home-cart.jpg" alt="" /><figcaption>ช่องที่เลือกเปลี่ยนเป็นสีเหลือง และมีแจ้งเตือนพร้อมปุ่มไปที่ตะกร้า</figcaption></figure>
+    <p>กดชื่อสนามเพื่อดูรายละเอียด ราคา เวลาเปิด-ปิด รีวิว และเลือกเวลาของสนามนั้นจากแผงด้านขวา สนามที่มีราคาช่วง peak จะแสดงราคาใต้แต่ละชั่วโมง</p>
+    <p><b>จองประจำ:</b> เลือกจำนวนสัปดาห์ในช่อง <b>จองประจำ</b> ก่อนกดชั่วโมง ระบบจะเพิ่มชั่วโมงเดียวกันของทุกสัปดาห์ลงตะกร้า ถ้าสัปดาห์ใดไม่ว่างจะไม่เพิ่มเลยและบอกวันที่ไม่ว่าง</p>
+    <figure><img src="img/02-court.jpg" alt="" /><figcaption>หน้ารายละเอียดสนาม ราคาช่วง peak และตัวเลือกจองประจำ</figcaption></figure>
 
     <h3>3.3 ยืมอุปกรณ์</h3>
     <ol>
@@ -437,17 +450,18 @@
       <li>เลือกอุปกรณ์ แล้วเลือกวัน เวลาเริ่ม จำนวนชั่วโมง และจำนวนชิ้น ระบบแสดงจำนวนที่ยังยืมได้ในช่วงเวลานั้น</li>
       <li>กด <b>เพิ่มลงตะกร้า</b> ค่าเช่าคิดต่อชิ้นต่อการจอง ส่วนมัดจำจ่ายที่เคาน์เตอร์และได้คืนเมื่อคืนของ</li>
     </ol>
-    <figure><img src="img/03-equipment-list.jpg" alt="" /><figcaption>รูปที่ 5 รายการอุปกรณ์</figcaption></figure>
-    <figure><img src="img/06-equipment.jpg" alt="" /><figcaption>รูปที่ 6 เลือกช่วงเวลาและจำนวนที่จะยืม</figcaption></figure>
+    <figure><img src="img/03-equipment-list.jpg" alt="" /><figcaption>รายการอุปกรณ์</figcaption></figure>
+    <figure><img src="img/06-equipment.jpg" alt="" /><figcaption>เลือกช่วงเวลาและจำนวนที่จะยืม</figcaption></figure>
 
     <h3>3.4 ตะกร้าและการยืนยันการจอง</h3>
     <p>ตะกร้าแสดงเลขที่การจอง วันที่สร้าง จำนวนรายการ ยอดรวม และรายการสนามกับอุปกรณ์ทั้งหมด</p>
     <ul>
       <li>กด <b>ลบ</b> ท้ายรายการเพื่อลบทีละรายการ หรือ <b>ลบตะกร้า</b> เพื่อลบทั้งหมด</li>
       <li>ถ้ามีคนอื่นยืนยันช่วงเวลาเดียวกันไปก่อน รายการนั้นจะขึ้นป้าย "มีคนจองไปแล้ว" ให้ลบออกก่อนยืนยัน</li>
-      <li>กด <b>ยืนยันการจอง</b> ระบบจะล็อกช่วงเวลาและอุปกรณ์ทั้งหมด หลังยืนยันแล้วแก้ไขหรือลบรายการไม่ได้</li>
+      <li>มีคูปอง ให้กรอกรหัสในช่อง <b>รหัสคูปอง</b> แล้วกด <b>ใช้คูปอง</b> ระบบแสดงยอดก่อนส่วนลด ส่วนลด และยอดชำระ ส่วนลดจะถูกล็อกตอนยืนยัน (ทดลอง: WELCOME10 ลด 10% เมื่อยอดถึง 300 บาท)</li>
+      <li>กด <b>ยืนยันการจอง</b> ระบบจะล็อกช่วงเวลาและอุปกรณ์ทั้งหมด หลังยืนยันแล้วแก้ไขหรือลบรายการไม่ได้ ถ้าส่วนลดทำให้ยอดเป็น 0 การจองจะเป็นชำระแล้วทันที</li>
     </ul>
-    <figure><img src="img/07-cart.jpg" alt="" /><figcaption>รูปที่ 7 ตะกร้าการจอง</figcaption></figure>
+    <figure><img src="img/07-cart.jpg" alt="" /><figcaption>ตะกร้าการจองที่ใช้คูปองส่วนลด</figcaption></figure>
 
     <h3>3.5 ชำระเงินด้วย PromptPay และแนบสลิป</h3>
     <ol>
@@ -455,34 +469,34 @@
       <li>สแกน QR ด้วยแอปธนาคาร โอนเงิน แล้วกดเลือกไฟล์สลิปในช่อง <b>แนบสลิป</b></li>
       <li>ระหว่างรอเจ้าหน้าที่ตรวจ การจองจะไม่หมดเวลา ถ้าสลิปไม่ผ่าน จะได้อีเมลแจ้งเหตุผลและแนบใหม่ได้อีก 15 นาที</li>
     </ol>
-    <figure><img src="img/08-pay.jpg" alt="" /><figcaption>รูปที่ 8 QR PromptPay และช่องแนบสลิป</figcaption></figure>
-    <figure><img src="img/09-waiting.jpg" alt="" /><figcaption>รูปที่ 9 รอเจ้าหน้าที่ตรวจสลิป</figcaption></figure>
+    <figure><img src="img/08-pay.jpg" alt="" /><figcaption>QR PromptPay และช่องแนบสลิป</figcaption></figure>
+    <figure><img src="img/09-waiting.jpg" alt="" /><figcaption>รอเจ้าหน้าที่ตรวจสลิป</figcaption></figure>
 
     <h3>3.6 ตั๋วเช็คอินและอีเมลแจ้งเตือน</h3>
     <p>เมื่อสลิปได้รับอนุมัติ หน้าการจองจะแสดง <b>ตั๋วเช็คอิน</b> เป็น QR พร้อมเลขที่การจอง และระบบส่งอีเมลพร้อม QR เดียวกันให้ แสดง QR นี้ที่เคาน์เตอร์เพื่อเช็คอินและรับอุปกรณ์ ก่อนถึงเวลา 1 ชั่วโมงระบบจะส่งอีเมลเตือนอีกครั้ง</p>
-    <figure><img src="img/11-ticket.jpg" alt="" /><figcaption>รูปที่ 10 ตั๋วเช็คอิน</figcaption></figure>
-    <figure><img src="img/25-email.jpg" alt="" /><figcaption>รูปที่ 11 อีเมลชำระเงินสำเร็จพร้อม QR</figcaption></figure>
+    <figure><img src="img/11-ticket.jpg" alt="" /><figcaption>ตั๋วเช็คอิน</figcaption></figure>
+    <figure><img src="img/25-email.jpg" alt="" /><figcaption>อีเมลชำระเงินสำเร็จพร้อม QR</figcaption></figure>
 
     <h3>3.7 ประวัติการจองและการยกเลิก</h3>
     <p>เมนู <b>การจองของฉัน</b> แสดงการจองทั้งหมด กรองตามสถานะได้ กดแต่ละรายการเพื่อดูรายละเอียด ประวัติการชำระเงิน และสลิปที่ส่ง</p>
     <ul>
       <li>ยกเลิกได้ระหว่างรอชำระเงิน หรือหลังชำระแล้วถ้าเหลือเวลาก่อนเริ่มอย่างน้อย 24 ชั่วโมง (เงินที่ชำระแล้ว เจ้าหน้าที่คืนให้นอกระบบ)</li>
     </ul>
-    <figure><img src="img/12-my-bookings.jpg" alt="" /><figcaption>รูปที่ 12 การจองของฉัน</figcaption></figure>
+    <figure><img src="img/12-my-bookings.jpg" alt="" /><figcaption>การจองของฉัน</figcaption></figure>
 
     <h3>3.8 รีวิวสนาม</h3>
     <p>เมื่อใช้บริการเสร็จ (สถานะเสร็จสิ้น) หน้าการจองจะมีแบบฟอร์มรีวิวสำหรับแต่ละสนามในการจอง ให้คะแนน 1-5 ดาวและเขียนความเห็น รีวิวจะแสดงในหน้าสนามและนำไปคำนวณคะแนนเฉลี่ย</p>
-    <figure><img src="img/16-review.jpg" alt="" /><figcaption>รูปที่ 13 รีวิวสนามหลังใช้บริการ</figcaption></figure>
+    <figure><img src="img/16-review.jpg" alt="" /><figcaption>รีวิวสนามหลังใช้บริการ</figcaption></figure>
 
     <h3>3.9 แก้ไขข้อมูลส่วนตัวและรูปโปรไฟล์</h3>
     <p>กดรูปโปรไฟล์มุมขวาบน &gt; <b>ข้อมูลส่วนตัว</b> แก้ชื่อและเบอร์โทรแล้วกด <b>บันทึกข้อมูล</b> เปลี่ยนรูปโปรไฟล์ได้จากช่อง <b>เปลี่ยนรูป</b> (JPG, PNG, WEBP ไม่เกิน 5 MB) และเปลี่ยนรหัสผ่านโดยกรอกรหัสผ่านปัจจุบันก่อน</p>
-    <figure><img src="img/13-profile.jpg" alt="" /><figcaption>รูปที่ 14 ข้อมูลส่วนตัว</figcaption></figure>
+    <figure><img src="img/13-profile.jpg" alt="" /><figcaption>ข้อมูลส่วนตัว</figcaption></figure>
 
     <h2>4. คู่มือสำหรับผู้ดูแลระบบ</h2>
     <p>เข้าสู่ระบบด้วยบัญชีผู้ดูแลระบบแล้วเลือกเมนู <b>ผู้ดูแลระบบ</b> จะมีแถบเมนูย่อย 6 หน้า ตัวเลขสีเหลืองข้างเมนูตรวจสลิปคือจำนวนสลิปที่รอตรวจ</p>
     <h3>4.1 ภาพรวมและสถิติ</h3>
     <p>เลือกช่วงวันที่ (7, 30, 90 วัน หรือกำหนดเอง) เพื่อดูรายได้ที่อนุมัติแล้ว จำนวนการจอง สลิปรอตรวจ ลูกค้าที่ใช้สนามวันนี้ รายได้รายวัน ช่วงเวลาที่คนจองมากที่สุด รายได้ตามกีฬา สนามยอดนิยม และอุปกรณ์ที่ถูกยืมบ่อย ทุกกราฟกด "ดูเป็นตาราง" เพื่อดูตัวเลขได้</p>
-    <figure><img src="img/17-admin-dashboard.jpg" alt="" /><figcaption>รูปที่ 15 แดชบอร์ดผู้ดูแลระบบ</figcaption></figure>
+    <figure><img src="img/17-admin-dashboard.jpg" alt="" /><figcaption>แดชบอร์ดผู้ดูแลระบบ</figcaption></figure>
 
     <h3>4.2 ตรวจสลิป</h3>
     <p>หน้า <b>ตรวจสลิป</b> แสดงสลิปที่รอตรวจพร้อมรูปสลิป เลขที่การจอง ชื่อสมาชิก และยอดเงิน กดรูปเพื่อเปิดขนาดเต็ม</p>
@@ -490,7 +504,7 @@
       <li><b>อนุมัติ</b>: การจองเปลี่ยนเป็นชำระแล้ว และสมาชิกได้อีเมลพร้อม QR เช็คอิน</li>
       <li><b>ปฏิเสธ</b>: ใส่เหตุผล สมาชิกได้อีเมลแจ้งและแนบสลิปใหม่ได้อีก 15 นาที</li>
     </ul>
-    <figure><img src="img/10-admin-payments.jpg" alt="" /><figcaption>รูปที่ 16 ตรวจสลิป</figcaption></figure>
+    <figure><img src="img/10-admin-payments.jpg" alt="" /><figcaption>ตรวจสลิป</figcaption></figure>
 
     <h3>4.3 เช็คอินหน้าสนามและรับคืนอุปกรณ์</h3>
     <ol>
@@ -498,22 +512,25 @@
       <li>ระบบแสดงรายการสนามและอุปกรณ์ที่ต้องส่งมอบพร้อมมัดจำที่ต้องเก็บ</li>
       <li>เมื่อสมาชิกคืนอุปกรณ์ เปิดรายละเอียดการจอง กรอกสภาพและค่าปรับ (ถ้ามี) แล้วกด <b>รับคืน</b> อุปกรณ์จะว่างให้คนอื่นยืมต่อทันที</li>
     </ol>
-    <figure><img src="img/14-admin-checkin.jpg" alt="" /><figcaption>รูปที่ 17 เช็คอินด้วยเลขที่การจอง</figcaption></figure>
-    <figure><img src="img/15-admin-return.jpg" alt="" /><figcaption>รูปที่ 18 บันทึกการคืนอุปกรณ์</figcaption></figure>
+    <figure><img src="img/14-admin-checkin.jpg" alt="" /><figcaption>เช็คอินด้วยเลขที่การจอง</figcaption></figure>
+    <figure><img src="img/15-admin-return.jpg" alt="" /><figcaption>บันทึกการคืนอุปกรณ์</figcaption></figure>
 
     <h3>4.4 การจองทั้งหมด</h3>
     <p>ดูการจองของทุกคน กรองตามสถานะ และค้นหาด้วยเลขที่การจอง ผู้ดูแลระบบยกเลิกการจองที่รอชำระหรือชำระแล้วได้ทุกเวลา</p>
-    <figure><img src="img/18-admin-bookings.jpg" alt="" /><figcaption>รูปที่ 19 การจองทั้งหมด</figcaption></figure>
+    <figure><img src="img/18-admin-bookings.jpg" alt="" /><figcaption>การจองทั้งหมด</figcaption></figure>
 
     <h3>4.5 จัดการสนาม อุปกรณ์ และประเภทกีฬา</h3>
     <ul>
       <li>แท็บ <b>สนาม</b> และ <b>อุปกรณ์</b>: กด <b>เพิ่มสนาม</b>/<b>เพิ่มอุปกรณ์</b> หรือ <b>แก้ไข</b> เพื่อเปิดแบบฟอร์ม (ชื่อ กีฬา ราคา เวลาเปิด-ปิด จำนวนในคลัง มัดจำ รายละเอียด)</li>
       <li>เอาเครื่องหมาย <b>เปิดให้จอง</b> ออกเพื่อปิดสนามหรืออุปกรณ์ชั่วคราว สมาชิกจะไม่เห็นรายการนั้น</li>
       <li>กด <b>เปลี่ยนรูป</b> เพื่ออัปโหลดรูปจริงของสนามหรืออุปกรณ์ ถ้าไม่มีรูป ระบบวาดเส้นสนามตามประเภทกีฬาให้</li>
+      <li>ราคาช่วง peak: กรอก <b>ราคาช่วง peak</b> และ <b>peak เริ่มเวลา</b> ในแบบฟอร์มสนาม (เว้นว่างทั้งสองช่อง = ราคาเดียวทั้งวัน)</li>
       <li>แท็บ <b>ประเภทกีฬา</b>: เพิ่ม แก้ชื่อหรือไอคอน และลบกีฬาที่ยังไม่มีสนามหรืออุปกรณ์</li>
+      <li>แท็บ <b>คูปอง</b>: สร้างคูปองลดเป็นเปอร์เซ็นต์หรือเป็นบาท กำหนดยอดขั้นต่ำ จำนวนครั้งที่ใช้ได้ และวันหมดอายุ ดูจำนวนครั้งที่ถูกใช้ และเปิดหรือปิดคูปอง</li>
     </ul>
-    <figure><img src="img/19-admin-catalog.jpg" alt="" /><figcaption>รูปที่ 20 รายการสนาม</figcaption></figure>
-    <figure><img src="img/20-admin-catalog-edit.jpg" alt="" /><figcaption>รูปที่ 21 แก้ไขข้อมูลสนาม</figcaption></figure>
+    <figure><img src="img/19-admin-catalog.jpg" alt="" /><figcaption>รายการสนาม</figcaption></figure>
+    <figure><img src="img/20-admin-catalog-edit.jpg" alt="" /><figcaption>แก้ไขข้อมูลสนาม</figcaption></figure>
+    <figure><img src="img/26-admin-coupons.jpg" alt="" /><figcaption>จัดการคูปองส่วนลด</figcaption></figure>
 
     <h3>4.6 จัดการสมาชิก</h3>
     <ul>
@@ -522,8 +539,8 @@
       <li><b>ตั้งเป็นแอดมิน</b>/<b>ปลดจากแอดมิน</b> และ <b>เพิ่มผู้ใช้</b> ใหม่ (เช่น บัญชีพนักงาน) ผู้ดูแลระบบเปลี่ยนสถานะหรือสิทธิ์ของตัวเองไม่ได้</li>
       <li>กดชื่อสมาชิกเพื่อดูจำนวนการจอง ยอดใช้จ่าย และประวัติการจองทั้งหมดของคนนั้น</li>
     </ul>
-    <figure><img src="img/21-admin-users.jpg" alt="" /><figcaption>รูปที่ 22 รายชื่อสมาชิก</figcaption></figure>
-    <figure><img src="img/22-admin-user-detail.jpg" alt="" /><figcaption>รูปที่ 23 ประวัติการจองของสมาชิก 1 คน</figcaption></figure>
+    <figure><img src="img/21-admin-users.jpg" alt="" /><figcaption>รายชื่อสมาชิก</figcaption></figure>
+    <figure><img src="img/22-admin-user-detail.jpg" alt="" /><figcaption>ประวัติการจองของสมาชิก 1 คน</figcaption></figure>
 
     <h2>5. กฎการทำงานของระบบ</h2>
     <table>
@@ -532,6 +549,9 @@
       </thead>
       <tbody>
         <tr><td>ช่วงเวลาจอง</td><td>ช่องละ 1 ชั่วโมง เริ่มตรงชั่วโมง อยู่ในเวลาเปิด-ปิดของสนาม จองล่วงหน้าได้ไม่เกิน 60 วัน และจองเวลาที่ผ่านไปแล้วไม่ได้</td></tr>
+        <tr><td>ราคา</td><td>ราคาต่อชั่วโมงของสนาม หรือราคาช่วง peak ตั้งแต่ชั่วโมงที่กำหนดจนปิด ราคาในตะกร้าล็อกตามเวลาที่เพิ่ม ค่าเช่าอุปกรณ์คิดต่อชิ้นต่อการจอง</td></tr>
+        <tr><td>จองประจำ</td><td>ชั่วโมงเดียวกันทุก 7 วัน 1-8 สัปดาห์ เพิ่มทั้งหมดหรือไม่เพิ่มเลย และต้องอยู่ในช่วง 60 วัน</td></tr>
+        <tr><td>คูปอง</td><td>ใช้ได้ 1 คูปองต่อการจอง ส่วนลดคิดจากยอดในตะกร้าเมื่อถึงยอดขั้นต่ำ ไม่เกินยอดรวม ตรวจอายุและจำนวนครั้งอีกครั้งตอนยืนยัน แล้วล็อกส่วนลดไว้</td></tr>
         <tr><td>ตะกร้า</td><td>ยังไม่ล็อกช่วงเวลา คนอื่นยังจองได้ ช่วงเวลาที่ผ่านไปแล้วจะถูกลบออกจากตะกร้าอัตโนมัติ</td></tr>
         <tr><td>กันจองซ้อน</td><td>ตอนยืนยัน ฐานข้อมูลตรวจด้วย exclusion constraint ถ้าเวลาชนกับการจองอื่น จะได้ข้อความ "ช่วงเวลานี้มีผู้จองแล้ว"</td></tr>
         <tr><td>สต็อกอุปกรณ์</td><td>จำนวนที่ยืมได้ = จำนวนในคลัง ลบด้วยจำนวนที่ถูกยืมในช่วงเวลาที่ทับซ้อน ตรวจซ้ำตอนยืนยันโดยล็อกแถวอุปกรณ์ จึงไม่ยืมเกินแม้กดพร้อมกัน</td></tr>
@@ -548,7 +568,7 @@
       เอกสาร API ออนไลน์อยู่ที่ <code>/docs</code> สร้างจากโค้ดของแต่ละ endpoint โดยตรง (OpenAPI 3.1) จึงครบทุก endpoint และตรงกับระบบจริงเสมอ แต่ละ endpoint บอกว่าทำอะไร ใช้สิทธิ์ระดับไหน มี parameter อะไร คืนค่าอะไร พร้อมตัวอย่างการเรียก
       (curl, JavaScript, Python และอื่นๆ) และตัวอย่างผลลัพธ์จริงที่บันทึกจากการรันชุดทดสอบ กด <b>Test Request</b> เพื่อลองเรียกได้จากหน้าเอกสาร
     </p>
-    <figure><img src="img/24-api-endpoint.jpg" alt="" /><figcaption>รูปที่ 24 รายละเอียด endpoint ยืนยันการจอง พร้อมตัวอย่างการเรียกและผลลัพธ์</figcaption></figure>
+    <figure><img src="img/24-api-endpoint.jpg" alt="" /><figcaption>รายละเอียด endpoint ยืนยันการจอง พร้อมตัวอย่างการเรียกและผลลัพธ์</figcaption></figure>
     <h3>ตัวอย่างการเรียกใช้</h3>
     <pre><code># 1) เข้าสู่ระบบ ได้ token กลับมา
 curl -X POST http://localhost:3000/api/v1/auth/login \
@@ -598,6 +618,8 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
           <tr><td>ตะกร้า</td><td class="m">GET</td><td><code>/api/v1/cart</code></td><td>ดูตะกร้าการจองของฉัน</td><td>สมาชิก</td></tr>
           <tr><td>ตะกร้า</td><td class="m">DELETE</td><td><code>/api/v1/cart</code></td><td>ลบตะกร้าทั้งหมด</td><td>สมาชิก</td></tr>
           <tr><td>ตะกร้า</td><td class="m">POST</td><td><code>/api/v1/cart/slots</code></td><td>เพิ่มช่วงเวลาสนาม (1 ชั่วโมง) ลงตะกร้า</td><td>สมาชิก</td></tr>
+          <tr><td>ตะกร้า</td><td class="m">POST</td><td><code>/api/v1/cart/coupon</code></td><td>ใช้คูปองส่วนลดกับตะกร้า</td><td>สมาชิก</td></tr>
+          <tr><td>ตะกร้า</td><td class="m">DELETE</td><td><code>/api/v1/cart/coupon</code></td><td>เอาคูปองออกจากตะกร้า</td><td>สมาชิก</td></tr>
           <tr><td>ตะกร้า</td><td class="m">POST</td><td><code>/api/v1/cart/equipment</code></td><td>เพิ่มอุปกรณ์ที่จะยืมลงตะกร้า</td><td>สมาชิก</td></tr>
           <tr><td>ตะกร้า</td><td class="m">DELETE</td><td><code>/api/v1/cart/slots/{id}</code></td><td>ลบรายการช่วงเวลาสนามออกจากตะกร้า</td><td>สมาชิก</td></tr>
           <tr><td>ตะกร้า</td><td class="m">DELETE</td><td><code>/api/v1/cart/equipment/{id}</code></td><td>ลบรายการอุปกรณ์ออกจากตะกร้า</td><td>สมาชิก</td></tr>
@@ -616,6 +638,9 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
           <tr><td>รีวิว</td><td class="m">POST</td><td><code>/api/v1/bookings/{id}/review</code></td><td>รีวิวสนามหลังใช้บริการ</td><td>สมาชิก</td></tr>
           <tr><td>เรียลไทม์</td><td class="m">GET</td><td><code>/api/v1/events/availability</code></td><td>สตรีมแจ้งเตือนเมื่อตารางว่างเปลี่ยน (Server-Sent Events)</td><td>ทุกคน</td></tr>
           <tr><td>ผู้ดูแล</td><td class="m">GET</td><td><code>/api/v1/admin/stats</code></td><td>สถิติแดชบอร์ด</td><td>admin</td></tr>
+          <tr><td>ผู้ดูแล</td><td class="m">GET</td><td><code>/api/v1/coupons</code></td><td>คูปองส่วนลดทั้งหมด</td><td>admin</td></tr>
+          <tr><td>ผู้ดูแล</td><td class="m">POST</td><td><code>/api/v1/coupons</code></td><td>สร้างคูปองส่วนลด</td><td>admin</td></tr>
+          <tr><td>ผู้ดูแล</td><td class="m">PATCH</td><td><code>/api/v1/coupons/{id}</code></td><td>แก้ไขหรือปิดคูปอง</td><td>admin</td></tr>
       </tbody>
     </table>
 
@@ -629,7 +654,7 @@ pnpm db:migrate          # สร้างตาราง
 pnpm db:seed             # ข้อมูลตัวอย่าง (หรือ pnpm db:reset เพื่อล้างและสร้างใหม่)
 pnpm dev                 # API :3000 และเว็บ :5173</code></pre>
     <h3>ทดสอบ</h3>
-    <pre><code>pnpm test                # ชุดทดสอบ API 76 กรณี กับฐานข้อมูล sporthub_test</code></pre>
+    <pre><code>pnpm test                # ชุดทดสอบ API 88 กรณี กับฐานข้อมูล sporthub_test</code></pre>
     <p>ชุดทดสอบครอบคลุมการสมัครและสิทธิ์ การจัดการสนามและอุปกรณ์ ตะกร้า การยืนยันพร้อมกันสองคน (จองซ้อนและยืมเกินสต็อก) การชำระเงิน อีเมล การเช็คอิน การคืนอุปกรณ์ รีวิว งานอัตโนมัติ และสถิติ</p>
     <h3>Production</h3>
     <pre><code>docker build -t sporthub .
