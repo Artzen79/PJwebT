@@ -122,9 +122,9 @@ describe('courts', () => {
     const future = await api().get(`/api/v1/courts/${court.id}/availability`).query({ date: '2099-01-15' });
     expect(future.status).toBe(200);
     expect(future.body.slots).toEqual([
-      { hour: 9, startAt: '2099-01-15T09:00:00+07:00', endAt: '2099-01-15T10:00:00+07:00', status: 'free' },
-      { hour: 10, startAt: '2099-01-15T10:00:00+07:00', endAt: '2099-01-15T11:00:00+07:00', status: 'free' },
-      { hour: 11, startAt: '2099-01-15T11:00:00+07:00', endAt: '2099-01-15T12:00:00+07:00', status: 'free' },
+      { hour: 9, startAt: '2099-01-15T09:00:00+07:00', endAt: '2099-01-15T10:00:00+07:00', price: 150, status: 'free' },
+      { hour: 10, startAt: '2099-01-15T10:00:00+07:00', endAt: '2099-01-15T11:00:00+07:00', price: 150, status: 'free' },
+      { hour: 11, startAt: '2099-01-15T11:00:00+07:00', endAt: '2099-01-15T12:00:00+07:00', price: 150, status: 'free' },
     ]);
     const past = await api().get(`/api/v1/courts/${court.id}/availability`).query({ date: '2020-01-15' });
     expect(past.body.slots.every((s: { status: string }) => s.status === 'past')).toBe(true);

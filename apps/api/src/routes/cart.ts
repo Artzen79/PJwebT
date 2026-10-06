@@ -7,7 +7,7 @@ import { route } from '../lib/route';
 import { stockFor } from '../lib/stock';
 import { bangkokHour, HOUR } from '../lib/time';
 import { Booking, dateTime, idParam, Ok } from '../schemas';
-import { getCourt } from './courts';
+import { getCourt, priceAt } from './courts';
 
 const MAX_DAYS_AHEAD = 60;
 
@@ -33,8 +33,13 @@ route({
   path: '/cart/slots',
   tag: 'Cart',
   summary: 'เพิ่มช่วงเวลาสนาม (1 ชั่วโมง) ลงตะกร้า',
+  description: 'ส่ง `repeatWeeks` เพื่อจองประจำ: เพิ่มชั่วโมงเดียวกันทุกสัปดาห์ติดกัน ถ้าสัปดาห์ใดไม่ว่างจะไม่เพิ่มเลยสักรายการ',
   access: 'user',
-  body: z.object({ courtId: z.number().int().positive(), startAt: dateTime.describe('เวลาเริ่ม ตรงชั่วโมง เช่น 2026-10-08T18:00:00+07:00') }),
+  body: z.object({
+    courtId: z.number().int().positive(),
+    startAt: dateTime.describe('เวลาเริ่ม ตรงชั่วโมง เช่น 2026-10-08T18:00:00+07:00'),
+    repeatWeeks: z.number().int().min(1).max(8).default(1).describe('จำนวนสัปดาห์ (1-8) ค่าเริ่มต้น 1'),
+  }),
   response: Booking,
   errors: {
     400: 'เวลาไม่ตรงชั่วโมง (INVALID_SLOT) ผ่านไปแล้ว (SLOT_IN_PAST) นอกเวลาเปิด (OUTSIDE_HOURS) หรือเกิน 60 วัน (TOO_FAR_AHEAD)',
@@ -42,31 +47,84 @@ route({
     409: 'อยู่ในตะกร้าแล้ว (ALREADY_IN_CART) หรือมีผู้จองแล้ว (SLOT_TAKEN)',
   },
   handler: async ({ user, body }) => {
-    const start = new Date(body.startAt);
-    const end = new Date(start.getTime() + HOUR);
-    checkStart(start);
+    const first = new Date(body.startAt);
     const court = await getCourt(body.courtId);
-    const hour = bangkokHour(start);
+    const hour = bangkokHour(first);
     if (hour < court.openHour || hour + 1 > court.closeHour) {
       fail(400, 'OUTSIDE_HOURS', `สนามนี้เปิด ${court.openHour}:00 - ${court.closeHour}:00 น.`);
     }
+    // same local hour every week (no DST in Thailand, so +7 days is exact)
+    const starts = Array.from({ length: body.repeatWeeks }, (_, w) => new Date(first.getTime() + w * 7 * 24 * HOUR));
+    starts.forEach(checkStart);
     const cartId = await cartIdFor(user!.id);
-    if (await one('SELECT 1 FROM booking_slots WHERE booking_id = $1 AND court_id = $2 AND start_at = $3', [cartId, court.id, start])) {
-      fail(409, 'ALREADY_IN_CART', 'ช่วงเวลานี้อยู่ในตะกร้าแล้ว');
-    }
-    if (await one('SELECT 1 FROM booking_slots WHERE court_id = $1 AND active AND start_at < $3 AND end_at > $2', [court.id, start, end])) {
-      fail(409, 'SLOT_TAKEN', 'ช่วงเวลานี้มีผู้จองแล้ว');
-    }
-    await query('INSERT INTO booking_slots (booking_id, court_id, start_at, end_at, price) VALUES ($1, $2, $3, $4, $5)', [
-      cartId,
-      court.id,
-      start,
-      end,
-      court.pricePerHour,
-    ]);
+    await tx(async (db) => {
+      for (const start of starts) {
+        const end = new Date(start.getTime() + HOUR);
+        const when = dayMonth.format(start);
+        if (await one('SELECT 1 FROM booking_slots WHERE booking_id = $1 AND court_id = $2 AND start_at = $3', [cartId, court.id, start], db)) {
+          fail(409, 'ALREADY_IN_CART', `ช่วงเวลาวันที่ ${when} อยู่ในตะกร้าแล้ว`);
+        }
+        if (await one('SELECT 1 FROM booking_slots WHERE court_id = $1 AND active AND start_at < $3 AND end_at > $2', [court.id, start, end], db)) {
+          fail(409, 'SLOT_TAKEN', `ช่วงเวลาวันที่ ${when} มีผู้จองแล้ว`);
+        }
+        await db.query('INSERT INTO booking_slots (booking_id, court_id, start_at, end_at, price) VALUES ($1, $2, $3, $4, $5)', [
+          cartId,
+          court.id,
+          start,
+          end,
+          priceAt(court, hour),
+        ]);
+      }
+    });
     return getBooking(cartId);
   },
 });
+
+route({
+  method: 'post',
+  path: '/cart/coupon',
+  tag: 'Cart',
+  summary: 'ใช้คูปองส่วนลดกับตะกร้า',
+  description: 'ตะกร้าใช้ได้ทีละ 1 คูปอง (ใช้ใหม่จะแทนอันเดิม) ส่วนลดคำนวณจากยอดในตะกร้า และล็อกยอดตอนยืนยันการจอง ตัวพิมพ์เล็ก/ใหญ่ของรหัสไม่มีผล',
+  access: 'user',
+  body: z.object({ code: z.string().trim().min(1).toUpperCase().describe('รหัสคูปอง') }),
+  response: Booking,
+  errors: {
+    400: 'ไม่พบคูปอง (INVALID_COUPON) หมดอายุ (COUPON_EXPIRED) ใช้ครบจำนวนแล้ว (COUPON_USED_UP) หรือยอดไม่ถึงขั้นต่ำ (COUPON_MIN_TOTAL)',
+  },
+  handler: async ({ user, body }) => {
+    const cartId = await cartIdFor(user!.id);
+    const coupon = await one('SELECT * FROM coupons WHERE code = $1 AND is_active', [body.code]);
+    checkCoupon(coupon, (await one('SELECT subtotal FROM booking_totals WHERE booking_id = $1', [cartId])).subtotal);
+    await query('UPDATE bookings SET coupon_id = $2 WHERE id = $1', [cartId, coupon.id]);
+    return getBooking(cartId);
+  },
+});
+
+route({
+  method: 'delete',
+  path: '/cart/coupon',
+  tag: 'Cart',
+  summary: 'เอาคูปองออกจากตะกร้า',
+  access: 'user',
+  response: Booking,
+  handler: async ({ user }) => {
+    const cartId = await cartIdFor(user!.id);
+    await query('UPDATE bookings SET coupon_id = NULL WHERE id = $1', [cartId]);
+    return getBooking(cartId);
+  },
+});
+
+const dayMonth = new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' });
+
+type CouponRow = { id: number; min_total: number; max_uses: number | null; used_count: number; expires_at: Date | null };
+
+function checkCoupon(coupon: CouponRow | undefined, subtotal: number): asserts coupon is CouponRow {
+  if (!coupon) fail(400, 'INVALID_COUPON', 'ไม่พบคูปองนี้หรือคูปองถูกปิดใช้งาน');
+  if (coupon.expires_at && coupon.expires_at.getTime() <= Date.now()) fail(400, 'COUPON_EXPIRED', 'คูปองนี้หมดอายุแล้ว');
+  if (coupon.max_uses !== null && coupon.used_count >= coupon.max_uses) fail(400, 'COUPON_USED_UP', 'คูปองนี้ถูกใช้ครบจำนวนแล้ว');
+  if (subtotal < coupon.min_total) fail(400, 'COUPON_MIN_TOTAL', `ใช้คูปองนี้ได้เมื่อยอดถึง ${coupon.min_total.toLocaleString('th-TH')} บาท`);
+}
 
 route({
   method: 'post',
@@ -185,6 +243,17 @@ route({
         if (!stock || stock.available < item.qty) fail(409, 'OUT_OF_STOCK', `${item.name} เหลือไม่พอในช่วงเวลานี้`);
         await db.query('UPDATE booking_equipment SET active = true WHERE id = $1', [item.id]);
       }
+      // re-check the coupon under a row lock (uses are limited), then freeze the discount
+      const coupon = await one(
+        'SELECT c.*, t.subtotal FROM bookings b JOIN coupons c ON c.id = b.coupon_id JOIN booking_totals t ON t.booking_id = b.id WHERE b.id = $1 FOR UPDATE OF c',
+        [cart.id],
+        db,
+      );
+      if (coupon) {
+        checkCoupon(coupon.is_active ? coupon : undefined, coupon.subtotal);
+        await db.query('UPDATE coupons SET used_count = used_count + 1 WHERE id = $1', [coupon.id]);
+      }
+      await db.query('UPDATE bookings SET discount = (SELECT discount FROM booking_totals WHERE booking_id = $1) WHERE id = $1', [cart.id]);
       await db.query(
         `UPDATE bookings SET status = 'pending_payment', confirmed_at = now(),
            expires_at = now() + make_interval(mins => $2), checkin_token = gen_random_uuid()

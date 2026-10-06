@@ -50,6 +50,8 @@ export const Court = z
     pricePerHour: z.number().describe('ราคาต่อชั่วโมง (บาท)'),
     openHour: z.number().int().describe('เปิด (ชั่วโมง 0-23)'),
     closeHour: z.number().int().describe('ปิด (ชั่วโมง 1-24)'),
+    peakPricePerHour: z.number().nullable().describe('ราคาช่วง peak ต่อชั่วโมง (null = ราคาเดียวทั้งวัน)'),
+    peakFromHour: z.number().int().nullable().describe('ช่วง peak เริ่มที่ชั่วโมงนี้จนปิด'),
     imageUrl: z.string().nullable(),
     isActive: z.boolean(),
     rating: z.number().nullable().describe('คะแนนรีวิวเฉลี่ย 1-5'),
@@ -62,6 +64,7 @@ export const Slot = z
     hour: z.number().int(),
     startAt: dateTime,
     endAt: dateTime,
+    price: z.number().describe('ราคาของชั่วโมงนี้ (บาท)'),
     status: z.enum(['free', 'booked', 'mine', 'in_cart', 'past']).describe('free=ว่าง booked=มีคนจองแล้ว mine=การจองของฉัน in_cart=อยู่ในตะกร้าของฉัน past=เลยเวลาแล้ว'),
   })
   .meta({ id: 'Slot' });
@@ -139,7 +142,10 @@ export const Booking = z
     createdAt: dateTime,
     confirmedAt: dateTime.nullable(),
     expiresAt: dateTime.nullable().describe('ต้องแนบสลิปก่อนเวลานี้ ไม่งั้นการจองหมดอายุ'),
-    total: z.number().describe('ยอดที่ต้องชำระ (บาท)'),
+    subtotal: z.number().describe('ยอดก่อนส่วนลด'),
+    discount: z.number().describe('ส่วนลดจากคูปอง'),
+    couponCode: z.string().nullable(),
+    total: z.number().describe('ยอดที่ต้องชำระหลังส่วนลด (บาท)'),
     depositTotal: z.number().describe('มัดจำอุปกรณ์รวม จ่ายหน้างาน'),
     slots: z.array(BookingSlot),
     equipment: z.array(BookingEquipment),
@@ -164,6 +170,21 @@ export const BookingSummary = z
     itemCount: z.number().int(),
   })
   .meta({ id: 'BookingSummary' });
+
+export const Coupon = z
+  .object({
+    id: z.number().int(),
+    code: z.string(),
+    percentOff: z.number().int().nullable().describe('ลดเป็นเปอร์เซ็นต์ (ใช้อย่างใดอย่างหนึ่งกับ amountOff)'),
+    amountOff: z.number().nullable().describe('ลดเป็นจำนวนเงิน (บาท)'),
+    minTotal: z.number().describe('ยอดขั้นต่ำที่ใช้คูปองได้'),
+    maxUses: z.number().int().nullable().describe('ใช้ได้กี่ครั้ง (null = ไม่จำกัด)'),
+    usedCount: z.number().int(),
+    expiresAt: dateTime.nullable(),
+    isActive: z.boolean(),
+    createdAt: dateTime,
+  })
+  .meta({ id: 'Coupon', description: 'คูปองส่วนลด' });
 
 export const AuthResult = z
   .object({ user: User, token: z.string().describe('JWT สำหรับ header Authorization: Bearer <token>') })

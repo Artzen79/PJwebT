@@ -6,7 +6,8 @@ import { fail, found } from './http';
 
 const bookingSql = `
   SELECT b.id, b.code, b.status, b.user_id AS "userId", u.name AS "userName", u.email AS "userEmail",
-    b.created_at AS "createdAt", b.confirmed_at AS "confirmedAt", b.expires_at AS "expiresAt", t.total,
+    b.created_at AS "createdAt", b.confirmed_at AS "confirmedAt", b.expires_at AS "expiresAt",
+    t.subtotal, t.discount, t.total, (SELECT code FROM coupons WHERE id = b.coupon_id) AS "couponCode",
     CASE WHEN b.status IN ('paid', 'checked_in') THEN b.checkin_token::text END AS "checkinToken",
     COALESCE((
       SELECT json_agg(json_build_object(

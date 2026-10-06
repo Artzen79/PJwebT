@@ -10,6 +10,7 @@ import { Court, idParam, Slot } from '../schemas';
 const courtSelect = `
   SELECT c.id, c.sport_id AS "sportId", s.name AS "sportName", s.icon AS "sportIcon", c.name, c.description,
     c.price_per_hour AS "pricePerHour", c.open_hour AS "openHour", c.close_hour AS "closeHour",
+    c.peak_price_per_hour AS "peakPricePerHour", c.peak_from_hour AS "peakFromHour",
     c.image_url AS "imageUrl", c.is_active AS "isActive", r.rating, r.count AS "reviewCount"
   FROM courts c
   JOIN sports s ON s.id = c.sport_id
@@ -26,6 +27,8 @@ const fields = {
   pricePerHour: z.number().min(0).max(100_000),
   openHour: z.number().int().min(0).max(23),
   closeHour: z.number().int().min(1).max(24),
+  peakPricePerHour: z.number().min(0).max(100_000).nullable().describe('ราคาช่วง peak (null = ไม่มี)'),
+  peakFromHour: z.number().int().min(0).max(23).nullable().describe('peak เริ่มชั่วโมงนี้ เช่น 18'),
   isActive: z.boolean(),
 };
 const columns = {
@@ -35,8 +38,16 @@ const columns = {
   pricePerHour: 'price_per_hour',
   openHour: 'open_hour',
   closeHour: 'close_hour',
+  peakPricePerHour: 'peak_price_per_hour',
+  peakFromHour: 'peak_from_hour',
   isActive: 'is_active',
 };
+
+type Pricing = { pricePerHour: number; peakPricePerHour: number | null; peakFromHour: number | null };
+
+// price of the one-hour slot that starts at this local hour
+export const priceAt = (c: Pricing, hour: number) =>
+  c.peakPricePerHour !== null && c.peakFromHour !== null && hour >= c.peakFromHour ? c.peakPricePerHour : c.pricePerHour;
 
 route({
   method: 'get',
@@ -80,6 +91,8 @@ route({
     description: fields.description.default(''),
     openHour: fields.openHour.default(8),
     closeHour: fields.closeHour.default(22),
+    peakPricePerHour: fields.peakPricePerHour.default(null),
+    peakFromHour: fields.peakFromHour.default(null),
     isActive: fields.isActive.default(true),
   }),
   response: Court,
@@ -87,9 +100,9 @@ route({
   errors: { 400: 'ข้อมูลไม่ถูกต้อง เช่น เวลาปิดไม่หลังเวลาเปิด หรือไม่พบกีฬา (INVALID_REFERENCE)' },
   handler: async ({ body: b }) => {
     const { id } = await one(
-      `INSERT INTO courts (sport_id, name, description, price_per_hour, open_hour, close_hour, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-      [b.sportId, b.name, b.description, b.pricePerHour, b.openHour, b.closeHour, b.isActive],
+      `INSERT INTO courts (sport_id, name, description, price_per_hour, open_hour, close_hour, peak_price_per_hour, peak_from_hour, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      [b.sportId, b.name, b.description, b.pricePerHour, b.openHour, b.closeHour, b.peakPricePerHour, b.peakFromHour, b.isActive],
     );
     return getCourt(id, true);
   },
@@ -194,7 +207,7 @@ route({
   },
 });
 
-type Hours = { id: number; openHour: number; closeHour: number };
+type Hours = Pricing & { id: number; openHour: number; closeHour: number };
 
 // One-hour slots per court for a local date: held slots of anyone, plus this member's own cart items.
 async function slotsFor(courts: Hours[], date: string, userId: number | null) {
@@ -205,7 +218,7 @@ async function slotsFor(courts: Hours[], date: string, userId: number | null) {
        AND (s.active OR (b.status = 'cart' AND b.user_id = $4))`,
     [courts.map((c) => c.id), atBangkok(date, 0), atBangkok(date, 24), userId],
   );
-  const result = new Map<number, { hour: number; startAt: string; endAt: string; status: string }[]>();
+  const result = new Map<number, { hour: number; startAt: string; endAt: string; price: number; status: string }[]>();
   for (const court of courts) {
     const slots = [];
     for (let hour = court.openHour; hour < court.closeHour; hour++) {
@@ -222,7 +235,7 @@ async function slotsFor(courts: Hours[], date: string, userId: number | null) {
               : hits.length
                 ? 'in_cart'
                 : 'free';
-      slots.push({ hour, startAt: bangkokIso(start), endAt: bangkokIso(end), status });
+      slots.push({ hour, startAt: bangkokIso(start), endAt: bangkokIso(end), price: priceAt(court, hour), status });
     }
     result.set(court.id, slots);
   }
