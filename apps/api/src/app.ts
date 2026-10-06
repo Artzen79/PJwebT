@@ -11,11 +11,14 @@ import { buildOpenApi } from './openapi';
 import './routes/health';
 import './routes/auth';
 import './routes/users';
+import './routes/sports';
+import './routes/courts';
+import './routes/equipment';
 
 const pgErrors: Record<string, [number, string, string]> = {
   '23P01': [409, 'SLOT_TAKEN', 'ช่วงเวลานี้มีผู้จองแล้ว'],
   '23505': [409, 'DUPLICATE', 'ข้อมูลนี้มีอยู่แล้ว'],
-  '23503': [409, 'IN_USE', 'ข้อมูลนี้ถูกใช้งานอยู่'],
+  '23503': [409, 'IN_USE', 'ข้อมูลนี้ถูกใช้งานอยู่ ลบไม่ได้'],
   '23514': [400, 'VALIDATION_ERROR', 'ข้อมูลไม่ผ่านเงื่อนไขของระบบ'],
 };
 
@@ -25,6 +28,8 @@ const onError: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof HttpError) return send(err.status, err.code, err.message);
   if (err instanceof z.ZodError) return send(400, 'VALIDATION_ERROR', z.prettifyError(err), { issues: err.issues });
   if (err?.name === 'MulterError') return send(400, 'FILE_ERROR', err.message);
+  // a foreign key that points nowhere (insert/update) is the caller's mistake, not an in-use conflict
+  if (err?.code === '23503' && /is not present/.test(err.detail)) return send(400, 'INVALID_REFERENCE', 'ไม่พบข้อมูลที่อ้างถึง');
   if (pgErrors[err?.code]) return send(...pgErrors[err.code]);
   if (typeof err?.status === 'number' && err.status < 500) return send(err.status, 'BAD_REQUEST', err.message);
   console.error(err);
