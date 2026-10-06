@@ -23,5 +23,5 @@ export const env = {
   },
   recordExamples: process.env.RECORD_EXAMPLES === '1',
   uploadDir: fileURLToPath(new URL('../uploads/', import.meta.url)),
-  webDist: fileURLToPath(new URL('../../web/dist/', import.meta.url)),
+  webDist: process.env.WEB_DIST ?? fileURLToPath(new URL('../../web/dist/', import.meta.url)),
 };

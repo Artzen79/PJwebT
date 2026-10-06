@@ -11,6 +11,7 @@ export default defineConfig({
       SMTP_URL: 'smtp://localhost:1025',
       RECORD_EXAMPLES: '1',
       CHECKIN_EARLY_MINUTES: String(60 * 24 * 30),
+      WEB_DIST: 'test/fixtures/web',
     },
   },
 });

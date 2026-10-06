@@ -13,6 +13,7 @@
     "db:reset": "tsx src/reset.ts"
   },
   "dependencies": {
+    "@scalar/api-reference": "^1.73.0",
     "@scalar/express-api-reference": "^0.10.27",
     "argon2": "^0.45.1",
     "express": "^5.2.1",
