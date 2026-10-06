@@ -14,12 +14,15 @@ import './routes/users';
 import './routes/sports';
 import './routes/courts';
 import './routes/equipment';
+import './routes/cart';
+import './routes/bookings';
 
 const pgErrors: Record<string, [number, string, string]> = {
   '23P01': [409, 'SLOT_TAKEN', 'ช่วงเวลานี้มีผู้จองแล้ว'],
   '23505': [409, 'DUPLICATE', 'ข้อมูลนี้มีอยู่แล้ว'],
   '23503': [409, 'IN_USE', 'ข้อมูลนี้ถูกใช้งานอยู่ ลบไม่ได้'],
   '23514': [400, 'VALIDATION_ERROR', 'ข้อมูลไม่ผ่านเงื่อนไขของระบบ'],
+  '40P01': [409, 'CONFLICT', 'มีการทำรายการเดียวกันพร้อมกัน กรุณาลองใหม่'],
 };
 
 const onError: ErrorRequestHandler = (err, _req, res, _next) => {

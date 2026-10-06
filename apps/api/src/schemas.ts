@@ -82,6 +82,88 @@ export const Equipment = z
   })
   .meta({ id: 'Equipment', description: 'อุปกรณ์กีฬาให้ยืม' });
 
+export const bookingStatus = z
+  .enum(['cart', 'pending_payment', 'paid', 'checked_in', 'completed', 'cancelled', 'expired'])
+  .describe('cart=ตะกร้า pending_payment=รอชำระเงิน paid=ชำระแล้ว checked_in=เช็คอินแล้ว completed=เสร็จสิ้น cancelled=ยกเลิก expired=หมดเวลาชำระ');
+
+export const BookingSlot = z
+  .object({
+    id: z.number().int(),
+    courtId: z.number().int(),
+    courtName: z.string(),
+    sportName: z.string(),
+    sportIcon: z.string(),
+    startAt: dateTime,
+    endAt: dateTime,
+    price: z.number(),
+    taken: z.boolean().describe('มีคนอื่นจองช่วงเวลานี้ไปแล้ว (ใช้กับรายการในตะกร้า)'),
+  })
+  .meta({ id: 'BookingSlot', description: 'ช่วงเวลาสนามในการจอง' });
+
+export const BookingEquipment = z
+  .object({
+    id: z.number().int(),
+    equipmentId: z.number().int(),
+    name: z.string(),
+    sportIcon: z.string(),
+    qty: z.number().int(),
+    startAt: dateTime,
+    endAt: dateTime,
+    price: z.number().describe('ค่าเช่ารวมของรายการนี้'),
+    deposit: z.number().describe('มัดจำรวมของรายการนี้ (จ่ายหน้างาน)'),
+    returnedAt: dateTime.nullable(),
+    conditionNote: z.string().nullable(),
+    fine: z.number().describe('ค่าปรับ (ชำรุด/คืนช้า)'),
+  })
+  .meta({ id: 'BookingEquipment', description: 'อุปกรณ์ที่ยืมในการจอง' });
+
+export const PaymentSummary = z
+  .object({
+    id: z.number().int(),
+    amount: z.number(),
+    status: z.enum(['pending', 'approved', 'rejected']),
+    note: z.string().nullable(),
+    createdAt: dateTime,
+    reviewedAt: dateTime.nullable(),
+  })
+  .meta({ id: 'PaymentSummary' });
+
+export const Booking = z
+  .object({
+    id: z.number().int(),
+    code: z.string().describe('เลขที่การจอง YYYYMMDD + ลำดับ'),
+    status: bookingStatus,
+    userId: z.number().int(),
+    userName: z.string(),
+    userEmail: z.string(),
+    createdAt: dateTime,
+    confirmedAt: dateTime.nullable(),
+    expiresAt: dateTime.nullable().describe('ต้องแนบสลิปก่อนเวลานี้ ไม่งั้นการจองหมดอายุ'),
+    total: z.number().describe('ยอดที่ต้องชำระ (บาท)'),
+    depositTotal: z.number().describe('มัดจำอุปกรณ์รวม จ่ายหน้างาน'),
+    slots: z.array(BookingSlot),
+    equipment: z.array(BookingEquipment),
+    payments: z.array(PaymentSummary),
+    checkinToken: z.string().nullable().describe('รหัสใน QR เช็คอิน (มีเมื่อชำระเงินแล้ว)'),
+    checkinQr: z.string().nullable().describe('รูป QR เช็คอิน (data URL)'),
+  })
+  .meta({ id: 'Booking', description: 'การจอง (รวมถึงตะกร้า)' });
+
+export const BookingSummary = z
+  .object({
+    id: z.number().int(),
+    code: z.string(),
+    status: bookingStatus,
+    userId: z.number().int(),
+    userName: z.string(),
+    createdAt: dateTime,
+    confirmedAt: dateTime.nullable(),
+    total: z.number(),
+    firstStartAt: dateTime.nullable().describe('เวลาเริ่มของรายการแรก'),
+    itemCount: z.number().int(),
+  })
+  .meta({ id: 'BookingSummary' });
+
 export const AuthResult = z
   .object({ user: User, token: z.string().describe('JWT สำหรับ header Authorization: Bearer <token>') })
   .meta({ id: 'AuthResult' });
