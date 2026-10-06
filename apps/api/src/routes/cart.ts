@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { one, query, tx } from '../db';
-import { cartIdFor, getBooking, notifyBooking } from '../lib/bookings';
+import { cartIdFor, getBooking, notifyBooking, PAY_WITHIN_MINUTES } from '../lib/bookings';
+import { mail } from '../lib/mail';
 import { fail, found } from '../lib/http';
 import { route } from '../lib/route';
 import { stockFor } from '../lib/stock';
@@ -9,7 +10,6 @@ import { Booking, dateTime, idParam, Ok } from '../schemas';
 import { getCourt } from './courts';
 
 const MAX_DAYS_AHEAD = 60;
-const PAY_WITHIN_MINUTES = 15;
 
 function checkStart(start: Date) {
   if (start.getTime() % HOUR !== 0) fail(400, 'INVALID_SLOT', 'เวลาเริ่มต้องตรงชั่วโมง เช่น 18:00');
@@ -195,6 +195,7 @@ route({
     });
     const booking = await getBooking(bookingId);
     notifyBooking(booking);
+    mail.confirmed(booking);
     return booking;
   },
 });

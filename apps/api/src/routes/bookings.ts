@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { query, tx } from '../db';
 import { firstStart, getBooking, getVisibleBooking, notifyBooking, release } from '../lib/bookings';
 import { fail } from '../lib/http';
+import { mail } from '../lib/mail';
 import { route } from '../lib/route';
 import { HOUR } from '../lib/time';
 import { Booking, BookingSummary, bookingStatus, idParam } from '../schemas';
@@ -74,6 +75,8 @@ route({
     }
     await tx((db) => release(booking.id, 'cancelled', db));
     notifyBooking(booking);
-    return getBooking(booking.id);
+    const cancelled = await getBooking(booking.id);
+    mail.cancelled(cancelled, user!.id === booking.userId ? 'ยกเลิกตามคำขอของคุณ' : 'ยกเลิกโดยผู้ดูแลระบบ');
+    return cancelled;
   },
 });

@@ -35,6 +35,8 @@ const bookingSql = `
   FROM bookings b JOIN users u ON u.id = b.user_id JOIN booking_totals t ON t.booking_id = b.id
   WHERE b.id = $1`;
 
+export const PAY_WITHIN_MINUTES = 15;
+
 export type BookingRow = {
   id: number;
   code: string;
@@ -42,6 +44,7 @@ export type BookingRow = {
   userId: number;
   userName: string;
   userEmail: string;
+  expiresAt: Date | null;
   total: number;
   checkinToken: string | null;
   checkinQr?: string | null;
