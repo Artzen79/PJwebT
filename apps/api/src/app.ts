@@ -74,7 +74,8 @@ app.use(
     telemetry: false,
   }),
 );
-app.use(helmet());
+// no upgrade-insecure-requests: a LAN demo over plain http must still load its own assets
+app.use(helmet({ contentSecurityPolicy: { directives: { upgradeInsecureRequests: null } } }));
 app.use('/uploads', express.static(join(env.uploadDir, 'public')));
 app.use(express.json());
 app.use(loadUser);

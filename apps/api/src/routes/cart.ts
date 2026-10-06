@@ -254,17 +254,20 @@ route({
         await db.query('UPDATE coupons SET used_count = used_count + 1 WHERE id = $1', [coupon.id]);
       }
       await db.query('UPDATE bookings SET discount = (SELECT discount FROM booking_totals WHERE booking_id = $1) WHERE id = $1', [cart.id]);
+      // nothing to pay (fully discounted) means paid now, with no payment window
       await db.query(
-        `UPDATE bookings SET status = 'pending_payment', confirmed_at = now(),
-           expires_at = now() + make_interval(mins => $2), checkin_token = gen_random_uuid()
-         WHERE id = $1`,
+        `UPDATE bookings SET confirmed_at = now(), checkin_token = gen_random_uuid(),
+           status = CASE WHEN t.total = 0 THEN 'paid' ELSE 'pending_payment' END::booking_status,
+           expires_at = CASE WHEN t.total = 0 THEN NULL ELSE now() + make_interval(mins => $2) END
+         FROM booking_totals t WHERE t.booking_id = bookings.id AND bookings.id = $1`,
         [cart.id, PAY_WITHIN_MINUTES],
       );
       return cart.id as number;
     });
     const booking = await getBooking(bookingId);
     notifyBooking(booking);
-    mail.confirmed(booking);
+    if (booking.status === 'paid') mail.approved(booking);
+    else mail.confirmed(booking);
     return booking;
   },
 });

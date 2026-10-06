@@ -70,8 +70,8 @@ route({
   summary: 'ออกจากระบบ',
   description: 'ลบ cookie `token` (ฝั่งที่ใช้ Bearer token ให้ทิ้ง token เอง)',
   response: Ok,
-  handler: ({ res }) => {
-    res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: env.prod });
+  handler: ({ req, res }) => {
+    res.clearCookie('token', { httpOnly: true, sameSite: 'lax', secure: req.secure });
     return { ok: true };
   },
 });

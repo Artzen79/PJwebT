@@ -20,7 +20,7 @@ export default function Cart() {
   const confirm = () =>
     actions.confirm.mutate(undefined, {
       onSuccess: (booking) => {
-        toast.success('ยืนยันการจองแล้ว กรุณาชำระเงินภายใน 15 นาที');
+        toast.success(booking.status === 'paid' ? 'ยืนยันการจองแล้ว ไม่มียอดที่ต้องชำระ' : 'ยืนยันการจองแล้ว กรุณาชำระเงินภายใน 15 นาที');
         navigate(`/bookings/${booking.id}`);
       },
       onError: (e) => toast.error(errorText(e)),

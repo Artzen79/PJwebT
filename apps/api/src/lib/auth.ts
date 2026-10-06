@@ -19,7 +19,8 @@ export async function issueToken(res: Response, userId: number) {
     .setIssuedAt()
     .setExpirationTime(`${week}s`)
     .sign(env.jwtSecret);
-  res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: env.prod, maxAge: week * 1000 });
+  // Secure follows the actual request (https behind the production proxy, plain http on a LAN demo)
+  res.cookie('token', token, { httpOnly: true, sameSite: 'lax', secure: res.req.secure, maxAge: week * 1000 });
   return token;
 }
 

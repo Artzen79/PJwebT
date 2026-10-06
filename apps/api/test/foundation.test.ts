@@ -29,6 +29,12 @@ describe('foundation', () => {
     expect(script.headers['content-type']).toContain('javascript');
   });
 
+  it('does not force https, so the production build also works over plain http on a LAN demo', async () => {
+    const res = await request(app).get('/api/v1/health');
+    expect(res.headers['content-security-policy']).toContain("default-src 'self'");
+    expect(res.headers['content-security-policy']).not.toContain('upgrade-insecure-requests');
+  });
+
   it('unknown API routes return the standard error shape', async () => {
     const res = await request(app).get('/api/v1/nope');
     expect(res.status).toBe(404);

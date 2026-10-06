@@ -101,6 +101,19 @@ describe('coupons', () => {
     expect(removed).toMatchObject({ discount: 0, total: 150, couponCode: null });
   });
 
+  it('a booking discounted to zero is paid on confirm, with no slip to send', async () => {
+    const court = await newCourt();
+    const code = uniqueCode('free');
+    await createCoupon({ code, amountOff: 1000 });
+    const { token } = await member();
+    await api().post('/api/v1/cart/slots').set(bearer(token)).send({ courtId: court.id, startAt: at(day(5), 15) });
+    await api().post('/api/v1/cart/coupon').set(bearer(token)).send({ code }).expect(200);
+    const booking = (await api().post('/api/v1/cart/confirm').set(bearer(token))).body;
+    expect(booking).toMatchObject({ total: 0, status: 'paid', expiresAt: null });
+    expect(booking.checkinToken).toEqual(expect.any(String));
+    expect((await api().get(`/api/v1/bookings/${booking.id}/promptpay`).set(bearer(token))).status).toBe(409);
+  });
+
   it('rejects unknown, expired and used-up coupons', async () => {
     const court = await newCourt();
     const { token } = await member();
