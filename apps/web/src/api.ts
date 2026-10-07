@@ -15,6 +15,10 @@ export type Payment = S['Payment'];
 export type Review = S['Review'];
 export type Stats = S['Stats'];
 export type BoardRow = S['BoardRow'];
+export type EmailSummary = S['EmailSummary'];
+export type Email = S['Email'];
+export type Settings = S['Settings'];
+export type SystemStatus = S['SystemStatus'];
 
 // JSON request body of an endpoint, e.g. Body<'/api/v1/courts', 'post'>
 export type Body<P extends keyof paths, M extends 'post' | 'patch'> = paths[P] extends Record<M, { requestBody?: { content: { 'application/json': infer B } } }>
@@ -64,6 +68,11 @@ export function useMe() {
     },
     staleTime: 5 * 60_000,
   });
+}
+
+// public booking rules (payment window, cancel deadline...) set by the admin
+export function useSettings() {
+  return useQuery({ queryKey: ['settings'], queryFn: () => ok(api.GET('/api/v1/settings')), staleTime: 5 * 60_000 });
 }
 
 export const errorText = (e: unknown) => (e instanceof Error ? e.message : 'เกิดข้อผิดพลาด');

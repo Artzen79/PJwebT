@@ -13,6 +13,7 @@ import CourtDetail from './pages/CourtDetail';
 import Courts from './pages/Courts';
 import { EquipmentDetail, EquipmentList } from './pages/Equipment';
 import Home from './pages/Home';
+import Inbox from './pages/Inbox';
 import Profile from './pages/Profile';
 import './styles.css';
 
@@ -24,6 +25,9 @@ const Checkin = lazy(() => import('./pages/admin/Checkin'));
 const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
 const Catalog = lazy(() => import('./pages/admin/Catalog'));
 const Users = lazy(() => import('./pages/admin/Users'));
+const Emails = lazy(() => import('./pages/admin/Emails'));
+const System = lazy(() => import('./pages/admin/System'));
+const ApiDocs = lazy(() => import('./pages/admin/ApiDocs'));
 const UserDetail = lazy(() => import('./pages/admin/Users').then((m) => ({ default: m.UserDetail })));
 
 const queryClient = new QueryClient({
@@ -54,6 +58,7 @@ const router = createBrowserRouter([
           { path: 'bookings', element: <Bookings /> },
           { path: 'bookings/:id', element: <BookingDetail /> },
           { path: 'profile', element: <Profile /> },
+          { path: 'inbox', element: <Inbox /> },
         ],
       },
       {
@@ -70,6 +75,9 @@ const router = createBrowserRouter([
               { path: 'catalog', element: <Catalog /> },
               { path: 'users', element: <Users /> },
               { path: 'users/:id', element: <UserDetail /> },
+              { path: 'emails', element: <Emails /> },
+              { path: 'system', element: <System /> },
+              { path: 'api', element: <ApiDocs /> },
             ],
           },
         ],

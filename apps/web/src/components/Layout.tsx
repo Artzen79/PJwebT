@@ -4,6 +4,7 @@ import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import { Toaster } from 'sonner';
 import { api, ok, useMe } from '../api';
 import { useCart } from '../lib/cart';
+import { useInbox } from '../pages/Inbox';
 
 // Server-Sent Events: whenever any booking holds or frees a slot, refetch what shows availability.
 function useLiveAvailability() {
@@ -70,6 +71,7 @@ export function Layout() {
   const me = useMe().data;
   const cart = useCart(Boolean(me)).data;
   const count = (cart?.slots.length ?? 0) + (cart?.equipment.length ?? 0);
+  const unread = useInbox(Boolean(me)).data?.unread ?? 0;
   const qc = useQueryClient();
   const navigate = useNavigate();
   const logout = useMutation({
@@ -90,6 +92,14 @@ export function Layout() {
           </nav>
           <div className="ml-auto flex items-center gap-1.5">
             <ThemeToggle />
+            {me && (
+              <Link to="/inbox" className="relative grid h-9 place-items-center rounded-lg px-3 text-sm font-medium hover:bg-sunken" aria-label={`กล่องข้อความ ยังไม่อ่าน ${unread} ฉบับ`}>
+                ข้อความ
+                {unread > 0 && (
+                  <span className="num absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-danger text-xs font-bold text-white">{unread}</span>
+                )}
+              </Link>
+            )}
             {me && (
               <Link to="/cart" className="relative grid h-9 place-items-center rounded-lg px-3 text-sm font-medium hover:bg-sunken" aria-label={`ตะกร้า ${count} รายการ`}>
                 ตะกร้า
@@ -114,6 +124,9 @@ export function Layout() {
                   </Link>
                   <Link to="/bookings" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
                     การจองของฉัน
+                  </Link>
+                  <Link to="/inbox" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
+                    กล่องข้อความ
                   </Link>
                   <button type="button" onClick={() => logout.mutate()} className="block w-full rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft">
                     ออกจากระบบ

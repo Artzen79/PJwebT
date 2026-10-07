@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { toast } from 'sonner';
-import { api, type Booking, errorText, ok, type Payment, upload, useMe } from '../api';
+import { api, type Booking, errorText, ok, type Payment, upload, useMe, useSettings } from '../api';
 import { Badge, Button, ErrorNote, Field, Input, Loading, Panel, Textarea } from '../components/ui';
 import { baht, bookingStatus, dateTimeTh, dayLabel, paymentStatus, timeRange } from '../lib/format';
 import { formData } from '../lib/pick';
@@ -12,12 +12,14 @@ const HOUR = 3_600_000;
 export default function BookingDetail() {
   const id = Number(useParams().id);
   const me = useMe().data;
+  const cancelHours = useSettings().data?.cancelBeforeHours ?? 24;
   const qc = useQueryClient();
   const booking = useQuery({ queryKey: ['booking', id], queryFn: () => ok(api.GET('/api/v1/bookings/{id}', { params: { path: { id } } })) });
   const refresh = (b?: Booking) => {
     if (b) qc.setQueryData(['booking', id], b);
     else qc.invalidateQueries({ queryKey: ['booking', id] });
     qc.invalidateQueries({ queryKey: ['bookings'] });
+    qc.invalidateQueries({ queryKey: ['inbox'] });
   };
   const cancel = useMutation({
     mutationFn: () => ok(api.POST('/api/v1/bookings/{id}/cancel', { params: { path: { id } } })),
@@ -33,7 +35,7 @@ export default function BookingDetail() {
   const b = booking.data;
   const admin = me?.role === 'admin';
   const firstStart = Math.min(...[...b.slots, ...b.equipment].map((i) => Date.parse(i.startAt)));
-  const canCancel = b.status === 'pending_payment' || (b.status === 'paid' && (admin || firstStart - Date.now() >= 24 * HOUR));
+  const canCancel = b.status === 'pending_payment' || (b.status === 'paid' && (admin || firstStart - Date.now() >= cancelHours * HOUR));
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -138,7 +140,7 @@ export default function BookingDetail() {
               ยกเลิกการจอง
             </Button>
           )}
-          {b.status === 'paid' && !canCancel && <p className="text-center text-sm text-muted">ยกเลิกได้ก่อนเวลาเริ่มอย่างน้อย 24 ชั่วโมง</p>}
+          {b.status === 'paid' && !canCancel && <p className="text-center text-sm text-muted">ยกเลิกได้ก่อนเวลาเริ่มอย่างน้อย {cancelHours} ชั่วโมง</p>}
         </div>
       </div>
     </div>

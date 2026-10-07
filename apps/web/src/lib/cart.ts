@@ -51,6 +51,7 @@ export function useCartActions() {
         qc.setQueryData(['booking', booking.id], booking);
         qc.invalidateQueries({ queryKey: ['cart'] });
         qc.invalidateQueries({ queryKey: ['bookings'] });
+        qc.invalidateQueries({ queryKey: ['inbox'] });
       },
       onError: () => qc.invalidateQueries({ queryKey: ['cart'] }),
     }),

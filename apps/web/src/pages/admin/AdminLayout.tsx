@@ -36,6 +36,15 @@ export default function AdminLayout() {
         <NavLink to="/admin/users" className={tab}>
           สมาชิก
         </NavLink>
+        <NavLink to="/admin/emails" className={tab}>
+          อีเมล
+        </NavLink>
+        <NavLink to="/admin/system" className={tab}>
+          ระบบ
+        </NavLink>
+        <NavLink to="/admin/api" className={tab}>
+          API
+        </NavLink>
       </nav>
       <Suspense fallback={<Loading />}>
         <Outlet />

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
-import { errorText } from '../api';
+import { errorText, useSettings } from '../api';
 import { Badge, Button, Empty, ErrorNote, Input, LinkButton, Loading, Panel } from '../components/ui';
 import { useCart, useCartActions } from '../lib/cart';
 import { baht, dateTh, dayLabel, timeRange } from '../lib/format';
@@ -10,6 +10,7 @@ export default function Cart() {
   const cart = useCart(true);
   const actions = useCartActions();
   const navigate = useNavigate();
+  const payWithin = useSettings().data?.payWithinMinutes ?? 15;
 
   if (cart.isPending) return <Loading />;
   if (cart.error) return <ErrorNote error={cart.error} />;
@@ -20,7 +21,7 @@ export default function Cart() {
   const confirm = () =>
     actions.confirm.mutate(undefined, {
       onSuccess: (booking) => {
-        toast.success(booking.status === 'paid' ? 'ยืนยันการจองแล้ว ไม่มียอดที่ต้องชำระ' : 'ยืนยันการจองแล้ว กรุณาชำระเงินภายใน 15 นาที');
+        toast.success(booking.status === 'paid' ? 'ยืนยันการจองแล้ว ไม่มียอดที่ต้องชำระ' : `ยืนยันการจองแล้ว กรุณาชำระเงินภายใน ${payWithin} นาที`);
         navigate(`/bookings/${booking.id}`);
       },
       onError: (e) => toast.error(errorText(e)),
@@ -161,7 +162,7 @@ export default function Cart() {
                   ยืนยันการจอง
                 </Button>
               </div>
-              <p className="text-sm text-muted">หลังยืนยันจะแก้ไขรายการไม่ได้ และต้องชำระเงินภายใน 15 นาที</p>
+              <p className="text-sm text-muted">หลังยืนยันจะแก้ไขรายการไม่ได้ และต้องชำระเงินภายใน {payWithin} นาที</p>
             </div>
           </>
         )}
