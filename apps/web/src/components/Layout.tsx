@@ -7,14 +7,29 @@ import { useCart } from '../lib/cart';
 import { useInbox } from '../pages/Inbox';
 
 // Server-Sent Events: whenever any booking holds or frees a slot, refetch what shows availability.
+// All tabs share one stream through a SharedWorker (see public/live-worker.js) so open tabs
+// never use up the browser's 6 connections per host; without SharedWorker, one stream per tab.
 function useLiveAvailability() {
   const qc = useQueryClient();
   useEffect(() => {
-    const events = new EventSource('/api/v1/events/availability');
-    events.addEventListener('availability', () => {
+    const refresh = () => {
       for (const key of ['board', 'availability', 'equipment-stock', 'cart']) qc.invalidateQueries({ queryKey: [key] });
-    });
-    return () => events.close();
+    };
+    if (typeof SharedWorker === 'undefined') {
+      const events = new EventSource('/api/v1/events/availability');
+      events.addEventListener('availability', refresh);
+      return () => events.close();
+    }
+    const { port } = new SharedWorker('/live-worker.js', { name: 'sporthub-live' });
+    port.onmessage = refresh;
+    port.start();
+    const leave = () => port.postMessage('close');
+    addEventListener('pagehide', leave);
+    return () => {
+      leave();
+      removeEventListener('pagehide', leave);
+      port.close();
+    };
   }, [qc]);
 }
 
