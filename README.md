@@ -12,7 +12,7 @@
 ต้องมี Node.js 24, pnpm และ Docker Desktop
 
 ```bash
-docker compose up -d   # PostgreSQL 18 (:5432) + Mailpit กล่องอีเมลทดสอบ (:8025)
+docker compose up -d   # PostgreSQL 18 (:5432)
 pnpm install
 pnpm db:migrate        # สร้างตาราง
 pnpm db:seed           # ข้อมูลตัวอย่าง: กีฬา 6 ประเภท สนาม 13 สนาม อุปกรณ์ และประวัติการจอง 2 สัปดาห์
@@ -23,7 +23,8 @@ pnpm dev               # API http://localhost:3000 และเว็บ http://
 |---|---|
 | http://localhost:5173 | เว็บไซต์ |
 | http://localhost:3000/docs | API Document |
-| http://localhost:8025 | อีเมลที่ระบบส่ง (Mailpit) |
+| เมนู ข้อความ / ผู้ดูแลระบบ > อีเมล | อีเมลที่ระบบส่ง (อยู่ในเว็บ ไม่ต้องมีกล่องอีเมลภายนอก) |
+| ผู้ดูแลระบบ > ระบบ, API | ค่าตั้งระบบ สถานะระบบ และเอกสาร API ที่ลองเรียกได้ด้วยสิทธิ์ admin |
 
 | บัญชีทดลอง | รหัสผ่าน |
 |---|---|
@@ -39,7 +40,7 @@ pnpm dev               # API http://localhost:3000 และเว็บ http://
 | คำสั่ง | ทำอะไร |
 |---|---|
 | `pnpm dev` | รัน API และเว็บพร้อมกัน (โหลดใหม่อัตโนมัติเมื่อแก้โค้ด) |
-| `pnpm test` | ชุดทดสอบ API 88 กรณี กับฐานข้อมูล `sporthub_test` (ล้างใหม่ทุกครั้ง) |
+| `pnpm test` | ชุดทดสอบ API 98 กรณี กับฐานข้อมูล `sporthub_test` (ล้างใหม่ทุกครั้ง) |
 | `pnpm db:reset` | **ลบข้อมูลทั้งหมดในฐานข้อมูลพัฒนา** แล้วสร้างข้อมูลตัวอย่างใหม่ (ใช้ก่อนสาธิต) |
 | `pnpm build` | build เว็บไปที่ `apps/web/dist` (API จะเสิร์ฟให้เองในโหมด production) |
 | `pnpm --filter api openapi:export` | เขียน `apps/api/openapi.json` และบอก endpoint ที่ยังไม่มีตัวอย่าง |
@@ -50,7 +51,7 @@ pnpm dev               # API http://localhost:3000 และเว็บ http://
 ```
 apps/api/
   db/migrations/001_init.sql   ตารางทั้งหมด, VIEW booking_totals, exclusion constraint กันจองซ้อน
-  db/migrations/002-003        ราคาช่วง peak และคูปอง (ไฟล์ migration ที่รันแล้วห้ามแก้ ให้เพิ่มไฟล์ใหม่)
+  db/migrations/002-004        ราคาช่วง peak, คูปอง, อีเมลในเว็บและค่าตั้งระบบ (ไฟล์ migration ที่รันแล้วห้ามแก้ ให้เพิ่มไฟล์ใหม่)
   src/routes/*.ts              1 ไฟล์ต่อหมวด แต่ละ endpoint ประกาศด้วย route({...}) ครั้งเดียว
   src/lib/route.ts             route() = Express route + ตรวจ input ด้วย Zod + รายการใน OpenAPI
   src/openapi.ts               สร้างเอกสาร OpenAPI 3.1 จาก route ทั้งหมด
@@ -80,17 +81,17 @@ docker build -t sporthub .
 docker run -p 3000:3000 -e DATABASE_URL=postgres://... -e JWT_SECRET=<สุ่มยาวๆ> sporthub
 ```
 
-บน Render หรือ Railway: สร้าง PostgreSQL ของผู้ให้บริการ แล้วสร้าง Web Service จาก repo นี้แบบ Docker ตั้ง `DATABASE_URL`, `JWT_SECRET`, `APP_URL`, `PROMPTPAY_ID` และ `SMTP_URL` (เช่น SMTP ของ Gmail แบบ App Password) health check คือ `/api/v1/health` ดิสก์ของแพ็กเกจฟรีจะล้างตอน deploy ใหม่ ถ้าต้องเก็บรูปที่อัปโหลดให้ต่อ persistent disk ที่ `/app/apps/api/uploads`
+บน Render หรือ Railway: สร้าง PostgreSQL ของผู้ให้บริการ แล้วสร้าง Web Service จาก repo นี้แบบ Docker ตั้ง `DATABASE_URL`, `JWT_SECRET` และ `APP_URL` (ถ้าต้องการส่งอีเมลออกไปอีเมลจริงด้วย ตั้ง `SMTP_URL` เช่น SMTP ของ Gmail แบบ App Password ถ้าไม่ตั้ง อีเมลจะอยู่ในเว็บอย่างเดียว) PromptPay และกฎการจองแก้ได้ในหน้า ผู้ดูแลระบบ > ระบบ health check คือ `/api/v1/health` ดิสก์ของแพ็กเกจฟรีจะล้างตอน deploy ใหม่ ถ้าต้องเก็บรูปที่อัปโหลดให้ต่อ persistent disk ที่ `/app/apps/api/uploads`
 
 ## สาธิต 30 นาที (แนะนำ)
 
-1. `pnpm db:reset` ก่อนเริ่ม และตั้ง `CHECKIN_EARLY_MINUTES=1440` ใน `.env` เพื่อให้เช็คอินการจองวันนี้ได้ทันที
+1. `pnpm db:reset` ก่อนเริ่ม แล้วในหน้า ผู้ดูแลระบบ > ระบบ ตั้ง เช็คอินล่วงหน้าได้ = 1440 นาที เพื่อให้เช็คอินการจองวันนี้ได้ทันที
 2. เปิดเว็บสองหน้าต่าง (สมาชิก 2 คน) ที่ตารางสนามว่าง: คนแรกจองแล้วยืนยัน ให้ดูช่องของอีกจอพลิกเป็น "มีผู้จองแล้ว" ทันที
 3. ยืมอุปกรณ์ → ตะกร้า (ลบรายการ, ลบตะกร้า, ยืนยัน) → QR PromptPay → แนบสลิป
 4. ใช้คูปอง WELCOME10 และลองจองประจำ 3 สัปดาห์ที่หน้าสนามฟุตบอล (ราคาช่วง peak หลัง 17:00)
-5. ผู้ดูแลระบบ: ตรวจสลิปแล้วอนุมัติ → เปิด http://localhost:8025 ดูอีเมลพร้อม QR → เช็คอินด้วยเลขที่การจอง → รับคืนอุปกรณ์
-6. แดชบอร์ด, จัดการสนามและเปลี่ยนรูป, สร้างคูปอง, ระงับสมาชิกแล้วลองเข้าสู่ระบบด้วยบัญชีนั้น
-7. เปิด `/docs` อธิบาย endpoint หนึ่งตัว: parameter, ผลลัพธ์, ตัวอย่าง, กด Test Request
+5. ผู้ดูแลระบบ: ตรวจสลิปแล้วอนุมัติ → ฝั่งสมาชิกเปิดเมนู ข้อความ ดูอีเมลพร้อม QR (admin ดูได้ที่เมนู อีเมล) → เช็คอินด้วยเลขที่การจอง → รับคืนอุปกรณ์
+6. แดชบอร์ด, จัดการสนามและเปลี่ยนรูป, สร้างคูปอง, เปลี่ยนค่าตั้งระบบ, ระงับสมาชิกแล้วลองเข้าสู่ระบบด้วยบัญชีนั้น
+7. เปิดเมนู ผู้ดูแลระบบ > API อธิบาย endpoint หนึ่งตัว: parameter, ผลลัพธ์, ตัวอย่าง, กด Test Request
 8. `pnpm test` ให้เห็นเทสต์ยืนยันพร้อมกันสองคน ("exactly one wins")
 
 ถ้าเปิดผ่าน IP ของเครื่อง (http://192.168.x.x) แทน localhost กล้องสแกน QR จะใช้ไม่ได้เพราะเบราว์เซอร์อนุญาตกล้องเฉพาะ https หรือ localhost ให้พิมพ์เลขที่การจองแทน
