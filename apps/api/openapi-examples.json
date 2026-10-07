@@ -9,56 +9,56 @@
   "POST /auth/register": {
     "url": "/api/v1/auth/register",
     "body": {
-      "email": "member.1791317577895.1@example.com",
+      "email": "member.1791345090923.1@example.com",
       "password": "secret1234",
       "name": "สมชาย ใจดี",
       "phone": "0812345678"
     },
     "response": {
       "user": {
-        "id": 81,
-        "email": "member.1791317577895.1@example.com",
+        "id": 91,
+        "email": "member.1791345090923.1@example.com",
         "name": "สมชาย ใจดี",
         "phone": "0812345678",
         "avatarUrl": null,
         "role": "member",
         "status": "active",
-        "createdAt": "2026-10-06T20:12:57.924Z"
+        "createdAt": "2026-10-07T03:51:30.950Z"
       },
-      "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI4MSIsImlhdCI6MTc5MTMxNzU3NywiZXhwIjoxNzkxOTIyMzc3fQ.XTMZBZER2dY1PRKlj41cU3h9o8QO-cVg-sYKMUXRZSQ"
+      "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5MSIsImlhdCI6MTc5MTM0NTA5MCwiZXhwIjoxNzkxOTQ5ODkwfQ.9FAcOsVtCpqKNLH6pOEGJr_r7GS9cHy81-20es21eVc"
     }
   },
   "POST /auth/login": {
     "url": "/api/v1/auth/login",
     "body": {
-      "email": "admin.1791317577808.0@example.com",
+      "email": "admin.1791345090839.0@example.com",
       "password": "admin1234"
     },
     "response": {
       "user": {
-        "id": 80,
-        "email": "admin.1791317577808.0@example.com",
+        "id": 90,
+        "email": "admin.1791345090839.0@example.com",
         "name": "ผู้ดูแล สนาม",
         "phone": null,
         "avatarUrl": null,
         "role": "admin",
         "status": "active",
-        "createdAt": "2026-10-06T20:12:57.849Z"
+        "createdAt": "2026-10-07T03:51:30.878Z"
       },
-      "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI4MCIsImlhdCI6MTc5MTMxNzU3NywiZXhwIjoxNzkxOTIyMzc3fQ.wGDA8YCAGaG-4A2X8hM_3Gh8K7rPmoLZ6xW-ozcZQKs"
+      "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5MCIsImlhdCI6MTc5MTM0NTA5MCwiZXhwIjoxNzkxOTQ5ODkwfQ.PxxBpqvQ9EdMiaQXyaRjHqgS3x1bf-Hq0DomI7JFCBE"
     }
   },
   "GET /auth/me": {
     "url": "/api/v1/auth/me",
     "response": {
-      "id": 52,
-      "email": "member.1791317575220.2@example.com",
+      "id": 62,
+      "email": "member.1791345088155.2@example.com",
       "name": "สมชาย ใจดี",
       "phone": "0812345678",
       "avatarUrl": null,
       "role": "member",
       "status": "active",
-      "createdAt": "2026-10-06T20:12:55.249Z"
+      "createdAt": "2026-10-07T03:51:28.185Z"
     }
   },
   "POST /auth/logout": {
@@ -74,119 +74,119 @@
       "phone": "0811111111"
     },
     "response": {
-      "id": 53,
-      "email": "member.1791317575293.3@example.com",
+      "id": 63,
+      "email": "member.1791345088233.3@example.com",
       "name": "สมหญิง รักกีฬา",
       "phone": "0811111111",
       "avatarUrl": null,
       "role": "member",
       "status": "active",
-      "createdAt": "2026-10-06T20:12:55.321Z"
+      "createdAt": "2026-10-07T03:51:28.265Z"
     }
   },
   "POST /users/me/avatar": {
     "url": "/api/v1/users/me/avatar",
     "response": {
-      "id": 55,
-      "email": "member.1791317575487.5@example.com",
+      "id": 65,
+      "email": "member.1791345088422.5@example.com",
       "name": "สมชาย ใจดี",
       "phone": "0812345678",
-      "avatarUrl": "/uploads/avatars/4186db65-0baa-4480-8cc9-841de567d8cb.png",
+      "avatarUrl": "/uploads/avatars/5fb60ce8-8cc1-43a5-9ee2-8cdfded9835a.png",
       "role": "member",
       "status": "active",
-      "createdAt": "2026-10-06T20:12:55.517Z"
+      "createdAt": "2026-10-07T03:51:28.453Z"
     }
   },
   "GET /users": {
     "url": "/api/v1/users?q=%E0%B9%80%E0%B8%88%E0%B8%AD%E0%B9%81%E0%B8%99%E0%B9%88",
     "response": [
       {
-        "id": 58,
-        "email": "member.1791317575622.8@example.com",
+        "id": 68,
+        "email": "member.1791345088568.8@example.com",
         "name": "ค้นหา เจอแน่",
         "phone": "0812345678",
         "avatarUrl": null,
         "role": "member",
         "status": "active",
-        "createdAt": "2026-10-06T20:12:55.650Z"
+        "createdAt": "2026-10-07T03:51:28.601Z"
       }
     ]
   },
   "GET /users/:id": {
-    "url": "/api/v1/users/60",
+    "url": "/api/v1/users/70",
     "response": {
-      "id": 60,
-      "email": "member.1791317575715.10@example.com",
+      "id": 70,
+      "email": "member.1791345088701.10@example.com",
       "name": "สมชาย ใจดี",
       "phone": "0812345678",
       "avatarUrl": null,
       "role": "member",
       "status": "active",
-      "createdAt": "2026-10-06T20:12:55.744Z",
+      "createdAt": "2026-10-07T03:51:28.737Z",
       "bookingCount": 0,
       "totalSpent": 0
     }
   },
   "PATCH /users/:id/status": {
-    "url": "/api/v1/users/62/status",
+    "url": "/api/v1/users/72/status",
     "body": {
       "status": "suspended"
     },
     "response": {
-      "id": 62,
-      "email": "member.1791317575813.12@example.com",
+      "id": 72,
+      "email": "member.1791345088821.12@example.com",
       "name": "สมชาย ใจดี",
       "phone": "0812345678",
       "avatarUrl": null,
       "role": "member",
       "status": "suspended",
-      "createdAt": "2026-10-06T20:12:55.846Z"
+      "createdAt": "2026-10-07T03:51:28.855Z"
     }
   },
   "PATCH /users/:id/role": {
-    "url": "/api/v1/users/65/role",
+    "url": "/api/v1/users/75/role",
     "body": {
       "role": "admin"
     },
     "response": {
-      "id": 65,
-      "email": "member.1791317576008.15@example.com",
+      "id": 75,
+      "email": "member.1791345089029.15@example.com",
       "name": "สมชาย ใจดี",
       "phone": "0812345678",
       "avatarUrl": null,
       "role": "admin",
       "status": "active",
-      "createdAt": "2026-10-06T20:12:56.035Z"
+      "createdAt": "2026-10-07T03:51:29.061Z"
     }
   },
   "POST /users": {
     "url": "/api/v1/users",
     "body": {
-      "email": "staff.1791317576104@example.com",
+      "email": "staff.1791345089134@example.com",
       "password": "staff12345",
       "name": "พนักงาน ใหม่",
       "role": "admin"
     },
     "response": {
-      "id": 67,
-      "email": "staff.1791317576104@example.com",
+      "id": 77,
+      "email": "staff.1791345089134@example.com",
       "name": "พนักงาน ใหม่",
       "phone": null,
       "avatarUrl": null,
       "role": "admin",
       "status": "active",
-      "createdAt": "2026-10-06T20:12:56.134Z"
+      "createdAt": "2026-10-07T03:51:29.165Z"
     }
   },
   "POST /sports": {
     "url": "/api/v1/sports",
     "body": {
-      "name": "แบดมินตัน 1791317577927750",
+      "name": "แบดมินตัน 1791345090954110",
       "icon": "🏸"
     },
     "response": {
-      "id": 5,
-      "name": "แบดมินตัน 1791317577927750",
+      "id": 6,
+      "name": "แบดมินตัน 1791345090954110",
       "icon": "🏸",
       "courtCount": 0,
       "equipmentCount": 0
@@ -197,35 +197,42 @@
     "response": [
       {
         "id": 1,
-        "name": "ฟุตซอล-1791317569571",
+        "name": "วอลเลย์-1791345082311",
+        "icon": "🏐",
+        "courtCount": 1,
+        "equipmentCount": 0
+      },
+      {
+        "id": 2,
+        "name": "ฟุตซอล-1791345083451",
         "icon": "⚽",
         "courtCount": 1,
         "equipmentCount": 1
       },
       {
-        "id": 2,
-        "name": "เทนนิส-1791317571847",
-        "icon": "🎾",
-        "courtCount": 1,
-        "equipmentCount": 0
-      },
-      {
         "id": 3,
-        "name": "แบดมินตัน-1791317573538",
+        "name": "แบดมินตัน-1791345085093",
         "icon": "🏸",
         "courtCount": 1,
         "equipmentCount": 1
       },
       {
         "id": 4,
-        "name": "บาส-1791317576647",
+        "name": "เทนนิส-1791345086570",
+        "icon": "🎾",
+        "courtCount": 1,
+        "equipmentCount": 0
+      },
+      {
+        "id": 5,
+        "name": "บาส-1791345089703",
         "icon": "🏀",
         "courtCount": 10,
         "equipmentCount": 0
       },
       {
-        "id": 5,
-        "name": "แบดมินตัน 1791317577927750",
+        "id": 6,
+        "name": "แบดมินตัน 1791345090954110",
         "icon": "🏸",
         "courtCount": 0,
         "equipmentCount": 0
@@ -233,13 +240,13 @@
     ]
   },
   "PATCH /sports/:id": {
-    "url": "/api/v1/sports/8",
+    "url": "/api/v1/sports/9",
     "body": {
-      "name": "ฟุตซอล 1791317577961570"
+      "name": "ฟุตซอล 1791345090987960"
     },
     "response": {
-      "id": 8,
-      "name": "ฟุตซอล 1791317577961570",
+      "id": 9,
+      "name": "ฟุตซอล 1791345090987960",
       "icon": "🏸",
       "courtCount": 0,
       "equipmentCount": 0
@@ -248,19 +255,19 @@
   "POST /courts": {
     "url": "/api/v1/courts",
     "body": {
-      "sportId": 8,
-      "name": "คอร์ท 1791317577966922",
+      "sportId": 9,
+      "name": "คอร์ท 1791345090992643",
       "description": "พื้นยางมาตรฐาน",
       "pricePerHour": 150,
       "openHour": 8,
       "closeHour": 22
     },
     "response": {
-      "id": 15,
-      "sportId": 8,
-      "sportName": "ฟุตซอล 1791317577961570",
+      "id": 16,
+      "sportId": 9,
+      "sportName": "ฟุตซอล 1791345090987960",
       "sportIcon": "🏸",
-      "name": "คอร์ท 1791317577966922",
+      "name": "คอร์ท 1791345090992643",
       "description": "พื้นยางมาตรฐาน",
       "pricePerHour": 150,
       "openHour": 8,
@@ -274,20 +281,20 @@
     }
   },
   "DELETE /sports/:id": {
-    "url": "/api/v1/sports/9",
+    "url": "/api/v1/sports/10",
     "response": {
       "ok": true
     }
   },
   "GET /courts": {
-    "url": "/api/v1/courts?sport=12",
+    "url": "/api/v1/courts?sport=13",
     "response": [
       {
-        "id": 19,
-        "sportId": 12,
-        "sportName": "แบดมินตัน 1791317578018120",
+        "id": 20,
+        "sportId": 13,
+        "sportName": "แบดมินตัน 1791345091040906",
         "sportIcon": "🏸",
-        "name": "คอร์ท 1791317578028462",
+        "name": "คอร์ท 1791345091049109",
         "description": "พื้นยางมาตรฐาน",
         "pricePerHour": 150,
         "openHour": 8,
@@ -302,13 +309,13 @@
     ]
   },
   "GET /courts/:id": {
-    "url": "/api/v1/courts/20",
+    "url": "/api/v1/courts/21",
     "response": {
-      "id": 20,
-      "sportId": 12,
-      "sportName": "แบดมินตัน 1791317578018120",
+      "id": 21,
+      "sportId": 13,
+      "sportName": "แบดมินตัน 1791345091040906",
       "sportIcon": "🏸",
-      "name": "คอร์ท 179131757803326",
+      "name": "คอร์ท 1791345091054248",
       "description": "พื้นยางมาตรฐาน",
       "pricePerHour": 150,
       "openHour": 8,
@@ -322,17 +329,17 @@
     }
   },
   "PATCH /courts/:id": {
-    "url": "/api/v1/courts/22",
+    "url": "/api/v1/courts/23",
     "body": {
       "pricePerHour": 220,
       "closeHour": 23
     },
     "response": {
-      "id": 22,
-      "sportId": 14,
-      "sportName": "แบดมินตัน 1791317578058427",
+      "id": 23,
+      "sportId": 15,
+      "sportName": "แบดมินตัน 1791345091077921",
       "sportIcon": "🏸",
-      "name": "คอร์ท 1791317578062581",
+      "name": "คอร์ท 1791345091081753",
       "description": "พื้นยางมาตรฐาน",
       "pricePerHour": 220,
       "openHour": 8,
@@ -346,29 +353,29 @@
     }
   },
   "POST /courts/:id/image": {
-    "url": "/api/v1/courts/23/image",
+    "url": "/api/v1/courts/24/image",
     "response": {
-      "id": 23,
-      "sportId": 15,
-      "sportName": "แบดมินตัน 179131757807319",
+      "id": 24,
+      "sportId": 16,
+      "sportName": "แบดมินตัน 1791345091091427",
       "sportIcon": "🏸",
-      "name": "คอร์ท 1791317578077423",
+      "name": "คอร์ท 179134509109523",
       "description": "พื้นยางมาตรฐาน",
       "pricePerHour": 150,
       "openHour": 8,
       "closeHour": 22,
       "peakPricePerHour": null,
       "peakFromHour": null,
-      "imageUrl": "/uploads/courts/0cbbaf1d-f921-4b3d-9285-fb9a77a17df1.png",
+      "imageUrl": "/uploads/courts/2e504e45-8616-4d5a-a548-00d492925768.png",
       "isActive": true,
       "rating": null,
       "reviewCount": 0
     }
   },
   "GET /courts/:id/availability": {
-    "url": "/api/v1/courts/24/availability?date=2099-01-15",
+    "url": "/api/v1/courts/25/availability?date=2099-01-15",
     "response": {
-      "courtId": 24,
+      "courtId": 25,
       "date": "2099-01-15",
       "slots": [
         {
@@ -398,8 +405,8 @@
   "POST /equipment": {
     "url": "/api/v1/equipment",
     "body": {
-      "sportId": 17,
-      "name": "ไม้แบด Yonex 1791317578111431",
+      "sportId": 18,
+      "name": "ไม้แบด Yonex 1791345091128318",
       "description": "น้ำหนักเบา",
       "totalQty": 10,
       "rentPrice": 30,
@@ -407,10 +414,10 @@
     },
     "response": {
       "id": 3,
-      "sportId": 17,
-      "sportName": "แบดมินตัน 1791317578107313",
+      "sportId": 18,
+      "sportName": "แบดมินตัน 179134509112442",
       "sportIcon": "🏸",
-      "name": "ไม้แบด Yonex 1791317578111431",
+      "name": "ไม้แบด Yonex 1791345091128318",
       "description": "น้ำหนักเบา",
       "totalQty": 10,
       "rentPrice": 30,
@@ -420,14 +427,14 @@
     }
   },
   "GET /equipment": {
-    "url": "/api/v1/equipment?sport=17",
+    "url": "/api/v1/equipment?sport=18",
     "response": [
       {
         "id": 3,
-        "sportId": 17,
-        "sportName": "แบดมินตัน 1791317578107313",
+        "sportId": 18,
+        "sportName": "แบดมินตัน 179134509112442",
         "sportIcon": "🏸",
-        "name": "ไม้แบด Yonex 1791317578111431",
+        "name": "ไม้แบด Yonex 1791345091128318",
         "description": "น้ำหนักเบา",
         "totalQty": 10,
         "rentPrice": 30,
@@ -441,10 +448,10 @@
     "url": "/api/v1/equipment/3",
     "response": {
       "id": 3,
-      "sportId": 17,
-      "sportName": "แบดมินตัน 1791317578107313",
+      "sportId": 18,
+      "sportName": "แบดมินตัน 179134509112442",
       "sportIcon": "🏸",
-      "name": "ไม้แบด Yonex 1791317578111431",
+      "name": "ไม้แบด Yonex 1791345091128318",
       "description": "น้ำหนักเบา",
       "totalQty": 10,
       "rentPrice": 30,
@@ -460,10 +467,10 @@
     },
     "response": {
       "id": 4,
-      "sportId": 18,
-      "sportName": "แบดมินตัน 1791317578119656",
+      "sportId": 19,
+      "sportName": "แบดมินตัน 1791345091136419",
       "sportIcon": "🏸",
-      "name": "ไม้แบด Yonex 1791317578123247",
+      "name": "ไม้แบด Yonex 1791345091140977",
       "description": "น้ำหนักเบา",
       "totalQty": 12,
       "rentPrice": 30,
@@ -476,15 +483,15 @@
     "url": "/api/v1/equipment/4/image",
     "response": {
       "id": 4,
-      "sportId": 18,
-      "sportName": "แบดมินตัน 1791317578119656",
+      "sportId": 19,
+      "sportName": "แบดมินตัน 1791345091136419",
       "sportIcon": "🏸",
-      "name": "ไม้แบด Yonex 1791317578123247",
+      "name": "ไม้แบด Yonex 1791345091140977",
       "description": "น้ำหนักเบา",
       "totalQty": 12,
       "rentPrice": 30,
       "deposit": 200,
-      "imageUrl": "/uploads/equipment/719483af-92c6-4879-8145-a4c5fcd14455.png",
+      "imageUrl": "/uploads/equipment/58d2888e-e9f7-4957-acb8-a613367eeb21.png",
       "isActive": true
     }
   },
@@ -501,13 +508,13 @@
   "GET /cart": {
     "url": "/api/v1/cart",
     "response": {
-      "id": 46,
-      "code": "202610070046",
+      "id": 52,
+      "code": "202610070052",
       "status": "cart",
-      "userId": 71,
+      "userId": 81,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317576781.3@example.com",
-      "createdAt": "2026-10-06T20:12:56.819Z",
+      "userEmail": "member.1791345089837.3@example.com",
+      "createdAt": "2026-10-07T03:51:29.871Z",
       "confirmedAt": null,
       "expiresAt": null,
       "subtotal": 0,
@@ -526,18 +533,18 @@
   "POST /cart/slots": {
     "url": "/api/v1/cart/slots",
     "body": {
-      "courtId": 4,
+      "courtId": 5,
       "startAt": "2026-10-09T19:00:00+07:00",
       "repeatWeeks": 4
     },
     "response": {
-      "id": 44,
-      "code": "202610070044",
+      "id": 50,
+      "code": "202610070050",
       "status": "cart",
-      "userId": 69,
+      "userId": 79,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317576662.1@example.com",
-      "createdAt": "2026-10-06T20:12:56.698Z",
+      "userEmail": "member.1791345089718.1@example.com",
+      "createdAt": "2026-10-07T03:51:29.755Z",
       "confirmedAt": null,
       "expiresAt": null,
       "subtotal": 600,
@@ -547,10 +554,10 @@
       "checkinToken": null,
       "slots": [
         {
-          "id": 39,
-          "courtId": 4,
-          "courtName": "คอร์ท 0.2508735550371648",
-          "sportName": "บาส-1791317576647",
+          "id": 45,
+          "courtId": 5,
+          "courtName": "คอร์ท 0.7943136628155313",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-09T19:00:00+07:00",
           "endAt": "2026-10-09T20:00:00+07:00",
@@ -558,10 +565,10 @@
           "taken": false
         },
         {
-          "id": 40,
-          "courtId": 4,
-          "courtName": "คอร์ท 0.2508735550371648",
-          "sportName": "บาส-1791317576647",
+          "id": 46,
+          "courtId": 5,
+          "courtName": "คอร์ท 0.7943136628155313",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-16T19:00:00+07:00",
           "endAt": "2026-10-16T20:00:00+07:00",
@@ -569,10 +576,10 @@
           "taken": false
         },
         {
-          "id": 41,
-          "courtId": 4,
-          "courtName": "คอร์ท 0.2508735550371648",
-          "sportName": "บาส-1791317576647",
+          "id": 47,
+          "courtId": 5,
+          "courtName": "คอร์ท 0.7943136628155313",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-23T19:00:00+07:00",
           "endAt": "2026-10-23T20:00:00+07:00",
@@ -580,10 +587,10 @@
           "taken": false
         },
         {
-          "id": 42,
-          "courtId": 4,
-          "courtName": "คอร์ท 0.2508735550371648",
-          "sportName": "บาส-1791317576647",
+          "id": 48,
+          "courtId": 5,
+          "courtName": "คอร์ท 0.7943136628155313",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-30T19:00:00+07:00",
           "endAt": "2026-10-30T20:00:00+07:00",
@@ -607,13 +614,13 @@
       "endAt": "2026-10-11T20:00:00+07:00"
     },
     "response": {
-      "id": 28,
-      "code": "202610070028",
+      "id": 23,
+      "code": "202610070023",
       "status": "cart",
-      "userId": 34,
+      "userId": 30,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317573767.5@example.com",
-      "createdAt": "2026-10-06T20:12:53.802Z",
+      "userEmail": "member.1791345085306.5@example.com",
+      "createdAt": "2026-10-07T03:51:25.340Z",
       "confirmedAt": null,
       "expiresAt": null,
       "subtotal": 60,
@@ -645,15 +652,15 @@
     }
   },
   "DELETE /cart/slots/:id": {
-    "url": "/api/v1/cart/slots/28",
+    "url": "/api/v1/cart/slots/23",
     "response": {
-      "id": 29,
-      "code": "202610070029",
+      "id": 24,
+      "code": "202610070024",
       "status": "cart",
-      "userId": 35,
+      "userId": 31,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317573810.6@example.com",
-      "createdAt": "2026-10-06T20:12:53.845Z",
+      "userEmail": "member.1791345085349.6@example.com",
+      "createdAt": "2026-10-07T03:51:25.382Z",
       "confirmedAt": null,
       "expiresAt": null,
       "subtotal": 30,
@@ -687,13 +694,13 @@
   "DELETE /cart/equipment/:id": {
     "url": "/api/v1/cart/equipment/4",
     "response": {
-      "id": 29,
-      "code": "202610070029",
+      "id": 24,
+      "code": "202610070024",
       "status": "cart",
-      "userId": 35,
+      "userId": 31,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317573810.6@example.com",
-      "createdAt": "2026-10-06T20:12:53.845Z",
+      "userEmail": "member.1791345085349.6@example.com",
+      "createdAt": "2026-10-07T03:51:25.382Z",
       "confirmedAt": null,
       "expiresAt": null,
       "subtotal": 0,
@@ -718,15 +725,15 @@
   "POST /cart/confirm": {
     "url": "/api/v1/cart/confirm",
     "response": {
-      "id": 45,
-      "code": "202610070045",
+      "id": 51,
+      "code": "202610070051",
       "status": "pending_payment",
-      "userId": 70,
+      "userId": 80,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317576719.2@example.com",
-      "createdAt": "2026-10-06T20:12:56.753Z",
-      "confirmedAt": "2026-10-06T20:12:56.763Z",
-      "expiresAt": "2026-10-06T20:27:56.763Z",
+      "userEmail": "member.1791345089779.2@example.com",
+      "createdAt": "2026-10-07T03:51:29.813Z",
+      "confirmedAt": "2026-10-07T03:51:29.823Z",
+      "expiresAt": "2026-10-07T04:06:29.823Z",
       "subtotal": 150,
       "discount": 0,
       "total": 150,
@@ -734,10 +741,10 @@
       "checkinToken": null,
       "slots": [
         {
-          "id": 43,
-          "courtId": 5,
-          "courtName": "คอร์ท 0.0414044083888766",
-          "sportName": "บาส-1791317576647",
+          "id": 49,
+          "courtId": 6,
+          "courtName": "คอร์ท 0.29922963817385095",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-23T19:00:00+07:00",
           "endAt": "2026-10-23T20:00:00+07:00",
@@ -756,13 +763,13 @@
     "url": "/api/v1/bookings",
     "response": [
       {
-        "id": 40,
-        "code": "202610070040",
+        "id": 35,
+        "code": "202610070035",
         "status": "pending_payment",
-        "userId": 45,
+        "userId": 41,
         "userName": "สมชาย ใจดี",
-        "createdAt": "2026-10-06T20:12:54.400Z",
-        "confirmedAt": "2026-10-06T20:12:54.416Z",
+        "createdAt": "2026-10-07T03:51:25.903Z",
+        "confirmedAt": "2026-10-07T03:51:25.918Z",
         "total": 180,
         "firstStartAt": "2026-10-16T09:00:00.000Z",
         "itemCount": 2
@@ -770,28 +777,28 @@
     ]
   },
   "GET /bookings/:id": {
-    "url": "/api/v1/bookings/47",
+    "url": "/api/v1/bookings/53",
     "response": {
-      "id": 47,
-      "code": "202610070047",
+      "id": 53,
+      "code": "202610070053",
       "status": "pending_payment",
-      "userId": 74,
+      "userId": 84,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317576941.6@example.com",
-      "createdAt": "2026-10-06T20:12:56.976Z",
-      "confirmedAt": "2026-10-06T20:12:57.008Z",
-      "expiresAt": "2026-10-06T20:27:57.008Z",
+      "userEmail": "member.1791345089987.6@example.com",
+      "createdAt": "2026-10-07T03:51:30.021Z",
+      "confirmedAt": "2026-10-07T03:51:30.052Z",
+      "expiresAt": "2026-10-07T04:06:30.052Z",
       "subtotal": 300,
       "discount": 30,
       "total": 270,
-      "couponCode": "TEN7693798",
+      "couponCode": "TEN8998384",
       "checkinToken": null,
       "slots": [
         {
-          "id": 46,
-          "courtId": 7,
-          "courtName": "คอร์ท 0.5969355858584336",
-          "sportName": "บาส-1791317576647",
+          "id": 52,
+          "courtId": 8,
+          "courtName": "คอร์ท 0.22365290721409126",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-11T10:00:00+07:00",
           "endAt": "2026-10-11T11:00:00+07:00",
@@ -799,10 +806,10 @@
           "taken": false
         },
         {
-          "id": 47,
-          "courtId": 7,
-          "courtName": "คอร์ท 0.5969355858584336",
-          "sportName": "บาส-1791317576647",
+          "id": 53,
+          "courtId": 8,
+          "courtName": "คอร์ท 0.22365290721409126",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-11T11:00:00+07:00",
           "endAt": "2026-10-11T12:00:00+07:00",
@@ -818,32 +825,32 @@
     }
   },
   "POST /bookings/:id/cancel": {
-    "url": "/api/v1/bookings/43/cancel",
+    "url": "/api/v1/bookings/40/cancel",
     "response": {
-      "id": 43,
-      "code": "202610070043",
+      "id": 40,
+      "code": "202610070040",
       "status": "cancelled",
-      "userId": 48,
+      "userId": 47,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317574543.19@example.com",
-      "createdAt": "2026-10-06T20:12:54.578Z",
-      "confirmedAt": "2026-10-06T20:12:54.587Z",
+      "userEmail": "member.1791345086671.2@example.com",
+      "createdAt": "2026-10-07T03:51:26.743Z",
+      "confirmedAt": "2026-10-07T03:51:26.757Z",
       "expiresAt": null,
-      "subtotal": 150,
+      "subtotal": 300,
       "discount": 0,
-      "total": 150,
+      "total": 300,
       "couponCode": null,
       "checkinToken": null,
       "slots": [
         {
-          "id": 38,
-          "courtId": 3,
-          "courtName": "คอร์ท A",
-          "sportName": "แบดมินตัน-1791317573538",
-          "sportIcon": "🏸",
-          "startAt": "2026-10-18T14:00:00+07:00",
-          "endAt": "2026-10-18T15:00:00+07:00",
-          "price": 150,
+          "id": 35,
+          "courtId": 4,
+          "courtName": "คอร์ทเทนนิส 1",
+          "sportName": "เทนนิส-1791345086570",
+          "sportIcon": "🎾",
+          "startAt": "2026-10-10T01:00:00+07:00",
+          "endAt": "2026-10-10T02:00:00+07:00",
+          "price": 300,
           "taken": false
         }
       ],
@@ -855,126 +862,126 @@
     }
   },
   "GET /bookings/:id/promptpay": {
-    "url": "/api/v1/bookings/47/promptpay",
+    "url": "/api/v1/bookings/53/promptpay",
     "response": {
-      "bookingId": 47,
+      "bookingId": 53,
       "amount": 270,
       "promptpayId": "0812345678",
       "payload": "00020101021229370016A000000677010111011300668123456785802TH53037645406270.006304BBEE",
       "qr": "data:image/png;base64,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",
-      "expiresAt": "2026-10-06T20:27:57.008Z"
+      "expiresAt": "2026-10-07T04:06:30.052Z"
     }
   },
   "POST /bookings/:id/payments": {
-    "url": "/api/v1/bookings/17/payments",
+    "url": "/api/v1/bookings/42/payments",
     "response": {
-      "id": 10,
-      "bookingId": 17,
-      "bookingCode": "202610070017",
-      "userId": 20,
+      "id": 11,
+      "bookingId": 42,
+      "bookingCode": "202610070042",
+      "userId": 50,
       "userName": "สมชาย ใจดี",
       "amount": 300,
       "status": "pending",
       "note": null,
-      "createdAt": "2026-10-06T20:12:52.300Z",
+      "createdAt": "2026-10-07T03:51:26.942Z",
       "reviewedAt": null,
       "reviewedByName": null,
-      "slipUrl": "/api/v1/payments/10/slip"
+      "slipUrl": "/api/v1/payments/11/slip"
     }
   },
   "GET /payments": {
     "url": "/api/v1/payments?status=pending",
     "response": [
       {
-        "id": 12,
-        "bookingId": 20,
-        "bookingCode": "202610070020",
-        "userId": 24,
+        "id": 13,
+        "bookingId": 45,
+        "bookingCode": "202610070045",
+        "userId": 54,
         "userName": "สมชาย ใจดี",
         "amount": 300,
         "status": "pending",
         "note": null,
-        "createdAt": "2026-10-06T20:12:52.548Z",
+        "createdAt": "2026-10-07T03:51:27.203Z",
+        "reviewedAt": null,
+        "reviewedByName": null,
+        "slipUrl": "/api/v1/payments/13/slip"
+      },
+      {
+        "id": 12,
+        "bookingId": 44,
+        "bookingCode": "202610070044",
+        "userId": 52,
+        "userName": "สมชาย ใจดี",
+        "amount": 300,
+        "status": "pending",
+        "note": null,
+        "createdAt": "2026-10-07T03:51:27.128Z",
         "reviewedAt": null,
         "reviewedByName": null,
         "slipUrl": "/api/v1/payments/12/slip"
       },
       {
         "id": 11,
-        "bookingId": 19,
-        "bookingCode": "202610070019",
-        "userId": 22,
+        "bookingId": 42,
+        "bookingCode": "202610070042",
+        "userId": 50,
         "userName": "สมชาย ใจดี",
         "amount": 300,
         "status": "pending",
         "note": null,
-        "createdAt": "2026-10-06T20:12:52.471Z",
+        "createdAt": "2026-10-07T03:51:26.942Z",
         "reviewedAt": null,
         "reviewedByName": null,
         "slipUrl": "/api/v1/payments/11/slip"
-      },
-      {
-        "id": 10,
-        "bookingId": 17,
-        "bookingCode": "202610070017",
-        "userId": 20,
-        "userName": "สมชาย ใจดี",
-        "amount": 300,
-        "status": "pending",
-        "note": null,
-        "createdAt": "2026-10-06T20:12:52.300Z",
-        "reviewedAt": null,
-        "reviewedByName": null,
-        "slipUrl": "/api/v1/payments/10/slip"
       }
     ]
   },
   "PATCH /payments/:id": {
-    "url": "/api/v1/payments/12",
+    "url": "/api/v1/payments/13",
     "body": {
       "status": "approved"
     },
     "response": {
-      "id": 12,
-      "bookingId": 20,
-      "bookingCode": "202610070020",
-      "userId": 24,
+      "id": 13,
+      "bookingId": 45,
+      "bookingCode": "202610070045",
+      "userId": 54,
       "userName": "สมชาย ใจดี",
       "amount": 300,
       "status": "approved",
       "note": null,
-      "createdAt": "2026-10-06T20:12:52.548Z",
-      "reviewedAt": "2026-10-06T20:12:52.558Z",
+      "createdAt": "2026-10-07T03:51:27.203Z",
+      "reviewedAt": "2026-10-07T03:51:27.213Z",
       "reviewedByName": "ผู้ดูแล สนาม",
-      "slipUrl": "/api/v1/payments/12/slip"
+      "slipUrl": "/api/v1/payments/13/slip"
     }
   },
   "POST /checkin": {
     "url": "/api/v1/checkin",
     "body": {
-      "token": "6d082b15-179c-405e-82fb-f5b556ea89a6"
+      "token": "fcec846a-d286-4d1c-babd-6df14af455b4"
     },
     "response": {
-      "id": 2,
-      "code": "202610070002",
+      "id": 8,
+      "code": "202610070008",
       "status": "checked_in",
-      "userId": 3,
+      "userId": 13,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317569679.2@example.com",
-      "createdAt": "2026-10-06T20:12:49.723Z",
-      "confirmedAt": "2026-10-06T20:12:49.736Z",
+      "userEmail": "member.1791345083549.2@example.com",
+      "createdAt": "2026-10-07T03:51:23.584Z",
+      "confirmedAt": "2026-10-07T03:51:23.593Z",
       "expiresAt": null,
       "subtotal": 800,
       "discount": 0,
       "total": 800,
       "couponCode": null,
-      "checkinToken": "6d082b15-179c-405e-82fb-f5b556ea89a6",
+      "checkinToken": "fcec846a-d286-4d1c-babd-6df14af455b4",
       "slots": [
         {
-          "id": 2,
-          "courtId": 1,
+          "id": 8,
+          "courtId": 2,
           "courtName": "สนามฟุตซอล 1",
-          "sportName": "ฟุตซอล-1791317569571",
+          "sportName": "ฟุตซอล-1791345083451",
           "sportIcon": "⚽",
           "startAt": "2026-10-11T01:00:00+07:00",
           "endAt": "2026-10-11T02:00:00+07:00",
@@ -986,45 +993,45 @@
       "depositTotal": 0,
       "payments": [
         {
-          "id": 1,
+          "id": 2,
           "amount": 800,
           "status": "approved",
           "note": null,
-          "createdAt": "2026-10-07T03:12:49.756698+07:00",
-          "reviewedAt": "2026-10-07T03:12:49.765206+07:00"
+          "createdAt": "2026-10-07T10:51:23.612986+07:00",
+          "reviewedAt": "2026-10-07T10:51:23.62066+07:00"
         }
       ],
       "reviewedCourtIds": [],
-      "checkinQr": "data:image/png;base64,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"
+      "checkinQr": "data:image/png;base64,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"
     }
   },
   "POST /bookings/:id/equipment/:itemId/return": {
-    "url": "/api/v1/bookings/6/equipment/1/return",
+    "url": "/api/v1/bookings/12/equipment/1/return",
     "body": {
       "conditionNote": "ลูกบอลรั่ว",
       "fine": 150
     },
     "response": {
-      "id": 6,
-      "code": "202610070006",
+      "id": 12,
+      "code": "202610070012",
       "status": "checked_in",
-      "userId": 7,
+      "userId": 17,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317570096.6@example.com",
-      "createdAt": "2026-10-06T20:12:50.134Z",
-      "confirmedAt": "2026-10-06T20:12:50.152Z",
+      "userEmail": "member.1791345083909.6@example.com",
+      "createdAt": "2026-10-07T03:51:23.943Z",
+      "confirmedAt": "2026-10-07T03:51:23.962Z",
       "expiresAt": null,
       "subtotal": 820,
       "discount": 0,
       "total": 820,
       "couponCode": null,
-      "checkinToken": "ef096898-d8ed-4961-a317-7e6e11ca4358",
+      "checkinToken": "c2e07f5e-7c7d-44d6-8790-2f728b878ddd",
       "slots": [
         {
-          "id": 6,
-          "courtId": 1,
+          "id": 12,
+          "courtId": 2,
           "courtName": "สนามฟุตซอล 1",
-          "sportName": "ฟุตซอล-1791317569571",
+          "sportName": "ฟุตซอล-1791345083451",
           "sportIcon": "⚽",
           "startAt": "2026-10-11T04:00:00+07:00",
           "endAt": "2026-10-11T05:00:00+07:00",
@@ -1043,7 +1050,7 @@
           "endAt": "2026-10-11T05:00:00+07:00",
           "price": 20,
           "deposit": 300,
-          "returnedAt": "2026-10-07T03:12:50.217962+07:00",
+          "returnedAt": "2026-10-07T10:51:24.017176+07:00",
           "conditionNote": "ลูกบอลรั่ว",
           "fine": 150
         }
@@ -1051,44 +1058,44 @@
       "depositTotal": 300,
       "payments": [
         {
-          "id": 4,
+          "id": 5,
           "amount": 820,
           "status": "approved",
           "note": null,
-          "createdAt": "2026-10-07T03:12:50.17061+07:00",
-          "reviewedAt": "2026-10-07T03:12:50.177168+07:00"
+          "createdAt": "2026-10-07T10:51:23.979497+07:00",
+          "reviewedAt": "2026-10-07T10:51:23.985245+07:00"
         }
       ],
       "reviewedCourtIds": [],
-      "checkinQr": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAklEQVR4AewaftIAAAbLSURBVO3BgY0bSRAEwawG/Xe5XhbMChjt86TOiPQXJK00SFprkLTWIGmtQdJag6S1BklrDZLWGiSt9eE3JGGDttxIwq22nCThpC0nSXhbW24l4aQtN5KwQVtOBklrDZLWGiStNUhaa5C01iBprUHSWh/+gLb8dEm4lYSTtpwk4W1JuNUWQVt+uiTcGCStNUhaa5C01iBprUHSWoOktQZJa334HyThbW35tiS8rS0nSThpy5MknLTlJAm32nKShJO2vC0Jb2vLmwZJaw2S1hokrTVIWmuQtNYgaa1B0lqDpLU+6I9py0kSniThpC0nbbnVlpMk6N8wSFprkLTWIGmtQdJag6S1BklrDZLW+qDf1pYbbXmShG9Lwklb9G8YJK01SFprkLTWIGmtQdJag6S1BklrffgftEWQhCdtOUnCSVtuteXbknDSlm9ry99ukLTWIGmtQdJag6S1BklrDZLWGiSt9eEPSMIGSThpy0+XhCdtOUnCSVtOkvCkLSdJOGnLrST86wZJaw2S1hokrTVIWmuQtNYgaa1B0lqDpLU+/Ia26FkSTtryJAknbXlbEm4k4adri2CQtNYgaa1B0lqDpLUGSWsNktYaJK314Tck4aQtP10SnrTlRltuteVNbfkbJOGkLSdJuNWWG0l4W1tuDJLWGiStNUhaa5C01iBprUHSWoOktT78AUm41ZaTJNxoy9uScNKWW0m40Za3JeGkLU/a8rdry60knCThpC0ng6S1BklrDZLWGiStNUhaa5C01iBprfQXLiXhpC1PkiBoy0kS3taWb0vCSVtOknDSlidJuNGWW0k4acuNQdJag6S1BklrDZLWGiStNUhaa5C01iBprQ+/IQnf1pa3JeGkLTeS8CQJJ205ScJJW54k4U1tedKWkySctOXbknDSlidtedMgaa1B0lqDpLUGSWsNktYaJK01SFrrwx/Qlp8uCU/aciMJJ225lYS/XRLeloSTtjxpy0kS3paEG205GSStNUhaa5C01iBprUHSWoOktQZJa6W/cCkJJ215koSTtpwk4aQtT5Jw0pa3JeFGW96WhJO2fFsSbrXl25Jw0pYbg6S1BklrDZLWGiStNUhaa5C01iBprQ//gyQ8acubkvCkLW9KwpO2nCThbUk4acvbknCjLbeScKMtP90gaa1B0lqDpLUGSWsNktYaJK01SFprkLRW+gsPknDSln9BEm605W1JOGnL25Lwtra8KQlP2nKShBtt+bZB0lqDpLUGSWsNktYaJK01SFprkLRW+guXknDSlrcl4V/Qlm9Lwklbvi0JJ205ScKTtrwpCU/a8qZB0lqDpLUGSWsNktYaJK01SFprkLTWh9+QhLcl4aQtN9pyKwk32vIkCSdtOUnCrbacJOFGW54k4aQtJ0k4acuTJJy05UZbbiXhpC0ng6S1BklrDZLWGiStNUhaa5C01iBprQ8/RFtOknDSlpMk/AuScNKWW0l4UxKetOUkCTeScCsJb2vLmwZJaw2S1hokrTVIWmuQtNYgaa1B0lqDpLXSX3iQhJO2nCTh29pyKwnf1paTJJy05VYSbrTlVhJO2vK2JJy05SQJt9pyY5C01iBprUHSWoOktQZJaw2S1hokrZX+woMknLTlVhJO2nKShFttuZGEk7bcSsJJW06ScKstN5LwpC0nSfjbteXbBklrDZLWGiStNUhaa5C01iBprUHSWukv6Lck4UZbvi0JT9pykoSTtrwtCSdteVsSTtpykoQnbXnTIGmtQdJag6S1BklrDZLWGiStNUha68NvSMIGbTlpy0kSTpJwqy032iJIwpO2vKkt3zZIWmuQtNYgaa1B0lqDpLUGSWsNktYaJK314Q9oy0+XhL9BW06ScNKWkyQ8acuNJPx0bXlbEk7acisJJ205GSStNUhaa5C01iBprUHSWoOktQZJa334HyThbW35tracJOFJEm4k4adry60knCThX5CENw2S1hokrTVIWmuQtNYgaa1B0lqDpLU+6H/Tlm9Lwq223EjCk7actOUkCd/WllttedMgaa1B0lqDpLUGSWsNktYaJK01SFrrg/6YJPx0bbmVhJO2nLTlVhLe1pZvS8JJW24MktYaJK01SFprkLTWIGmtQdJag6S1BklrffgftEXQlidJOGnLSRJOkvCkLSdtOUnCvyAJN9pyqy0nSThpy8kgaa1B0lqDpLUGSWsNktYaJK01SFor/YUHSdigLSdJ+OnacisJJ215WxLe1JYnSfi2trxpkLTWIGmtQdJag6S1BklrDZLWGiStlf6CpJUGSWsNktYaJK01SFprkLTWIGmtQdJa/wGuCEj/IXZP5gAAAABJRU5ErkJggg=="
+      "checkinQr": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAklEQVR4AewaftIAAAcNSURBVO3BgW0cSRAEwazG+e9yPS2YJTBakfrOiPQLklYaJK01SFprkLTWIGmtQdJag6S1BklrDZLW+vANSdigLTeScKstN5Jw0pYnSThpy9uScNKWG0nYoC0ng6S1BklrDZLWGiStNUhaa5C01iBprQ9/QFt+uyT8C5Jw0pYbSfhpSXjSlpMknLTlVlt+uyTcGCStNUhaa5C01iBprUHSWoOktQZJa334C5Lwtra8LQknbbmVhJMk3GjLkyScJOGkLW9ry09Lwtva8qZB0lqDpLUGSWsNktYaJK01SFprkLTWIGmtD/pjknDSlre15SQJt9pykoRbSbjRFj0bJK01SFprkLTWIGmtQdJag6S1BklrfdBfk4RbbbnRlltJ+Glt0b1B0lqDpLUGSWsNktYaJK01SFprkLTWh7+gLfozknDSlltJOGnLT0vCSVve1pZ/3SBprUHSWoOktQZJaw2S1hokrTVIWuvDH5AEQVtOkvCkLSdJuJGEJ205ScJJW06S8KQtPy0J/3eDpLUGSWsNktYaJK01SFprkLTWIGmtQdJa6Rf0LUn4aW25kYS3teVWEm60Rc8GSWsNktYaJK01SFprkLTWIGmtQdJa6RceJOGkLSdJ+Be05UYSTtryJAk32nIrCSdtOUnCrbacJOGkLSdJ+Be05U2DpLUGSWsNktYaJK01SFprkLTWIGmtD9/Qln9dW/4P2nKShFttOUnCSVtuJeGkLSdJ+GlteVsSTtpyMkhaa5C01iBprUHSWoOktQZJaw2S1vrwDUk4actPa8tJEm615UYS/gVJOGnLSRJuteVGW24l4aQtb0vCSVtuDJLWGiStNUhaa5C01iBprUHSWoOktQZJa334hra8rS0nSThJwklbniThJAknbTlJwk9ry5MknCThpC0nSXhbEk7acisJJ2251ZY3DZLWGiStNUhaa5C01iBprUHSWoOktT58QxJutOVJEk7aciMJT9rypra8rS0nSbjVlpMknLTlSRJ+u7acJOFWW940SFprkLTWIGmtQdJag6S1BklrDZLWSr9wKQknbXlbEk7a8iQJN9pykoQnbfntknDSlpMk3GrLSRJuteUkCTfa8iQJN9pyMkhaa5C01iBprUHSWoOktQZJaw2S1kq/cCkJJ215koSTttxIwpO2nCThRlueJOFGW24l4aQtJ0k4acutJJy05SQJt9pykoRbbXnTIGmtQdJag6S1BklrDZLWGiStNUhaa5C01odfoi0nSThpy0lbbrXlJAknSfhpSXhbW06S8KQtb2rLrSTcaMuTJNxoy8kgaa1B0lqDpLUGSWsNktYaJK01SFor/cKlJJy05acl4Ulb3pSEJ205ScJJW96WhJ/WlpMknLTlpyXhVltuDJLWGiStNUhaa5C01iBprUHSWoOktdIvPEjCSVtOkvCkLSdJOGnLrSS8qS1PknDSlpMk3GrLT0vCSVtuJOGnteVWEk7acjJIWmuQtNYgaa1B0lqDpLUGSWsNktZKv/AgCSdtOUmCvqctN5Lw27XlX5CEk7bcSMKtttwYJK01SFprkLTWIGmtQdJag6S1BklrDZLW+vAXtOVJEk7a8rYk3GjL25Jwoy23knDSlltJeFNbbiXhpC0nbbmVhJO2nAyS1hokrTVIWmuQtNYgaa1B0lqDpLU+/AVJ+GlJeNKWkyScJOFtbbmRhLcl4VZbTpJwIwlvS8Lb2nJjkLTWIGmtQdJag6S1BklrDZLWGiStlX5B35KEG225lYSTtvwfJOFGW96WhBtteZKEG205GSStNUhaa5C01iBprUHSWoOktQZJa334hiRs0JaTttxIwpO2nLTlbUk4actJEn67JDxpy09ry5sGSWsNktYaJK01SFprkLTWIGmtQdJag6S1PvwBbfntknArCSdtuZWEk7bcSMLb2nKShCdtOUnCjbb8C5Jw0pYbg6S1BklrDZLWGiStNUhaa5C01iBprQ9/QRLe1pb/g7a8qS23kvDbJeGnteUkCU/a8qZB0lqDpLUGSWsNktYaJK01SFprkLTWB/0xSThpy5MknLTlRhKetOWkLSdJOGnLrbacJOGkLU+ScNKWkySctOVJEm605WSQtNYgaa1B0lqDpLUGSWsNktYaJK31QX9MW2615SQJb0vCSVtO2nKShFttOWnLSRKetOUkCT+tLTcGSWsNktYaJK01SFprkLTWIGmtQdJag6S1PvwFbfk/aMuNJDxpy0lbNmjLSRJO2nLSlidJuNGW326QtNYgaa1B0lqDpLUGSWsNktYaJK314Q9IwgZJuNGWJ0l4U1ueJOGkLSdJOGnLkySctOUkCSdtudWWG0l40pY3DZLWGiStNUhaa5C01iBprUHSWoOktdIvSFppkLTWIGmtQdJag6S1BklrDZLWGiSt9R/tCH7nmbW80wAAAABJRU5ErkJggg=="
     }
   },
   "POST /bookings/:id/review": {
-    "url": "/api/v1/bookings/7/review",
+    "url": "/api/v1/bookings/13/review",
     "body": {
-      "courtId": 1,
+      "courtId": 2,
       "rating": 4,
       "comment": "พื้นสนามดี ไฟสว่าง"
     },
     "response": {
       "id": 1,
-      "courtId": 1,
+      "courtId": 2,
       "userName": "นักฟุตซอล ตัวจริง",
       "rating": 4,
       "comment": "พื้นสนามดี ไฟสว่าง",
-      "createdAt": "2026-10-06T20:12:50.331Z"
+      "createdAt": "2026-10-07T03:51:24.116Z"
     }
   },
   "GET /courts/:id/reviews": {
-    "url": "/api/v1/courts/1/reviews",
+    "url": "/api/v1/courts/2/reviews",
     "response": [
       {
         "id": 1,
-        "courtId": 1,
+        "courtId": 2,
         "userName": "นักฟุตซอล ตัวจริง",
         "rating": 4,
         "comment": "พื้นสนามดี ไฟสว่าง",
-        "createdAt": "2026-10-06T20:12:50.331Z"
+        "createdAt": "2026-10-07T03:51:24.116Z"
       }
     ]
   },
@@ -1097,23 +1104,27 @@
     "response": {
       "from": "2026-10-07",
       "to": "2026-10-07",
-      "revenue": 7240,
-      "bookings": 12,
-      "newMembers": 13,
-      "totalMembers": 13,
+      "revenue": 7840,
+      "bookings": 18,
+      "newMembers": 22,
+      "totalMembers": 22,
       "pendingPayments": 0,
       "todayBookings": 2,
       "revenueByDay": [
         {
           "date": "2026-10-07",
-          "revenue": 7240,
-          "bookings": 12
+          "revenue": 7840,
+          "bookings": 18
         }
       ],
       "byStatus": [
         {
+          "status": "pending_payment",
+          "count": 7
+        },
+        {
           "status": "paid",
-          "count": 3
+          "count": 4
         },
         {
           "status": "checked_in",
@@ -1124,36 +1135,46 @@
           "count": 3
         },
         {
-          "status": "pending_payment",
-          "count": 2
-        },
-        {
           "status": "expired",
           "count": 1
         }
       ],
       "bySport": [
         {
-          "sportId": 1,
-          "name": "ฟุตซอล-1791317569571",
+          "sportId": 2,
+          "name": "ฟุตซอล-1791345083451",
           "icon": "⚽",
           "hours": 9,
           "revenue": 7200
+        },
+        {
+          "sportId": 1,
+          "name": "วอลเลย์-1791345082311",
+          "icon": "🏐",
+          "hours": 1,
+          "revenue": 600
         }
       ],
       "topCourts": [
         {
-          "courtId": 1,
+          "courtId": 2,
           "name": "สนามฟุตซอล 1",
           "sportIcon": "⚽",
           "hours": 9,
           "revenue": 7200
+        },
+        {
+          "courtId": 1,
+          "name": "สนามวอลเลย์ทดสอบ",
+          "sportIcon": "🏐",
+          "hours": 1,
+          "revenue": 600
         }
       ],
       "peakHours": [
         {
           "hour": 0,
-          "bookings": 1
+          "bookings": 0
         },
         {
           "hour": 1,
@@ -1161,11 +1182,11 @@
         },
         {
           "hour": 2,
-          "bookings": 1
+          "bookings": 2
         },
         {
           "hour": 3,
-          "bookings": 1
+          "bookings": 0
         },
         {
           "hour": 4,
@@ -1181,7 +1202,7 @@
         },
         {
           "hour": 7,
-          "bookings": 0
+          "bookings": 1
         },
         {
           "hour": 8,
@@ -1197,7 +1218,7 @@
         },
         {
           "hour": 11,
-          "bookings": 0
+          "bookings": 1
         },
         {
           "hour": 12,
@@ -1268,7 +1289,7 @@
           "courtId": 3,
           "courtName": "คอร์ท A",
           "sportId": 3,
-          "sportName": "แบดมินตัน-1791317573538",
+          "sportName": "แบดมินตัน-1791345085093",
           "sportIcon": "🏸",
           "pricePerHour": 150,
           "slots": [
@@ -1378,14 +1399,14 @@
   "POST /coupons": {
     "url": "/api/v1/coupons",
     "body": {
-      "code": "sale7687011",
+      "code": "sale8992127",
       "percentOff": 10,
       "minTotal": 200,
       "maxUses": 5
     },
     "response": {
       "id": 1,
-      "code": "SALE7687011",
+      "code": "SALE8992127",
       "percentOff": 10,
       "amountOff": null,
       "minTotal": 200,
@@ -1393,7 +1414,7 @@
       "usedCount": 0,
       "expiresAt": null,
       "isActive": true,
-      "createdAt": "2026-10-06T20:12:56.872Z"
+      "createdAt": "2026-10-07T03:51:29.923Z"
     }
   },
   "GET /coupons": {
@@ -1401,7 +1422,7 @@
     "response": [
       {
         "id": 1,
-        "code": "SALE7687011",
+        "code": "SALE8992127",
         "percentOff": 10,
         "amountOff": null,
         "minTotal": 200,
@@ -1409,36 +1430,36 @@
         "usedCount": 0,
         "expiresAt": null,
         "isActive": true,
-        "createdAt": "2026-10-06T20:12:56.872Z"
+        "createdAt": "2026-10-07T03:51:29.923Z"
       }
     ]
   },
   "POST /cart/coupon": {
     "url": "/api/v1/cart/coupon",
     "body": {
-      "code": "ten7693798"
+      "code": "ten8998384"
     },
     "response": {
-      "id": 47,
-      "code": "202610070047",
+      "id": 53,
+      "code": "202610070053",
       "status": "cart",
-      "userId": 74,
+      "userId": 84,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317576941.6@example.com",
-      "createdAt": "2026-10-06T20:12:56.976Z",
+      "userEmail": "member.1791345089987.6@example.com",
+      "createdAt": "2026-10-07T03:51:30.021Z",
       "confirmedAt": null,
       "expiresAt": null,
       "subtotal": 300,
       "discount": 30,
       "total": 270,
-      "couponCode": "TEN7693798",
+      "couponCode": "TEN8998384",
       "checkinToken": null,
       "slots": [
         {
-          "id": 46,
-          "courtId": 7,
-          "courtName": "คอร์ท 0.5969355858584336",
-          "sportName": "บาส-1791317576647",
+          "id": 52,
+          "courtId": 8,
+          "courtName": "คอร์ท 0.22365290721409126",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-11T10:00:00+07:00",
           "endAt": "2026-10-11T11:00:00+07:00",
@@ -1446,10 +1467,10 @@
           "taken": false
         },
         {
-          "id": 47,
-          "courtId": 7,
-          "courtName": "คอร์ท 0.5969355858584336",
-          "sportName": "บาส-1791317576647",
+          "id": 53,
+          "courtId": 8,
+          "courtName": "คอร์ท 0.22365290721409126",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-11T11:00:00+07:00",
           "endAt": "2026-10-11T12:00:00+07:00",
@@ -1471,7 +1492,7 @@
     },
     "response": {
       "id": 4,
-      "code": "TEN7693798",
+      "code": "TEN8998384",
       "percentOff": 50,
       "amountOff": null,
       "minTotal": 200,
@@ -1479,19 +1500,19 @@
       "usedCount": 1,
       "expiresAt": null,
       "isActive": true,
-      "createdAt": "2026-10-06T20:12:56.939Z"
+      "createdAt": "2026-10-07T03:51:29.985Z"
     }
   },
   "DELETE /cart/coupon": {
     "url": "/api/v1/cart/coupon",
     "response": {
-      "id": 48,
-      "code": "202610070048",
+      "id": 54,
+      "code": "202610070054",
       "status": "cart",
-      "userId": 75,
+      "userId": 85,
       "userName": "สมชาย ใจดี",
-      "userEmail": "member.1791317577055.7@example.com",
-      "createdAt": "2026-10-06T20:12:57.089Z",
+      "userEmail": "member.1791345090099.7@example.com",
+      "createdAt": "2026-10-07T03:51:30.131Z",
       "confirmedAt": null,
       "expiresAt": null,
       "subtotal": 150,
@@ -1501,10 +1522,10 @@
       "checkinToken": null,
       "slots": [
         {
-          "id": 48,
-          "courtId": 8,
-          "courtName": "คอร์ท 0.27942845601682775",
-          "sportName": "บาส-1791317576647",
+          "id": 54,
+          "courtId": 9,
+          "courtName": "คอร์ท 0.21938200254806361",
+          "sportName": "บาส-1791345089703",
           "sportIcon": "🏀",
           "startAt": "2026-10-12T10:00:00+07:00",
           "endAt": "2026-10-12T11:00:00+07:00",
@@ -1517,6 +1538,152 @@
       "payments": [],
       "reviewedCourtIds": [],
       "checkinQr": null
+    }
+  },
+  "GET /users/me/emails": {
+    "url": "/api/v1/users/me/emails",
+    "response": {
+      "unread": 1,
+      "items": [
+        {
+          "id": 43,
+          "kind": "confirmed",
+          "toAddress": "member.1791345086796.4@example.com",
+          "subject": "[SportHub] ยืนยันการจอง #202610070041 — กรุณาชำระเงินภายใน 15 นาที",
+          "status": "web",
+          "error": null,
+          "userId": 49,
+          "userName": "สมชาย ใจดี",
+          "bookingId": 41,
+          "bookingCode": "202610070041",
+          "readAt": null,
+          "createdAt": "2026-10-07T03:51:26.854Z"
+        }
+      ]
+    }
+  },
+  "GET /emails/:id": {
+    "url": "/api/v1/emails/1",
+    "response": {
+      "html": "<div style=\"font-family:sans-serif;max-width:560px\">\n  <h2 style=\"color:#0f766e\">ได้รับการจองแล้ว</h2>\n  <p>สวัสดีคุณ สมชาย ใจดี</p>\n  <p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน 15 นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>\n  <p><b>เลขที่การจอง:</b> 202610070001<br><b>ยอดรวม:</b> 600 บาท</p>\n  <ul><li>สนามวอลเลย์ทดสอบ — 11 ต.ค. 2569 00:00 - 01:00</li></ul>\n  <p><a href=\"http://localhost:5173/bookings/1\">ดูรายละเอียดการจอง</a></p>\n  <p style=\"color:#64748b;font-size:12px\">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>",
+      "id": 1,
+      "kind": "confirmed",
+      "toAddress": "member.1791345082327.1@example.com",
+      "subject": "[SportHub] ยืนยันการจอง #202610070001 — กรุณาชำระเงินภายใน 15 นาที",
+      "status": "web",
+      "error": null,
+      "userId": 2,
+      "userName": "สมชาย ใจดี",
+      "bookingId": 1,
+      "bookingCode": "202610070001",
+      "readAt": "2026-10-07T03:51:22.398Z",
+      "createdAt": "2026-10-07T03:51:22.389Z"
+    }
+  },
+  "GET /emails": {
+    "url": "/api/v1/emails?q=member.1791345082493.4%40example.com",
+    "response": [
+      {
+        "id": 4,
+        "kind": "approved",
+        "toAddress": "member.1791345082493.4@example.com",
+        "subject": "[SportHub] ชำระเงินสำเร็จ #202610070003",
+        "status": "web",
+        "error": null,
+        "userId": 5,
+        "userName": "สมชาย ใจดี",
+        "bookingId": 3,
+        "bookingCode": "202610070003",
+        "readAt": null,
+        "createdAt": "2026-10-07T03:51:22.573Z"
+      },
+      {
+        "id": 3,
+        "kind": "confirmed",
+        "toAddress": "member.1791345082493.4@example.com",
+        "subject": "[SportHub] ยืนยันการจอง #202610070003 — กรุณาชำระเงินภายใน 15 นาที",
+        "status": "web",
+        "error": null,
+        "userId": 5,
+        "userName": "สมชาย ใจดี",
+        "bookingId": 3,
+        "bookingCode": "202610070003",
+        "readAt": null,
+        "createdAt": "2026-10-07T03:51:22.542Z"
+      }
+    ]
+  },
+  "POST /emails/:id/resend": {
+    "url": "/api/v1/emails/6/resend",
+    "response": {
+      "html": "<div style=\"font-family:sans-serif;max-width:560px\">\n  <h2 style=\"color:#0f766e\">ได้รับการจองแล้ว</h2>\n  <p>สวัสดีคุณ สมชาย ใจดี</p>\n  <p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน 15 นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>\n  <p><b>เลขที่การจอง:</b> 202610070005<br><b>ยอดรวม:</b> 600 บาท</p>\n  <ul><li>สนามวอลเลย์ทดสอบ — 11 ต.ค. 2569 04:00 - 05:00</li></ul>\n  <p><a href=\"http://localhost:5173/bookings/5\">ดูรายละเอียดการจอง</a></p>\n  <p style=\"color:#64748b;font-size:12px\">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>",
+      "id": 6,
+      "kind": "confirmed",
+      "toAddress": "member.1791345082641.6@example.com",
+      "subject": "[SportHub] ยืนยันการจอง #202610070005 — กรุณาชำระเงินภายใน 15 นาที",
+      "status": "failed",
+      "error": "connect ECONNREFUSED 127.0.0.1:1",
+      "userId": 7,
+      "userName": "สมชาย ใจดี",
+      "bookingId": 5,
+      "bookingCode": "202610070005",
+      "readAt": null,
+      "createdAt": "2026-10-07T03:51:22.691Z"
+    }
+  },
+  "GET /admin/system": {
+    "url": "/api/v1/admin/system",
+    "response": {
+      "db": true,
+      "postgresVersion": "18.6 (Debian 18.6-1.pgdg13+2)",
+      "migrations": [
+        "001_init.sql",
+        "002_peak_pricing.sql",
+        "003_coupons.sql",
+        "004_mail_and_settings.sql"
+      ],
+      "smtpEnabled": false,
+      "lastJobRunAt": null,
+      "uptimeSeconds": 1,
+      "nodeVersion": "v24.18.0",
+      "counts": {
+        "users": 9,
+        "bookings": 6,
+        "emails": 7,
+        "emailsFailed": 1
+      }
+    }
+  },
+  "POST /admin/jobs/run": {
+    "url": "/api/v1/admin/jobs/run",
+    "response": {
+      "ok": true,
+      "lastJobRunAt": "2026-10-07T03:51:22.953Z"
+    }
+  },
+  "GET /settings": {
+    "url": "/api/v1/settings",
+    "response": {
+      "promptpayId": "0812345678",
+      "payWithinMinutes": 15,
+      "checkinEarlyMinutes": 43200,
+      "cancelBeforeHours": 24,
+      "maxDaysAhead": 60
+    }
+  },
+  "PATCH /settings": {
+    "url": "/api/v1/settings",
+    "body": {
+      "payWithinMinutes": 30,
+      "maxDaysAhead": 10,
+      "promptpayId": "0899999999"
+    },
+    "response": {
+      "promptpayId": "0899999999",
+      "payWithinMinutes": 30,
+      "checkinEarlyMinutes": 43200,
+      "cancelBeforeHours": 24,
+      "maxDaysAhead": 10
     }
   }
 }

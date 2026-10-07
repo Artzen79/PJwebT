@@ -49,10 +49,6 @@ async function pay(token: string, bookingId: number) {
   return (await api().get(`/api/v1/bookings/${bookingId}`).set(bearer(token))).body;
 }
 
-async function mailsTo(address: string): Promise<{ Subject: string }[]> {
-  const res = await fetch(`http://localhost:8025/api/v1/search?query=${encodeURIComponent(`to:"${address}"`)}`);
-  return (await res.json()).messages;
-}
 
 describe('realtime availability', () => {
   it('streams an availability event when a booking is confirmed', async () => {
@@ -187,8 +183,8 @@ describe('background jobs', () => {
     await runJobs();
     await runJobs();
     expect((await one('SELECT reminder_sent_at FROM bookings WHERE id = $1', [booking.id])).reminder_sent_at).not.toBeNull();
-    await new Promise((r) => setTimeout(r, 500));
-    const reminders = (await mailsTo(m.email)).filter((x) => x.Subject.includes('อีก 1 ชั่วโมง'));
+    const inbox = (await api().get('/api/v1/users/me/emails').set(bearer(m.token))).body.items;
+    const reminders = inbox.filter((x: { subject: string }) => x.subject.includes('อีก 1 ชั่วโมง'));
     expect(reminders).toHaveLength(1);
   });
 

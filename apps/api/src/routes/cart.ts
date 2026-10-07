@@ -1,20 +1,19 @@
 import { z } from 'zod';
 import { one, query, tx } from '../db';
-import { cartIdFor, getBooking, notifyBooking, PAY_WITHIN_MINUTES } from '../lib/bookings';
+import { cartIdFor, getBooking, notifyBooking } from '../lib/bookings';
 import { mail } from '../lib/mail';
 import { fail, found } from '../lib/http';
 import { route } from '../lib/route';
+import { getSettings } from '../lib/settings';
 import { stockFor } from '../lib/stock';
 import { bangkokHour, HOUR } from '../lib/time';
 import { Booking, dateTime, idParam, Ok } from '../schemas';
 import { getCourt, priceAt } from './courts';
 
-const MAX_DAYS_AHEAD = 60;
-
-function checkStart(start: Date) {
+function checkStart(start: Date, maxDaysAhead: number) {
   if (start.getTime() % HOUR !== 0) fail(400, 'INVALID_SLOT', 'เวลาเริ่มต้องตรงชั่วโมง เช่น 18:00');
   if (start.getTime() <= Date.now()) fail(400, 'SLOT_IN_PAST', 'ช่วงเวลานี้ผ่านไปแล้ว');
-  if (start.getTime() > Date.now() + MAX_DAYS_AHEAD * 24 * HOUR) fail(400, 'TOO_FAR_AHEAD', `จองล่วงหน้าได้ไม่เกิน ${MAX_DAYS_AHEAD} วัน`);
+  if (start.getTime() > Date.now() + maxDaysAhead * 24 * HOUR) fail(400, 'TOO_FAR_AHEAD', `จองล่วงหน้าได้ไม่เกิน ${maxDaysAhead} วัน`);
 }
 
 route({
@@ -42,7 +41,7 @@ route({
   }),
   response: Booking,
   errors: {
-    400: 'เวลาไม่ตรงชั่วโมง (INVALID_SLOT) ผ่านไปแล้ว (SLOT_IN_PAST) นอกเวลาเปิด (OUTSIDE_HOURS) หรือเกิน 60 วัน (TOO_FAR_AHEAD)',
+    400: 'เวลาไม่ตรงชั่วโมง (INVALID_SLOT) ผ่านไปแล้ว (SLOT_IN_PAST) นอกเวลาเปิด (OUTSIDE_HOURS) หรือไกลเกินกว่าที่จองล่วงหน้าได้ (TOO_FAR_AHEAD)',
     404: 'ไม่พบสนาม (NOT_FOUND)',
     409: 'อยู่ในตะกร้าแล้ว (ALREADY_IN_CART) หรือมีผู้จองแล้ว (SLOT_TAKEN)',
   },
@@ -55,7 +54,8 @@ route({
     }
     // same local hour every week (no DST in Thailand, so +7 days is exact)
     const starts = Array.from({ length: body.repeatWeeks }, (_, w) => new Date(first.getTime() + w * 7 * 24 * HOUR));
-    starts.forEach(checkStart);
+    const { maxDaysAhead } = await getSettings();
+    for (const start of starts) checkStart(start, maxDaysAhead);
     const cartId = await cartIdFor(user!.id);
     await tx(async (db) => {
       for (const start of starts) {
@@ -148,7 +148,7 @@ route({
   handler: async ({ user, body }) => {
     const start = new Date(body.startAt);
     const end = new Date(body.endAt);
-    checkStart(start);
+    checkStart(start, (await getSettings()).maxDaysAhead);
     const hours = (end.getTime() - start.getTime()) / HOUR;
     if (!Number.isInteger(hours) || hours < 1 || hours > 12) fail(400, 'INVALID_PERIOD', 'ช่วงเวลายืมต้องเป็นชั่วโมงเต็ม 1-12 ชั่วโมง');
     const item = found(await one('SELECT rent_price AS "rentPrice" FROM equipment WHERE id = $1 AND is_active', [body.equipmentId]), 'อุปกรณ์');
@@ -211,7 +211,7 @@ route({
   path: '/cart/confirm',
   tag: 'Cart',
   summary: 'ยืนยันการจอง',
-  description: `ล็อกช่วงเวลาสนามและอุปกรณ์ทั้งหมดในตะกร้า แล้วเปลี่ยนเป็นสถานะ \`pending_payment\` ต้องแนบสลิปภายใน ${PAY_WITHIN_MINUTES} นาที หลังยืนยันแล้วแก้ไขรายการไม่ได้ ถ้ามีคนยืนยันช่วงเวลาเดียวกันพร้อมกัน ระบบ (PostgreSQL exclusion constraint) จะให้สำเร็จได้คนเดียว`,
+  description: `ล็อกช่วงเวลาสนามและอุปกรณ์ทั้งหมดในตะกร้า แล้วเปลี่ยนเป็นสถานะ \`pending_payment\` ต้องแนบสลิปภายในเวลาที่ตั้งไว้ในระบบ (ค่าเริ่มต้น 15 นาที) หลังยืนยันแล้วแก้ไขรายการไม่ได้ ถ้ามีคนยืนยันช่วงเวลาเดียวกันพร้อมกัน ระบบ (PostgreSQL exclusion constraint) จะให้สำเร็จได้คนเดียว`,
   access: 'user',
   response: Booking,
   errors: {
@@ -260,14 +260,14 @@ route({
            status = CASE WHEN t.total = 0 THEN 'paid' ELSE 'pending_payment' END::booking_status,
            expires_at = CASE WHEN t.total = 0 THEN NULL ELSE now() + make_interval(mins => $2) END
          FROM booking_totals t WHERE t.booking_id = bookings.id AND bookings.id = $1`,
-        [cart.id, PAY_WITHIN_MINUTES],
+        [cart.id, (await getSettings(db)).payWithinMinutes],
       );
       return cart.id as number;
     });
     const booking = await getBooking(bookingId);
     notifyBooking(booking);
-    if (booking.status === 'paid') mail.approved(booking);
-    else mail.confirmed(booking);
+    if (booking.status === 'paid') await mail.approved(booking);
+    else await mail.confirmed(booking);
     return booking;
   },
 });

@@ -13,7 +13,10 @@ export const env = {
   port: Number(process.env.PORT ?? 3000),
   databaseUrl: process.env.DATABASE_URL ?? 'postgres://sporthub:sporthub@localhost:5432/sporthub',
   jwtSecret: new TextEncoder().encode(process.env.JWT_SECRET ?? 'dev-only-secret-do-not-use-in-prod'),
-  smtpUrl: process.env.SMTP_URL ?? 'smtp://localhost:1025',
+  // optional: without it emails live only in the web app (member inbox, admin mail log)
+  get smtpUrl() {
+    return process.env.SMTP_URL || null;
+  },
   mailFrom: process.env.MAIL_FROM ?? 'SportHub <no-reply@sporthub.local>',
   appUrl: process.env.APP_URL ?? 'http://localhost:5173',
   promptpayId: process.env.PROMPTPAY_ID ?? '0812345678',

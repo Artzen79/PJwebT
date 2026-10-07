@@ -30,14 +30,9 @@ async function pendingBooking(token: string, daysAhead = 3) {
 const uploadSlip = (token: string, bookingId: number) =>
   api().post(`/api/v1/bookings/${bookingId}/payments`).set(bearer(token)).attach('image', png, { filename: 'slip.png', contentType: 'image/png' });
 
-async function mailsTo(address: string, minCount = 1): Promise<{ Subject: string }[]> {
-  for (let i = 0; i < 30; i++) {
-    const res = await fetch(`http://localhost:8025/api/v1/search?query=${encodeURIComponent(`to:"${address}"`)}`);
-    const { messages } = await res.json();
-    if (messages.length >= minCount) return messages;
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  return [];
+// subjects of the emails in a member's in-web inbox
+async function subjects(token: string): Promise<string[]> {
+  return (await api().get('/api/v1/users/me/emails').set(bearer(token))).body.items.map((m: { subject: string }) => m.subject);
 }
 
 describe('PromptPay', () => {
@@ -67,8 +62,7 @@ describe('payment slips', () => {
   it('confirming a booking emails the member', async () => {
     const m = await member();
     const booking = await pendingBooking(m.token);
-    const mails = await mailsTo(m.email);
-    expect(mails.map((x) => x.Subject).join()).toContain(booking.code);
+    expect((await subjects(m.token)).join()).toContain(booking.code);
   });
 
   it('uploading a slip records a pending payment and stops the 15-minute clock; a second upload waits', async () => {
@@ -121,8 +115,7 @@ describe('reviewing payments', () => {
     expect(paid.body.status).toBe('paid');
     expect(paid.body.checkinToken).toEqual(expect.any(String));
     expect(paid.body.checkinQr).toMatch(/^data:image\/png;base64,/);
-    const subjects = (await mailsTo(m.email, 2)).map((x) => x.Subject);
-    expect(subjects.some((s) => s.includes('ชำระเงินสำเร็จ'))).toBe(true);
+    expect((await subjects(m.token)).some((s) => s.includes('ชำระเงินสำเร็จ'))).toBe(true);
     const twice = await api().patch(`/api/v1/payments/${payment.id}`).set(bearer(adminToken)).send({ status: 'approved' });
     expect(twice.status).toBe(409);
     expect(twice.body.error.code).toBe('INVALID_STATUS');

@@ -3,7 +3,9 @@ import { one, query } from '../db';
 import { fail } from '../lib/http';
 import { route } from '../lib/route';
 import { atBangkok, bangkokDate } from '../lib/time';
-import { bookingStatus } from '../schemas';
+import { env } from '../env';
+import { lastJobRunAt, runJobs } from '../jobs';
+import { bookingStatus, dateTime } from '../schemas';
 
 const PAID = `('paid', 'checked_in', 'completed')`;
 
@@ -103,5 +105,60 @@ route({
       ),
     ]);
     return { from, to, ...totals, revenueByDay, byStatus, bySport, topCourts, peakHours, topEquipment };
+  },
+});
+
+route({
+  method: 'get',
+  path: '/admin/system',
+  tag: 'Admin',
+  summary: 'สถานะระบบหลังบ้าน',
+  description: 'ฐานข้อมูล, migration ที่รันแล้ว, การส่งอีเมลออก (SMTP), งานอัตโนมัติครั้งล่าสุด และจำนวนข้อมูลหลัก',
+  access: 'admin',
+  response: z
+    .object({
+      db: z.boolean(),
+      postgresVersion: z.string(),
+      migrations: z.array(z.string()),
+      smtpEnabled: z.boolean().describe('false = อีเมลอยู่ในเว็บเท่านั้น'),
+      lastJobRunAt: dateTime.nullable(),
+      uptimeSeconds: z.number().int(),
+      nodeVersion: z.string(),
+      counts: z.object({
+        users: z.number().int(),
+        bookings: z.number().int(),
+        emails: z.number().int(),
+        emailsFailed: z.number().int(),
+      }),
+    })
+    .meta({ id: 'SystemStatus' }),
+  handler: async () => ({
+    db: (await one('SELECT 1 AS up'))?.up === 1,
+    postgresVersion: (await one('SHOW server_version')).server_version,
+    migrations: (await query('SELECT name FROM migrations ORDER BY name')).map((r) => r.name),
+    smtpEnabled: Boolean(env.smtpUrl),
+    lastJobRunAt: lastJobRunAt(),
+    uptimeSeconds: Math.round(process.uptime()),
+    nodeVersion: process.version,
+    counts: await one(
+      `SELECT (SELECT count(*) FROM users) AS users,
+         (SELECT count(*) FROM bookings WHERE status <> 'cart') AS bookings,
+         (SELECT count(*) FROM emails) AS emails,
+         (SELECT count(*) FROM emails WHERE status = 'failed') AS "emailsFailed"`,
+    ),
+  }),
+});
+
+route({
+  method: 'post',
+  path: '/admin/jobs/run',
+  tag: 'Admin',
+  summary: 'รันงานอัตโนมัติทันที',
+  description: 'ปกติระบบรันเองทุก 1 นาที: ยกเลิกการจองที่หมดเวลาชำระ ปิดการจองที่จบแล้ว ส่งอีเมลเตือนก่อนเวลา และล้างรายการในตะกร้าที่เลยเวลา',
+  access: 'admin',
+  response: z.object({ ok: z.literal(true), lastJobRunAt: dateTime }),
+  handler: async () => {
+    await runJobs();
+    return { ok: true as const, lastJobRunAt: lastJobRunAt()! };
   },
 });

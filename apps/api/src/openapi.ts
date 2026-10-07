@@ -30,7 +30,8 @@ const tags = [
   ['Payments', 'ชำระเงินผ่าน PromptPay QR และตรวจสลิป'],
   ['Reviews', 'รีวิวสนาม'],
   ['Realtime', 'Server-Sent Events แจ้งเมื่อตารางว่างเปลี่ยน'],
-  ['Admin', 'สถิติสำหรับผู้ดูแลระบบ'],
+  ['Emails', 'อีเมลที่ระบบส่ง: กล่องข้อความของสมาชิก และบันทึกอีเมลทั้งหมดสำหรับ admin'],
+  ['Admin', 'สถิติ ค่าตั้งระบบ คูปอง และสถานะระบบหลังบ้าน'],
 ].map(([name, description]) => ({ name, description }));
 
 // drop zod's safe-integer bounds and the long regex it emits next to date formats: noise for readers

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { one } from '../db';
-import { env } from '../env';
 import { firstStart, getBooking, lastEnd } from '../lib/bookings';
 import { notifyAvailability } from '../lib/events';
 import { fail, found } from '../lib/http';
 import { route } from '../lib/route';
+import { getSettings } from '../lib/settings';
 import { Booking } from '../schemas';
 
 route({
@@ -12,7 +12,7 @@ route({
   path: '/checkin',
   tag: 'Bookings',
   summary: 'เช็คอินหน้าสนาม',
-  description: `สแกน QR จากหน้าการจองของสมาชิก หรือพิมพ์เลขที่การจอง ใช้ได้กับการจองที่ชำระแล้ว ตั้งแต่ ${env.checkinEarlyMinutes} นาทีก่อนเวลาเริ่มจนถึงเวลาจบ`,
+  description: `สแกน QR จากหน้าการจองของสมาชิก หรือพิมพ์เลขที่การจอง ใช้ได้กับการจองที่ชำระแล้ว ตั้งแต่ก่อนเวลาเริ่มตามที่ตั้งในระบบ (ค่าเริ่มต้น 30 นาที) จนถึงเวลาจบ`,
   access: 'admin',
   body: z.object({ token: z.string().trim().min(1).describe('รหัสจาก QR เช็คอิน หรือเลขที่การจอง') }),
   response: Booking,
@@ -26,7 +26,7 @@ route({
     if (booking.status !== 'paid') {
       fail(409, 'INVALID_STATUS', booking.status === 'checked_in' ? 'การจองนี้เช็คอินไปแล้ว' : 'การจองนี้ยังไม่ได้ชำระเงินหรือไม่อยู่ในสถานะที่เช็คอินได้');
     }
-    const early = env.checkinEarlyMinutes;
+    const early = (await getSettings()).checkinEarlyMinutes;
     if (Date.now() < firstStart(booking) - early * 60_000) fail(409, 'TOO_EARLY', `เช็คอินได้ตั้งแต่ ${early} นาทีก่อนเวลาเริ่ม`);
     if (Date.now() > lastEnd(booking)) fail(409, 'BOOKING_ENDED', 'เลยเวลาการจองแล้ว');
     await one(`UPDATE bookings SET status = 'checked_in' WHERE id = $1 AND status = 'paid'`, [booking.id]);

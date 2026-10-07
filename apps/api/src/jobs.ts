@@ -2,6 +2,9 @@ import { one, query, tx } from './db';
 import { getBooking, notifyBooking, release } from './lib/bookings';
 import { mail } from './lib/mail';
 
+let lastRun: Date | null = null;
+export const lastJobRunAt = () => lastRun;
+
 // Housekeeping that has to happen on the clock rather than on a request.
 export async function runJobs() {
   // 1. unpaid bookings past their payment window: re-checked under a row lock, a slip may have just arrived
@@ -14,7 +17,7 @@ export async function runJobs() {
     if (expired) {
       const booking = await getBooking(id);
       notifyBooking(booking);
-      mail.cancelled(booking, 'หมดเวลาชำระเงิน ระบบยกเลิกการจองให้อัตโนมัติ');
+      await mail.cancelled(booking, 'หมดเวลาชำระเงิน ระบบยกเลิกการจองให้อัตโนมัติ');
     }
   }
 
@@ -33,11 +36,12 @@ export async function runJobs() {
                 (SELECT min(start_at) FROM booking_equipment WHERE booking_id = b.id))
           BETWEEN now() AND now() + interval '1 hour'
     RETURNING b.id`);
-  for (const { id } of due) mail.reminder(await getBooking(id));
+  for (const { id } of due) await mail.reminder(await getBooking(id));
 
   // 4. cart items whose time has passed can never be confirmed
   await query(`DELETE FROM booking_slots s USING bookings b WHERE b.id = s.booking_id AND b.status = 'cart' AND s.start_at < now()`);
   await query(`DELETE FROM booking_equipment e USING bookings b WHERE b.id = e.booking_id AND b.status = 'cart' AND e.start_at < now()`);
+  lastRun = new Date();
 }
 
 export function startJobs(everyMs = 60_000) {

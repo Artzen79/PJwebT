@@ -1,9 +1,13 @@
-import nodemailer, { type SendMailOptions } from 'nodemailer';
-import QRCode from 'qrcode';
+import nodemailer from 'nodemailer';
+import { one, query } from '../db';
 import { env } from '../env';
 import type { BookingRow } from './bookings';
+import { getSettings } from './settings';
 
-const transport = nodemailer.createTransport(env.smtpUrl);
+// Every email is first stored (member inbox + admin mail log in the web app), then delivered by SMTP
+// in the background when SMTP_URL is set. A mail outage never fails the request that triggered it.
+
+type Kind = 'confirmed' | 'approved' | 'rejected' | 'cancelled' | 'reminder';
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const when = new Intl.DateTimeFormat('th-TH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Bangkok' });
@@ -29,37 +33,65 @@ function layout(b: BookingRow, heading: string, body: string) {
   <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>`;
 }
 
-// Fire-and-forget: a mail outage must never fail the request that triggered it.
-function send(to: string, subject: string, html: string, attachments: SendMailOptions['attachments'] = []) {
-  transport.sendMail({ from: env.mailFrom, to, subject, html, attachments }).catch((err) => console.error(`mail to ${to} failed:`, err.message));
+async function record(b: BookingRow, kind: Kind, subject: string, html: string) {
+  const { id } = (await one(
+    'INSERT INTO emails (user_id, booking_id, kind, to_address, subject, html) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+    [b.userId, b.id, kind, b.userEmail, subject, html],
+  ))!;
+  deliver(id).catch((err) => console.error(`mail ${id}:`, err.message));
+  return id as number;
+}
+
+// Sends a stored email by SMTP. The web copy embeds images as data: URLs; mail clients block those,
+// so the SMTP copy carries them as attachments referenced by cid:.
+export async function deliver(id: number): Promise<'web' | 'sent' | 'failed'> {
+  const smtp = env.smtpUrl;
+  if (!smtp) return 'web';
+  const row = (await one('SELECT to_address, subject, html FROM emails WHERE id = $1', [id]))!;
+  const attachments: { filename: string; content: Buffer; cid: string }[] = [];
+  const html = row.html.replace(/src="data:image\/png;base64,([^"]+)"/g, (_: string, data: string) => {
+    const cid = `image${attachments.length}`;
+    attachments.push({ filename: `${cid}.png`, content: Buffer.from(data, 'base64'), cid });
+    return `src="cid:${cid}"`;
+  });
+  try {
+    await nodemailer.createTransport(smtp).sendMail({ from: env.mailFrom, to: row.to_address, subject: row.subject, html, attachments });
+    await query(`UPDATE emails SET status = 'sent', error = NULL WHERE id = $1`, [id]);
+    return 'sent';
+  } catch (err) {
+    await query(`UPDATE emails SET status = 'failed', error = $2 WHERE id = $1`, [id, (err as Error).message]);
+    return 'failed';
+  }
 }
 
 export const mail = {
-  confirmed: (b: BookingRow) =>
-    send(
-      b.userEmail,
-      `[SportHub] ยืนยันการจอง #${b.code} — กรุณาชำระเงินภายใน 15 นาที`,
-      layout(b, 'ได้รับการจองแล้ว', '<p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน 15 นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>'),
-    ),
+  confirmed: async (b: BookingRow) => {
+    const { payWithinMinutes } = await getSettings();
+    return record(
+      b,
+      'confirmed',
+      `[SportHub] ยืนยันการจอง #${b.code} — กรุณาชำระเงินภายใน ${payWithinMinutes} นาที`,
+      layout(b, 'ได้รับการจองแล้ว', `<p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน ${payWithinMinutes} นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>`),
+    );
+  },
   approved: (b: BookingRow) =>
-    QRCode.toBuffer(b.checkinToken ?? b.code)
-      .then((qr) =>
-        send(
-          b.userEmail,
-          `[SportHub] ชำระเงินสำเร็จ #${b.code}`,
-          layout(b, 'ชำระเงินสำเร็จ', '<p>แสดง QR นี้ที่เคาน์เตอร์เพื่อเช็คอิน</p><img src="cid:checkin" width="200" alt="QR เช็คอิน">'),
-          [{ filename: 'checkin.png', content: qr, cid: 'checkin' }],
-        ),
-      )
-      .catch((err) => console.error('approval mail failed:', err.message)),
-  rejected: (b: BookingRow, note: string | null) =>
-    send(
-      b.userEmail,
-      `[SportHub] สลิปไม่ผ่านการตรวจสอบ #${b.code}`,
-      layout(b, 'สลิปไม่ผ่านการตรวจสอบ', `<p>เหตุผล: ${esc(note ?? '-')}</p><p>กรุณาแนบสลิปใหม่ภายใน 15 นาที</p>`),
+    record(
+      b,
+      'approved',
+      `[SportHub] ชำระเงินสำเร็จ #${b.code}`,
+      layout(b, 'ชำระเงินสำเร็จ', `<p>แสดง QR นี้ที่เคาน์เตอร์เพื่อเช็คอิน</p><img src="${b.checkinQr}" width="200" alt="QR เช็คอิน">`),
     ),
+  rejected: async (b: BookingRow, note: string | null) => {
+    const { payWithinMinutes } = await getSettings();
+    return record(
+      b,
+      'rejected',
+      `[SportHub] สลิปไม่ผ่านการตรวจสอบ #${b.code}`,
+      layout(b, 'สลิปไม่ผ่านการตรวจสอบ', `<p>เหตุผล: ${esc(note ?? '-')}</p><p>กรุณาแนบสลิปใหม่ภายใน ${payWithinMinutes} นาที</p>`),
+    );
+  },
   cancelled: (b: BookingRow, reason: string) =>
-    send(b.userEmail, `[SportHub] การจอง #${b.code} ถูกยกเลิก`, layout(b, 'การจองถูกยกเลิก', `<p>${esc(reason)}</p>`)),
+    record(b, 'cancelled', `[SportHub] การจอง #${b.code} ถูกยกเลิก`, layout(b, 'การจองถูกยกเลิก', `<p>${esc(reason)}</p>`)),
   reminder: (b: BookingRow) =>
-    send(b.userEmail, `[SportHub] อีก 1 ชั่วโมงถึงเวลาจอง #${b.code}`, layout(b, 'ใกล้ถึงเวลาแล้ว', '<p>อย่าลืมแสดง QR เช็คอินที่เคาน์เตอร์</p>')),
+    record(b, 'reminder', `[SportHub] อีก 1 ชั่วโมงถึงเวลาจอง #${b.code}`, layout(b, 'ใกล้ถึงเวลาแล้ว', '<p>อย่าลืมแสดง QR เช็คอินที่เคาน์เตอร์</p>')),
 };

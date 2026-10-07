@@ -4,10 +4,9 @@ import { firstStart, getBooking, getVisibleBooking, notifyBooking, release } fro
 import { fail } from '../lib/http';
 import { mail } from '../lib/mail';
 import { route } from '../lib/route';
+import { getSettings } from '../lib/settings';
 import { HOUR } from '../lib/time';
 import { Booking, BookingSummary, bookingStatus, idParam } from '../schemas';
-
-const CANCEL_BEFORE_HOURS = 24;
 
 route({
   method: 'get',
@@ -58,25 +57,26 @@ route({
   path: '/bookings/:id/cancel',
   tag: 'Bookings',
   summary: 'ยกเลิกการจอง',
-  description: `ยกเลิกได้ระหว่างรอชำระเงิน หรือหลังชำระแล้วถ้าเหลือเวลาก่อนเริ่มอย่างน้อย ${CANCEL_BEFORE_HOURS} ชั่วโมง (admin ยกเลิกได้ทุกเวลา และคืนเงินให้สมาชิกนอกระบบ) ช่วงเวลาและอุปกรณ์จะว่างทันที`,
+  description: `ยกเลิกได้ระหว่างรอชำระเงิน หรือหลังชำระแล้วถ้าเหลือเวลาก่อนเริ่มไม่น้อยกว่าที่ตั้งในระบบ (ค่าเริ่มต้น 24 ชั่วโมง) (admin ยกเลิกได้ทุกเวลา และคืนเงินให้สมาชิกนอกระบบ) ช่วงเวลาและอุปกรณ์จะว่างทันที`,
   access: 'user',
   params: idParam,
   response: Booking,
   errors: {
-    400: `เหลือเวลาน้อยกว่า ${CANCEL_BEFORE_HOURS} ชั่วโมง (TOO_LATE_TO_CANCEL)`,
+    400: 'เหลือเวลาก่อนเริ่มน้อยเกินไป (TOO_LATE_TO_CANCEL)',
     404: 'ไม่พบการจอง (NOT_FOUND)',
     409: 'สถานะนี้ยกเลิกไม่ได้ (INVALID_STATUS)',
   },
   handler: async ({ user, params }) => {
     const booking = await getVisibleBooking(params.id, user!);
     if (!['pending_payment', 'paid'].includes(booking.status)) fail(409, 'INVALID_STATUS', 'การจองในสถานะนี้ยกเลิกไม่ได้');
-    if (user!.role !== 'admin' && booking.status === 'paid' && firstStart(booking) - Date.now() < CANCEL_BEFORE_HOURS * HOUR) {
-      fail(400, 'TOO_LATE_TO_CANCEL', `ยกเลิกได้ก่อนเวลาเริ่มอย่างน้อย ${CANCEL_BEFORE_HOURS} ชั่วโมง`);
+    const { cancelBeforeHours } = await getSettings();
+    if (user!.role !== 'admin' && booking.status === 'paid' && firstStart(booking) - Date.now() < cancelBeforeHours * HOUR) {
+      fail(400, 'TOO_LATE_TO_CANCEL', `ยกเลิกได้ก่อนเวลาเริ่มอย่างน้อย ${cancelBeforeHours} ชั่วโมง`);
     }
     await tx((db) => release(booking.id, 'cancelled', db));
     notifyBooking(booking);
     const cancelled = await getBooking(booking.id);
-    mail.cancelled(cancelled, user!.id === booking.userId ? 'ยกเลิกตามคำขอของคุณ' : 'ยกเลิกโดยผู้ดูแลระบบ');
+    await mail.cancelled(cancelled, user!.id === booking.userId ? 'ยกเลิกตามคำขอของคุณ' : 'ยกเลิกโดยผู้ดูแลระบบ');
     return cancelled;
   },
 });

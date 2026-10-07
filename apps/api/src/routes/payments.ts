@@ -2,11 +2,11 @@ import generatePayload from 'promptpay-qr';
 import QRCode from 'qrcode';
 import { z } from 'zod';
 import { one, query, tx } from '../db';
-import { env } from '../env';
-import { getBooking, getVisibleBooking, PAY_WITHIN_MINUTES } from '../lib/bookings';
+import { getBooking, getVisibleBooking } from '../lib/bookings';
 import { fail, found } from '../lib/http';
 import { mail } from '../lib/mail';
 import { route } from '../lib/route';
+import { getSettings } from '../lib/settings';
 import { folderPath, imageUpload, uploadedFile } from '../lib/upload';
 import { dateTime, idParam, PaymentSummary } from '../schemas';
 
@@ -52,11 +52,12 @@ route({
   handler: async ({ user, params }) => {
     const booking = await getVisibleBooking(params.id, user!);
     if (booking.status !== 'pending_payment') fail(409, 'INVALID_STATUS', 'การจองนี้ไม่ได้อยู่ในสถานะรอชำระเงิน');
-    const payload = generatePayload(env.promptpayId, { amount: booking.total });
+    const { promptpayId } = await getSettings();
+    const payload = generatePayload(promptpayId, { amount: booking.total });
     return {
       bookingId: booking.id,
       amount: booking.total,
-      promptpayId: env.promptpayId,
+      promptpayId,
       payload,
       qr: await QRCode.toDataURL(payload, { margin: 1, width: 320 }),
       expiresAt: booking.expiresAt,
@@ -69,7 +70,7 @@ route({
   path: '/bookings/:id/payments',
   tag: 'Payments',
   summary: 'แนบสลิปการโอนเงิน',
-  description: `ส่งสลิปเพื่อให้ admin ตรวจสอบ ระหว่างรอตรวจ การจองจะไม่หมดเวลา (หยุดนับ ${PAY_WITHIN_MINUTES} นาที) ส่งได้ทีละ 1 ใบจนกว่าจะตรวจเสร็จ`,
+  description: `ส่งสลิปเพื่อให้ admin ตรวจสอบ ระหว่างรอตรวจ การจองจะไม่หมดเวลา (หยุดนับเวลาชำระ) ส่งได้ทีละ 1 ใบจนกว่าจะตรวจเสร็จ`,
   access: 'user',
   params: idParam,
   middleware: [imageUpload('slips')],
@@ -150,7 +151,7 @@ route({
   path: '/payments/:id',
   tag: 'Payments',
   summary: 'อนุมัติหรือปฏิเสธสลิป',
-  description: `อนุมัติ: การจองเป็น \`paid\` และส่งอีเมลพร้อม QR เช็คอิน / ปฏิเสธ: สมาชิกได้เวลาแนบสลิปใหม่อีก ${PAY_WITHIN_MINUTES} นาที และได้รับอีเมลแจ้งเหตุผล`,
+  description: `อนุมัติ: การจองเป็น \`paid\` และส่งอีเมลพร้อม QR เช็คอิน / ปฏิเสธ: สมาชิกได้เวลาแนบสลิปใหม่เท่ากับเวลาชำระที่ตั้งในระบบ และได้รับอีเมลแจ้งเหตุผล`,
   access: 'admin',
   params: idParam,
   body: z.object({
@@ -169,17 +170,19 @@ route({
         body.note ?? null,
         user!.id,
       ]);
-      await db.query(
-        body.status === 'approved'
-          ? `UPDATE bookings SET status = 'paid', expires_at = NULL WHERE id = $1 AND status = 'pending_payment'`
-          : `UPDATE bookings SET expires_at = now() + make_interval(mins => ${PAY_WITHIN_MINUTES}) WHERE id = $1 AND status = 'pending_payment'`,
-        [payment.booking_id],
-      );
+      if (body.status === 'approved') {
+        await db.query(`UPDATE bookings SET status = 'paid', expires_at = NULL WHERE id = $1 AND status = 'pending_payment'`, [payment.booking_id]);
+      } else {
+        await db.query(
+          `UPDATE bookings SET expires_at = now() + make_interval(mins => $2) WHERE id = $1 AND status = 'pending_payment'`,
+          [payment.booking_id, (await getSettings(db)).payWithinMinutes],
+        );
+      }
       return payment.booking_id as number;
     });
     const booking = await getBooking(bookingId);
-    if (body.status === 'approved') mail.approved(booking);
-    else mail.rejected(booking, body.note ?? null);
+    if (body.status === 'approved') await mail.approved(booking);
+    else await mail.rejected(booking, body.note ?? null);
     return getPayment(params.id);
   },
 });
