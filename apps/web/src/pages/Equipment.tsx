@@ -124,7 +124,7 @@ export function EquipmentDetail() {
 
       <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-20">
         <h2 className="text-xl font-semibold">ยืมอุปกรณ์</h2>
-        <DateStrip value={date} days={14} onChange={setDate} />
+        <DateStrip value={date} onChange={setDate} />
         <div className="grid grid-cols-3 gap-3">
           <Field label="เริ่ม">
             <Select value={start} onChange={(ev) => setStart(Number(ev.target.value))}>

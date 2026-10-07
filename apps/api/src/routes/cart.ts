@@ -6,14 +6,21 @@ import { fail, found } from '../lib/http';
 import { route } from '../lib/route';
 import { getSettings } from '../lib/settings';
 import { stockFor } from '../lib/stock';
-import { bangkokHour, HOUR } from '../lib/time';
+import { bangkokDate, bangkokHour, HOUR } from '../lib/time';
 import { Booking, dateTime, idParam, Ok } from '../schemas';
 import { getCourt, priceAt } from './courts';
 
 function checkStart(start: Date, maxDaysAhead: number) {
   if (start.getTime() % HOUR !== 0) fail(400, 'INVALID_SLOT', 'เวลาเริ่มต้องตรงชั่วโมง เช่น 18:00');
   if (start.getTime() <= Date.now()) fail(400, 'SLOT_IN_PAST', 'ช่วงเวลานี้ผ่านไปแล้ว');
-  if (start.getTime() > Date.now() + maxDaysAhead * 24 * HOUR) fail(400, 'TOO_FAR_AHEAD', `จองล่วงหน้าได้ไม่เกิน ${maxDaysAhead} วัน`);
+  // whole calendar days in Thailand: 1 = today and all of tomorrow
+  if (bangkokDate(start) > bangkokDate(new Date(Date.now() + maxDaysAhead * 24 * HOUR))) {
+    fail(
+      400,
+      'TOO_FAR_AHEAD',
+      maxDaysAhead === 0 ? 'จองได้เฉพาะวันนี้' : maxDaysAhead === 1 ? 'จองล่วงหน้าได้ถึงพรุ่งนี้เท่านั้น' : `จองล่วงหน้าได้ไม่เกิน ${maxDaysAhead} วัน`,
+    );
+  }
 }
 
 route({

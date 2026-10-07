@@ -134,6 +134,35 @@ describe('system settings managed from the web', () => {
     await restore().expect(200);
   });
 
+  it('books at most one calendar day ahead by default: today and all of tomorrow, nothing later', async () => {
+    const saved = process.env.MAX_DAYS_AHEAD;
+    delete process.env.MAX_DAYS_AHEAD; // the suite runs with a wide window; this checks the real default
+    try {
+      expect((await api().get('/api/v1/settings')).body.maxDaysAhead).toBe(1);
+      const { token } = await member();
+      const add = (startAt: string) => api().post('/api/v1/cart/slots').set(bearer(token)).send({ courtId, startAt });
+      expect((await add(at(day(1), 23))).status).toBe(200); // late tomorrow is fine
+      const dayAfter = await add(at(day(2), 0)); // first hour of the day after tomorrow is not
+      expect(dayAfter.status).toBe(400);
+      expect(dayAfter.body.error.code).toBe('TOO_FAR_AHEAD');
+      expect(dayAfter.body.error.message).toContain('พรุ่งนี้');
+    } finally {
+      process.env.MAX_DAYS_AHEAD = saved;
+    }
+  });
+
+  it('can be limited to today only', async () => {
+    await api().patch('/api/v1/settings').set(bearer(adminToken)).send({ maxDaysAhead: 0 }).expect(200);
+    try {
+      const { token } = await member();
+      const res = await api().post('/api/v1/cart/slots').set(bearer(token)).send({ courtId, startAt: at(day(1), 10) });
+      expect(res.body.error.code).toBe('TOO_FAR_AHEAD');
+      expect(res.body.error.message).toContain('วันนี้');
+    } finally {
+      await api().patch('/api/v1/settings').set(bearer(adminToken)).send({ maxDaysAhead: null }).expect(200);
+    }
+  });
+
   it('rejects out-of-range values', async () => {
     const res = await api().patch('/api/v1/settings').set(bearer(adminToken)).send({ payWithinMinutes: 0 });
     expect(res.status).toBe(400);

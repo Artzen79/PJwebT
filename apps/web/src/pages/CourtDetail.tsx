@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
-import { api, ok, type Slot, useMe } from '../api';
+import { api, ok, type Slot, useMe, useSettings } from '../api';
 import { DateStrip } from '../components/Pickers';
 import { Empty, ErrorNote, Field, LinkButton, Loading, Panel, Select, SportArt, Stars } from '../components/ui';
 import { baht, bangkokDate, dateTh, hourLabel, timeRange } from '../lib/format';
@@ -22,6 +22,8 @@ export default function CourtDetail() {
   const me = useMe().data;
   const pick = useSlotPicker();
   const [weeks, setWeeks] = useState(1);
+  // weekly repeats only make sense when bookings open at least a week ahead
+  const maxWeeks = Math.min(8, Math.floor((useSettings().data?.maxDaysAhead ?? 1) / 7) + 1);
   const court = useQuery({ queryKey: ['court', id], queryFn: () => ok(api.GET('/api/v1/courts/{id}', { params: { path: { id } } })) });
   const slots = useQuery({
     queryKey: ['availability', id, date],
@@ -91,17 +93,19 @@ export default function CourtDetail() {
 
       <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-20">
         <h2 className="text-xl font-semibold">เลือกเวลา</h2>
-        <DateStrip value={date} days={14} onChange={(d) => setParams({ date: d }, { replace: true })} />
-        <Field label="จองประจำ" hint="เพิ่มชั่วโมงเดียวกันทุกสัปดาห์ ถ้าสัปดาห์ใดไม่ว่างจะไม่เพิ่มเลย">
-          <Select value={weeks} onChange={(e) => setWeeks(Number(e.target.value))}>
-            <option value={1}>ครั้งเดียว</option>
-            {[2, 3, 4, 5, 6, 7, 8].map((n) => (
-              <option key={n} value={n}>
-                ทุกสัปดาห์ {n} สัปดาห์
-              </option>
-            ))}
-          </Select>
-        </Field>
+        <DateStrip value={date} onChange={(d) => setParams({ date: d }, { replace: true })} />
+        {maxWeeks > 1 && (
+          <Field label="จองประจำ" hint="เพิ่มชั่วโมงเดียวกันทุกสัปดาห์ ถ้าสัปดาห์ใดไม่ว่างจะไม่เพิ่มเลย">
+            <Select value={weeks} onChange={(e) => setWeeks(Number(e.target.value))}>
+              <option value={1}>ครั้งเดียว</option>
+              {Array.from({ length: maxWeeks - 1 }, (_, i) => i + 2).map((n) => (
+                <option key={n} value={n}>
+                  ทุกสัปดาห์ {n} สัปดาห์
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
         {slots.isPending ? (
           <Loading />
         ) : slots.error ? (

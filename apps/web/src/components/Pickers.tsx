@@ -1,12 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { api, ok } from '../api';
+import { api, ok, useSettings } from '../api';
 import { addDays, bangkokDate, relativeDay, sportColor } from '../lib/format';
 
-export function DateStrip({ value, onChange, days = 14 }: { value: string; onChange: (date: string) => void; days?: number }) {
+// Only the dates that can be booked (the admin sets how far ahead: 0 = today, 1 = today and tomorrow).
+export function DateStrip({ value, onChange }: { value: string; onChange: (date: string) => void }) {
+  const ahead = useSettings().data?.maxDaysAhead ?? 1;
   const today = bangkokDate();
-  const dates = Array.from({ length: days }, (_, i) => addDays(today, i));
+  const dates = Array.from({ length: ahead + 1 }, (_, i) => addDays(today, i));
   return (
-    <div className="flex gap-1.5 overflow-x-auto pb-1" role="radiogroup" aria-label="เลือกวันที่">
+    <div className="flex items-center gap-1.5 overflow-x-auto pb-1" role="radiogroup" aria-label="เลือกวันที่">
       {dates.map((d) => {
         const active = d === value;
         return (
@@ -25,6 +27,9 @@ export function DateStrip({ value, onChange, days = 14 }: { value: string; onCha
           </button>
         );
       })}
+      <span className="shrink-0 px-2 text-sm text-muted">
+        {ahead === 0 ? 'จองได้เฉพาะวันนี้' : ahead === 1 ? 'เปิดให้จองวันนี้และพรุ่งนี้' : `จองล่วงหน้าได้ ${ahead} วัน`}
+      </span>
     </div>
   );
 }

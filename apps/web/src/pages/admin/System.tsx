@@ -9,7 +9,7 @@ const fields: { name: keyof Settings; label: string; hint: string; min?: number;
   { name: 'payWithinMinutes', label: 'เวลาชำระเงิน (นาที)', hint: 'ต้องแนบสลิปภายในกี่นาทีหลังยืนยัน ไม่งั้นการจองหมดเวลา', min: 5, max: 1440 },
   { name: 'cancelBeforeHours', label: 'ยกเลิกได้ก่อนเริ่ม (ชั่วโมง)', hint: 'สมาชิกยกเลิกการจองที่ชำระแล้วได้ถ้าเหลือเวลามากกว่านี้', min: 0, max: 720 },
   { name: 'checkinEarlyMinutes', label: 'เช็คอินล่วงหน้าได้ (นาที)', hint: 'เปิดให้เช็คอินก่อนเวลาเริ่มกี่นาที', min: 0, max: 43_200 },
-  { name: 'maxDaysAhead', label: 'จองล่วงหน้าได้ (วัน)', hint: 'วันที่ไกลที่สุดที่เปิดให้จอง', min: 1, max: 365 },
+  { name: 'maxDaysAhead', label: 'จองล่วงหน้าได้ (วัน)', hint: '0 = จองได้เฉพาะวันนี้, 1 = วันนี้และพรุ่งนี้ (จองประจำรายสัปดาห์ต้องตั้ง 7 ขึ้นไป)', min: 0, max: 365 },
 ];
 
 function duration(seconds: number) {
