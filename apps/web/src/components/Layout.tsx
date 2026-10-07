@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import { Toaster } from 'sonner';
-import { api, ok, useMe } from '../api';
+import { api, ok, useMe, useSettings } from '../api';
 import { useCart } from '../lib/cart';
 import { useInbox } from '../pages/Inbox';
 
@@ -87,6 +87,7 @@ export function Layout() {
   const cart = useCart(Boolean(me)).data;
   const count = (cart?.slots.length ?? 0) + (cart?.equipment.length ?? 0);
   const unread = useInbox(Boolean(me)).data?.unread ?? 0;
+  const settings = useSettings().data;
   const qc = useQueryClient();
   const navigate = useNavigate();
   const logout = useMutation({
@@ -159,12 +160,20 @@ export function Layout() {
           <MainLinks admin={me?.role === 'admin'} signedIn={Boolean(me)} />
         </nav>
       </header>
+      {settings?.announcement && (
+        <p role="status" className="bg-mark px-4 py-2 text-center text-sm font-medium whitespace-pre-line text-mark-ink">
+          {settings.announcement}
+        </p>
+      )}
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
         <Outlet />
       </main>
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-6 text-sm text-muted">
           <span>SportHub ระบบจองสนามกีฬาและยืมอุปกรณ์</span>
+          {settings?.contactPhone && <a href={`tel:${settings.contactPhone}`} className="num hover:text-ink">โทร {settings.contactPhone}</a>}
+          {settings?.contactLine && <span>LINE {settings.contactLine}</span>}
+          {settings?.address && <span>{settings.address}</span>}
           <a href="/docs" className="hover:text-ink">
             เอกสาร API
           </a>

@@ -31,7 +31,7 @@ export default function AdminLayout() {
           การจองทั้งหมด
         </NavLink>
         <NavLink to="/admin/catalog" className={tab}>
-          สนาม อุปกรณ์ คูปอง
+          จัดการข้อมูล
         </NavLink>
         <NavLink to="/admin/users" className={tab}>
           สมาชิก

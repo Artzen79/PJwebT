@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, errorText, ok, type Settings } from '../../api';
-import { Badge, Button, ErrorNote, Field, Input, Loading, Panel } from '../../components/ui';
+import { Badge, Button, ErrorNote, Field, Input, Loading, Panel, Textarea } from '../../components/ui';
 import { dateTimeTh } from '../../lib/format';
 import { formData } from '../../lib/pick';
 
@@ -10,6 +10,13 @@ const fields: { name: keyof Settings; label: string; hint: string; min?: number;
   { name: 'cancelBeforeHours', label: 'ยกเลิกได้ก่อนเริ่ม (ชั่วโมง)', hint: 'สมาชิกยกเลิกการจองที่ชำระแล้วได้ถ้าเหลือเวลามากกว่านี้', min: 0, max: 720 },
   { name: 'checkinEarlyMinutes', label: 'เช็คอินล่วงหน้าได้ (นาที)', hint: 'เปิดให้เช็คอินก่อนเวลาเริ่มกี่นาที', min: 0, max: 43_200 },
   { name: 'maxDaysAhead', label: 'จองล่วงหน้าได้ (วัน)', hint: '0 = จองได้เฉพาะวันนี้, 1 = วันนี้และพรุ่งนี้ (จองประจำรายสัปดาห์ต้องตั้ง 7 ขึ้นไป)', min: 0, max: 365 },
+];
+
+const venueFields: { name: 'announcement' | 'contactPhone' | 'contactLine' | 'address'; label: string; hint?: string; max: number; long?: boolean }[] = [
+  { name: 'announcement', label: 'ประกาศหน้าเว็บ', hint: 'แสดงเป็นแถบบนสุดทุกหน้า เว้นว่าง = ไม่แสดง', max: 500, long: true },
+  { name: 'contactPhone', label: 'เบอร์ติดต่อ', max: 30 },
+  { name: 'contactLine', label: 'LINE ID', max: 50 },
+  { name: 'address', label: 'ที่อยู่', hint: 'แสดงท้ายเว็บและท้ายอีเมล', max: 300, long: true },
 ];
 
 function duration(seconds: number) {
@@ -46,6 +53,7 @@ export default function System() {
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <Panel className="p-5">
           <h2 className="mb-4 text-xl font-semibold">ค่าตั้งการจองและการชำระเงิน</h2>
+          <p className="-mt-2 mb-4 text-sm text-muted">ราคาสนามและอุปกรณ์แก้ได้ที่เมนูจัดการข้อมูล</p>
           {settings.isPending ? (
             <Loading />
           ) : settings.error ? (
@@ -59,6 +67,7 @@ export default function System() {
                 save.mutate({
                   promptpayId: String(f.get('promptpayId')),
                   ...Object.fromEntries(fields.map((d) => [d.name, Number(f.get(d.name))])),
+                  ...Object.fromEntries(venueFields.map((d) => [d.name, String(f.get(d.name))])),
                 });
               }}
             >
@@ -71,6 +80,18 @@ export default function System() {
                 <Field key={d.name} label={d.label} hint={d.hint}>
                   <Input name={d.name} type="number" min={d.min} max={d.max} defaultValue={settings.data[d.name]} required />
                 </Field>
+              ))}
+              <h2 className="mt-2 text-xl font-semibold sm:col-span-2">ข้อมูลสนามและประกาศ</h2>
+              {venueFields.map((d) => (
+                <div key={d.name} className={d.long ? 'sm:col-span-2' : ''}>
+                  <Field label={d.label} hint={d.hint}>
+                    {d.long ? (
+                      <Textarea name={d.name} defaultValue={settings.data[d.name]} maxLength={d.max} rows={2} />
+                    ) : (
+                      <Input name={d.name} defaultValue={settings.data[d.name]} maxLength={d.max} />
+                    )}
+                  </Field>
+                </div>
               ))}
               <div className="sm:col-span-2">
                 <ErrorNote error={save.error} />

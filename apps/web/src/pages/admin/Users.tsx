@@ -167,8 +167,26 @@ export default function Users() {
 
 export function UserDetail() {
   const id = Number(useParams().id);
+  const qc = useQueryClient();
+  const [open, setOpen] = useState<'edit' | 'password' | null>(null);
   const user = useQuery({ queryKey: ['user', id], queryFn: () => ok(api.GET('/api/v1/users/{id}', { params: { path: { id } } })) });
   const bookings = useQuery({ queryKey: ['bookings', 'user', id], queryFn: () => ok(api.GET('/api/v1/bookings', { params: { query: { userId: id } } })) });
+  const edit = useMutation({
+    mutationFn: (body: { name: string; email: string; phone: string | null }) => ok(api.PATCH('/api/v1/users/{id}', { params: { path: { id } }, body })),
+    onSuccess: () => {
+      toast.success('บันทึกข้อมูลแล้ว');
+      setOpen(null);
+      qc.invalidateQueries({ queryKey: ['user', id] });
+      qc.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+  const password = useMutation({
+    mutationFn: (password: string) => ok(api.POST('/api/v1/users/{id}/password', { params: { path: { id } }, body: { password } })),
+    onSuccess: () => {
+      toast.success('ตั้งรหัสผ่านใหม่แล้ว แจ้งรหัสให้สมาชิกทราบ');
+      setOpen(null);
+    },
+  });
   if (user.isPending) return <Loading />;
   if (user.error) return <ErrorNote error={user.error} />;
   const u = user.data;
@@ -188,6 +206,14 @@ export function UserDetail() {
           <p className="text-muted">
             {u.email} {u.phone && `โทร ${u.phone}`}
           </p>
+          <div className="mt-2 flex gap-1">
+            <Button size="sm" variant="quiet" onClick={() => setOpen('edit')}>
+              แก้ไขข้อมูล
+            </Button>
+            <Button size="sm" variant="quiet" onClick={() => setOpen('password')}>
+              ตั้งรหัสผ่านใหม่
+            </Button>
+          </div>
         </div>
         <dl className="grid grid-cols-2 gap-6 text-right">
           <div>
@@ -202,6 +228,44 @@ export function UserDetail() {
       </Panel>
       <h2 className="text-xl font-semibold">ประวัติการจอง</h2>
       {bookings.data?.length ? <BookingTable rows={bookings.data} /> : <Empty title="ยังไม่มีการจอง" />}
+      <Modal open={open === 'edit'} onClose={() => setOpen(null)} title={`แก้ไขข้อมูล ${u.name}`}>
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            const f = formData(e);
+            edit.mutate({ name: String(f.get('name')), email: String(f.get('email')), phone: String(f.get('phone')) || null });
+          }}
+        >
+          <Field label="ชื่อ-นามสกุล">
+            <Input name="name" required defaultValue={u.name} />
+          </Field>
+          <Field label="อีเมล">
+            <Input name="email" type="email" required defaultValue={u.email} />
+          </Field>
+          <Field label="เบอร์โทร" hint="เว้นว่าง = ลบเบอร์">
+            <Input name="phone" pattern="0[0-9]{8,9}" defaultValue={u.phone ?? ''} />
+          </Field>
+          <ErrorNote error={edit.error} />
+          <div className="flex justify-end">
+            <Button type="submit" variant="primary" pending={edit.isPending}>
+              บันทึก
+            </Button>
+          </div>
+        </form>
+      </Modal>
+      <Modal open={open === 'password'} onClose={() => setOpen(null)} title={`ตั้งรหัสผ่านใหม่ให้ ${u.name}`}>
+        <form className="space-y-4" onSubmit={(e) => password.mutate(String(formData(e).get('password')))}>
+          <Field label="รหัสผ่านใหม่" hint="อย่างน้อย 8 ตัวอักษร">
+            <Input name="password" type="text" required minLength={8} autoComplete="off" />
+          </Field>
+          <ErrorNote error={password.error} />
+          <div className="flex justify-end">
+            <Button type="submit" variant="primary" pending={password.isPending}>
+              ตั้งรหัสผ่าน
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

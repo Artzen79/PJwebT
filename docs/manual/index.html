@@ -327,7 +327,7 @@
           <li>4.2 ตรวจสลิป</li>
           <li>4.3 เช็คอินหน้าสนามและรับคืนอุปกรณ์</li>
           <li>4.4 การจองทั้งหมด</li>
-          <li>4.5 จัดการสนาม อุปกรณ์ และประเภทกีฬา</li>
+          <li>4.5 จัดการข้อมูล: สนาม อุปกรณ์ ประเภทกีฬา คูปอง และรีวิว</li>
           <li>4.6 จัดการสมาชิก</li>
           <li>4.7 อีเมลของระบบ</li>
           <li>4.8 ระบบหลังบ้านและค่าตั้งระบบ</li>
@@ -357,14 +357,14 @@
       </thead>
       <tbody>
         <tr><td>ดูสินค้าทั้งหมด / ดูรายสินค้า</td><td>ตารางสนามว่าง, รายการสนาม, รายการอุปกรณ์, หน้ารายละเอียดสนามและอุปกรณ์</td><td>ทุกคน</td></tr>
-        <tr><td>เพิ่ม/แก้ไขสินค้า, เพิ่ม+เปลี่ยนรูปสินค้า</td><td>เมนูผู้ดูแลระบบ &gt; สนามและอุปกรณ์ (เพิ่ม แก้ไข ปิดใช้งาน เปลี่ยนรูป) และจัดการประเภทกีฬา</td><td>admin</td></tr>
+        <tr><td>เพิ่ม/แก้ไขสินค้า, เพิ่ม+เปลี่ยนรูปสินค้า</td><td>เมนูผู้ดูแลระบบ &gt; จัดการข้อมูล: สนามและอุปกรณ์ (เพิ่ม แก้ไขราคาและรายละเอียด ปิดใช้งาน ลบ เปลี่ยนรูป) ประเภทกีฬา คูปอง และรีวิว</td><td>admin</td></tr>
         <tr><td>สมัครสมาชิก / เข้าสู่ระบบ</td><td>หน้าสมัครสมาชิกและเข้าสู่ระบบ (รหัสผ่านเข้ารหัสด้วย argon2id)</td><td>ทุกคน</td></tr>
         <tr><td>แก้ไขข้อมูลสมาชิก (รวมรูป)</td><td>หน้าข้อมูลส่วนตัว: ชื่อ เบอร์โทร รูปโปรไฟล์ เปลี่ยนรหัสผ่าน</td><td>สมาชิก</td></tr>
-        <tr><td>แสดงสมาชิกทั้งหมด, เปลี่ยนสถานะ, เพิ่ม admin</td><td>เมนูสมาชิก: ค้นหา ระงับ/เปิดใช้งาน ตั้งหรือปลดแอดมิน เพิ่มผู้ใช้ใหม่</td><td>admin</td></tr>
+        <tr><td>แสดงสมาชิกทั้งหมด, เปลี่ยนสถานะ, เพิ่ม admin</td><td>เมนูสมาชิก: ค้นหา ระงับ/เปิดใช้งาน ตั้งหรือปลดแอดมิน เพิ่มผู้ใช้ใหม่ แก้ข้อมูลและตั้งรหัสผ่านใหม่ให้สมาชิก</td><td>admin</td></tr>
         <tr><td>ซื้อสินค้า (ตะกร้า, ลบรายการ, ลบตะกร้า, ยืนยัน)</td><td>ตะกร้าการจอง: ลบทีละรายการ ลบทั้งตะกร้า ยืนยันการจอง หลังยืนยันแก้ไขไม่ได้</td><td>สมาชิก</td></tr>
         <tr><td>ดูรายละเอียดการซื้อแต่ละครั้ง</td><td>หน้ารายละเอียดการจอง (รายการ ยอดรวม การชำระเงิน QR เช็คอิน)</td><td>สมาชิก, admin</td></tr>
         <tr><td>ดูรายการซื้อทั้งหมดของลูกค้าแต่ละคน</td><td>การจองของฉัน (สมาชิก) และประวัติการจองรายคนในเมนูสมาชิก (admin)</td><td>สมาชิก, admin</td></tr>
-        <tr><td>Backend REST API, PostgreSQL, Node.js + Express</td><td>Express 5 บน Node.js 24, PostgreSQL 18, REST API 63 endpoint ใต้ <code>/api/v1</code></td><td>-</td></tr>
+        <tr><td>Backend REST API, PostgreSQL, Node.js + Express</td><td>Express 5 บน Node.js 24, PostgreSQL 18, REST API 70 endpoint ใต้ <code>/api/v1</code></td><td>-</td></tr>
         <tr><td>API Document ออนไลน์</td><td>หน้า <code>/docs</code> อธิบายทุก endpoint พร้อม parameter ผลลัพธ์ ตัวอย่างการเรียกและตัวอย่างผลลัพธ์จริง</td><td>ทุกคน</td></tr>
       </tbody>
     </table>
@@ -376,7 +376,7 @@
       <li>ตั๋ว QR สำหรับเช็คอินหน้าสนาม สแกนด้วยกล้องมือถือหรือพิมพ์เลขที่การจอง</li>
       <li>ยืมอุปกรณ์ตามช่วงเวลา ตรวจสต็อกตามช่วงเวลาที่ทับซ้อน บันทึกการคืน สภาพ และค่าปรับ</li>
       <li>อีเมลแจ้งเตือนอยู่ในเว็บ: สมาชิกอ่านในกล่องข้อความ ผู้ดูแลระบบดูทุกฉบับ (ยืนยันการจอง ชำระสำเร็จพร้อม QR สลิปไม่ผ่าน ยกเลิก เตือนก่อนเวลา 1 ชั่วโมง) และส่งออกไปอีเมลจริงได้เมื่อตั้งค่า SMTP</li>
-      <li>ผู้ดูแลระบบจัดการหลังบ้านได้ทั้งหมดผ่านเว็บ: ค่าตั้งการจองและ PromptPay สถานะระบบ งานอัตโนมัติ และเอกสาร API ที่ทดลองเรียกได้ทันที</li>
+      <li>ผู้ดูแลระบบจัดการหลังบ้านได้ทั้งหมดผ่านเว็บ: ราคาและข้อมูลสนาม อุปกรณ์ คูปอง รีวิว บัญชีสมาชิก ค่าตั้งการจองและ PromptPay ประกาศหน้าเว็บ ข้อมูลติดต่อ สถานะระบบ งานอัตโนมัติ และเอกสาร API ที่ทดลองเรียกได้ทันที</li>
       <li>รีวิวและให้คะแนนสนามหลังใช้บริการ แดชบอร์ดสถิติรายได้ ช่วงเวลายอดนิยม และสนามยอดนิยม</li>
       <li>ราคาช่วง peak (เช่น หลัง 17:00 แพงกว่า) ตั้งได้รายสนาม</li>
       <li>กำหนดได้ว่าจองล่วงหน้าได้กี่วัน (ค่าเริ่มต้น: วันนี้และพรุ่งนี้) และจองประจำทุกสัปดาห์ได้สูงสุด 8 สัปดาห์เมื่อเปิดช่วงจองให้ยาวพอ</li>
@@ -392,7 +392,7 @@
       <div class="box"><b>PostgreSQL 18</b>ENUM, VIEW, exclusion constraint, transaction + row lock</div>
     </div>
     <p>
-      หน้าเว็บคุยกับ backend ผ่าน REST API เท่านั้น ชนิดข้อมูลฝั่งเว็บสร้างอัตโนมัติจาก API Document (OpenAPI 3.1) ทำให้ทั้งสองฝั่งตรงกันเสมอ ทดสอบ backend ด้วย Vitest + Supertest กับฐานข้อมูล PostgreSQL จริง 98 กรณี
+      หน้าเว็บคุยกับ backend ผ่าน REST API เท่านั้น ชนิดข้อมูลฝั่งเว็บสร้างอัตโนมัติจาก API Document (OpenAPI 3.1) ทำให้ทั้งสองฝั่งตรงกันเสมอ ทดสอบ backend ด้วย Vitest + Supertest กับฐานข้อมูล PostgreSQL จริง 112 กรณี
       และทดสอบ end-to-end ผ่านเบราว์เซอร์
     </p>
 
@@ -523,18 +523,21 @@
     <p>ดูการจองของทุกคน กรองตามสถานะ และค้นหาด้วยเลขที่การจอง ผู้ดูแลระบบยกเลิกการจองที่รอชำระหรือชำระแล้วได้ทุกเวลา</p>
     <figure><img src="img/18-admin-bookings.jpg" alt="" /><figcaption>การจองทั้งหมด</figcaption></figure>
 
-    <h3>4.5 จัดการสนาม อุปกรณ์ และประเภทกีฬา</h3>
+    <h3>4.5 จัดการข้อมูล: สนาม อุปกรณ์ ประเภทกีฬา คูปอง และรีวิว</h3>
     <ul>
-      <li>แท็บ <b>สนาม</b> และ <b>อุปกรณ์</b>: กด <b>เพิ่มสนาม</b>/<b>เพิ่มอุปกรณ์</b> หรือ <b>แก้ไข</b> เพื่อเปิดแบบฟอร์ม (ชื่อ กีฬา ราคา เวลาเปิด-ปิด จำนวนในคลัง มัดจำ รายละเอียด)</li>
+      <li>แท็บ <b>สนาม</b> และ <b>อุปกรณ์</b>: กด <b>เพิ่มสนาม</b>/<b>เพิ่มอุปกรณ์</b> หรือ <b>แก้ไข</b> เพื่อเปิดแบบฟอร์ม (ชื่อ กีฬา ราคา เวลาเปิด-ปิด จำนวนในคลัง ค่าเช่า มัดจำ รายละเอียด) ราคาที่แก้มีผลกับรายการที่เพิ่มลงตะกร้าหลังจากนั้น</li>
       <li>เอาเครื่องหมาย <b>เปิดให้จอง</b> ออกเพื่อปิดสนามหรืออุปกรณ์ชั่วคราว สมาชิกจะไม่เห็นรายการนั้น</li>
+      <li>กด <b>ลบ</b> เพื่อลบสนามหรืออุปกรณ์ที่เพิ่มผิดหรือไม่ใช้แล้ว ถ้าเคยมีการจองแล้ว ระบบจะไม่ลบเพื่อเก็บประวัติไว้ และแนะนำให้ปิดใช้งานแทน</li>
       <li>กด <b>เปลี่ยนรูป</b> เพื่ออัปโหลดรูปจริงของสนามหรืออุปกรณ์ ถ้าไม่มีรูป ระบบวาดเส้นสนามตามประเภทกีฬาให้</li>
       <li>ราคาช่วง peak: กรอก <b>ราคาช่วง peak</b> และ <b>peak เริ่มเวลา</b> ในแบบฟอร์มสนาม (เว้นว่างทั้งสองช่อง = ราคาเดียวทั้งวัน)</li>
       <li>แท็บ <b>ประเภทกีฬา</b>: เพิ่ม แก้ชื่อหรือไอคอน และลบกีฬาที่ยังไม่มีสนามหรืออุปกรณ์</li>
-      <li>แท็บ <b>คูปอง</b>: สร้างคูปองลดเป็นเปอร์เซ็นต์หรือเป็นบาท กำหนดยอดขั้นต่ำ จำนวนครั้งที่ใช้ได้ และวันหมดอายุ ดูจำนวนครั้งที่ถูกใช้ และเปิดหรือปิดคูปอง</li>
+      <li>แท็บ <b>คูปอง</b>: สร้างคูปองลดเป็นเปอร์เซ็นต์หรือเป็นบาท กำหนดยอดขั้นต่ำ จำนวนครั้งที่ใช้ได้ และวันหมดอายุ ดูจำนวนครั้งที่ถูกใช้ กด <b>แก้ไข</b> เพื่อเปลี่ยนส่วนลด เงื่อนไข หรือเปิดปิดคูปอง (การจองที่ยืนยันแล้วยังได้ส่วนลดเดิม) และ <b>ลบ</b> คูปองที่ยังไม่เคยถูกใช้</li>
+      <li>แท็บ <b>รีวิว</b>: ดูรีวิวทุกสนาม กรองตามจำนวนดาว และลบรีวิวที่ไม่เหมาะสม คะแนนเฉลี่ยของสนามคำนวณใหม่ทันที</li>
     </ul>
     <figure><img src="img/19-admin-catalog.jpg" alt="" /><figcaption>รายการสนาม</figcaption></figure>
     <figure><img src="img/20-admin-catalog-edit.jpg" alt="" /><figcaption>แก้ไขข้อมูลสนาม</figcaption></figure>
     <figure><img src="img/26-admin-coupons.jpg" alt="" /><figcaption>จัดการคูปองส่วนลด</figcaption></figure>
+    <figure><img src="img/30-admin-reviews.jpg" alt="" /><figcaption>ตรวจสอบและลบรีวิว</figcaption></figure>
 
     <h3>4.6 จัดการสมาชิก</h3>
     <ul>
@@ -542,6 +545,7 @@
       <li><b>ระงับ</b>/<b>เปิดใช้งาน</b>: สมาชิกที่ถูกระงับเข้าสู่ระบบไม่ได้ และ token เดิมใช้ไม่ได้ทันที</li>
       <li><b>ตั้งเป็นแอดมิน</b>/<b>ปลดจากแอดมิน</b> และ <b>เพิ่มผู้ใช้</b> ใหม่ (เช่น บัญชีพนักงาน) ผู้ดูแลระบบเปลี่ยนสถานะหรือสิทธิ์ของตัวเองไม่ได้</li>
       <li>กดชื่อสมาชิกเพื่อดูจำนวนการจอง ยอดใช้จ่าย และประวัติการจองทั้งหมดของคนนั้น</li>
+      <li>ในหน้าสมาชิก 1 คน กด <b>แก้ไขข้อมูล</b> เพื่อแก้ชื่อ อีเมล หรือเบอร์โทร และ <b>ตั้งรหัสผ่านใหม่</b> เมื่อสมาชิกลืมรหัสผ่าน แล้วแจ้งรหัสให้สมาชิกไปเปลี่ยนเองที่หน้าข้อมูลส่วนตัว</li>
     </ul>
     <figure><img src="img/21-admin-users.jpg" alt="" /><figcaption>รายชื่อสมาชิก</figcaption></figure>
     <figure><img src="img/22-admin-user-detail.jpg" alt="" /><figcaption>ประวัติการจองของสมาชิก 1 คน</figcaption></figure>
@@ -553,6 +557,7 @@
     <h3>4.8 ระบบหลังบ้านและค่าตั้งระบบ</h3>
     <ul>
       <li>แก้ <b>PromptPay ที่รับเงิน</b>, <b>เวลาชำระเงิน</b>, <b>ยกเลิกได้ก่อนเริ่ม</b>, <b>เช็คอินล่วงหน้าได้</b> และ <b>จองล่วงหน้าได้</b> แล้วกด <b>บันทึกค่าตั้งระบบ</b> มีผลกับรายการถัดไปทันทีโดยไม่ต้องรีสตาร์ทเซิร์ฟเวอร์</li>
+      <li><b>ข้อมูลสนามและประกาศ</b>: ข้อความ <b>ประกาศหน้าเว็บ</b> แสดงเป็นแถบสีเหลืองบนทุกหน้า (เว้นว่างเพื่อซ่อน) ส่วน <b>เบอร์ติดต่อ</b>, <b>LINE ID</b> และ <b>ที่อยู่</b> แสดงท้ายเว็บและท้ายอีเมลทุกฉบับ</li>
       <li><b>สถานะระบบ</b> แสดงการเชื่อมต่อฐานข้อมูล เวอร์ชัน PostgreSQL การส่งอีเมลออก งานอัตโนมัติครั้งล่าสุด จำนวนข้อมูล และ migration ที่รันแล้ว</li>
       <li>กด <b>รันตอนนี้เลย</b> เพื่อสั่งงานอัตโนมัติทันที (ปกติรันเองทุก 1 นาที)</li>
     </ul>
@@ -617,8 +622,10 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
           <tr><td>สมาชิก</td><td class="m">GET</td><td><code>/api/v1/users</code></td><td>รายชื่อสมาชิกทั้งหมด</td><td>admin</td></tr>
           <tr><td>สมาชิก</td><td class="m">POST</td><td><code>/api/v1/users</code></td><td>เพิ่มผู้ใช้ใหม่ (เช่น เพิ่ม admin)</td><td>admin</td></tr>
           <tr><td>สมาชิก</td><td class="m">GET</td><td><code>/api/v1/users/{id}</code></td><td>ข้อมูลสมาชิก 1 คน พร้อมสถิติการจอง</td><td>admin</td></tr>
+          <tr><td>สมาชิก</td><td class="m">PATCH</td><td><code>/api/v1/users/{id}</code></td><td>แก้ไขข้อมูลสมาชิก (โดย admin)</td><td>admin</td></tr>
           <tr><td>สมาชิก</td><td class="m">PATCH</td><td><code>/api/v1/users/{id}/status</code></td><td>เปลี่ยนสถานะสมาชิก (ระงับ/เปิดใช้งาน)</td><td>admin</td></tr>
           <tr><td>สมาชิก</td><td class="m">PATCH</td><td><code>/api/v1/users/{id}/role</code></td><td>เปลี่ยนสิทธิ์ (member/admin)</td><td>admin</td></tr>
+          <tr><td>สมาชิก</td><td class="m">POST</td><td><code>/api/v1/users/{id}/password</code></td><td>ตั้งรหัสผ่านใหม่ให้สมาชิก</td><td>admin</td></tr>
           <tr><td>กีฬา</td><td class="m">GET</td><td><code>/api/v1/sports</code></td><td>ประเภทกีฬาทั้งหมด</td><td>ทุกคน</td></tr>
           <tr><td>กีฬา</td><td class="m">POST</td><td><code>/api/v1/sports</code></td><td>เพิ่มประเภทกีฬา</td><td>admin</td></tr>
           <tr><td>กีฬา</td><td class="m">PATCH</td><td><code>/api/v1/sports/{id}</code></td><td>แก้ไขประเภทกีฬา</td><td>admin</td></tr>
@@ -627,6 +634,7 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
           <tr><td>สนาม</td><td class="m">POST</td><td><code>/api/v1/courts</code></td><td>เพิ่มสนาม</td><td>admin</td></tr>
           <tr><td>สนาม</td><td class="m">GET</td><td><code>/api/v1/courts/{id}</code></td><td>ข้อมูลสนาม 1 สนาม</td><td>ทุกคน</td></tr>
           <tr><td>สนาม</td><td class="m">PATCH</td><td><code>/api/v1/courts/{id}</code></td><td>แก้ไขข้อมูลสนาม</td><td>admin</td></tr>
+          <tr><td>สนาม</td><td class="m">DELETE</td><td><code>/api/v1/courts/{id}</code></td><td>ลบสนาม</td><td>admin</td></tr>
           <tr><td>สนาม</td><td class="m">POST</td><td><code>/api/v1/courts/{id}/image</code></td><td>อัปโหลด/เปลี่ยนรูปสนาม</td><td>admin</td></tr>
           <tr><td>สนาม</td><td class="m">GET</td><td><code>/api/v1/courts/{id}/availability</code></td><td>ตารางช่วงเวลาว่างของสนามในวันที่เลือก</td><td>ทุกคน</td></tr>
           <tr><td>สนาม</td><td class="m">GET</td><td><code>/api/v1/availability</code></td><td>กระดานเวลาว่างของทุกสนามในวันที่เลือก</td><td>ทุกคน</td></tr>
@@ -634,6 +642,7 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
           <tr><td>อุปกรณ์</td><td class="m">POST</td><td><code>/api/v1/equipment</code></td><td>เพิ่มอุปกรณ์</td><td>admin</td></tr>
           <tr><td>อุปกรณ์</td><td class="m">GET</td><td><code>/api/v1/equipment/{id}</code></td><td>ข้อมูลอุปกรณ์ 1 รายการ</td><td>ทุกคน</td></tr>
           <tr><td>อุปกรณ์</td><td class="m">PATCH</td><td><code>/api/v1/equipment/{id}</code></td><td>แก้ไขข้อมูลอุปกรณ์</td><td>admin</td></tr>
+          <tr><td>อุปกรณ์</td><td class="m">DELETE</td><td><code>/api/v1/equipment/{id}</code></td><td>ลบอุปกรณ์</td><td>admin</td></tr>
           <tr><td>อุปกรณ์</td><td class="m">POST</td><td><code>/api/v1/equipment/{id}/image</code></td><td>อัปโหลด/เปลี่ยนรูปอุปกรณ์</td><td>admin</td></tr>
           <tr><td>อุปกรณ์</td><td class="m">GET</td><td><code>/api/v1/equipment/{id}/availability</code></td><td>จำนวนอุปกรณ์ที่ยืมได้ในช่วงเวลาที่เลือก</td><td>ทุกคน</td></tr>
           <tr><td>ตะกร้า</td><td class="m">GET</td><td><code>/api/v1/cart</code></td><td>ดูตะกร้าการจองของฉัน</td><td>สมาชิก</td></tr>
@@ -657,6 +666,8 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
           <tr><td>ชำระเงิน</td><td class="m">PATCH</td><td><code>/api/v1/payments/{id}</code></td><td>อนุมัติหรือปฏิเสธสลิป</td><td>admin</td></tr>
           <tr><td>รีวิว</td><td class="m">GET</td><td><code>/api/v1/courts/{id}/reviews</code></td><td>รีวิวของสนาม</td><td>ทุกคน</td></tr>
           <tr><td>รีวิว</td><td class="m">POST</td><td><code>/api/v1/bookings/{id}/review</code></td><td>รีวิวสนามหลังใช้บริการ</td><td>สมาชิก</td></tr>
+          <tr><td>รีวิว</td><td class="m">GET</td><td><code>/api/v1/reviews</code></td><td>รีวิวทั้งหมด (สำหรับตรวจสอบ)</td><td>admin</td></tr>
+          <tr><td>รีวิว</td><td class="m">DELETE</td><td><code>/api/v1/reviews/{id}</code></td><td>ลบรีวิว</td><td>admin</td></tr>
           <tr><td>เรียลไทม์</td><td class="m">GET</td><td><code>/api/v1/events/availability</code></td><td>สตรีมแจ้งเตือนเมื่อตารางว่างเปลี่ยน (Server-Sent Events)</td><td>ทุกคน</td></tr>
           <tr><td>อีเมล</td><td class="m">GET</td><td><code>/api/v1/users/me/emails</code></td><td>กล่องข้อความของฉัน</td><td>สมาชิก</td></tr>
           <tr><td>อีเมล</td><td class="m">GET</td><td><code>/api/v1/emails</code></td><td>อีเมลทั้งหมดที่ระบบส่ง</td><td>admin</td></tr>
@@ -668,6 +679,7 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
           <tr><td>ผู้ดูแล</td><td class="m">GET</td><td><code>/api/v1/coupons</code></td><td>คูปองส่วนลดทั้งหมด</td><td>admin</td></tr>
           <tr><td>ผู้ดูแล</td><td class="m">POST</td><td><code>/api/v1/coupons</code></td><td>สร้างคูปองส่วนลด</td><td>admin</td></tr>
           <tr><td>ผู้ดูแล</td><td class="m">PATCH</td><td><code>/api/v1/coupons/{id}</code></td><td>แก้ไขหรือปิดคูปอง</td><td>admin</td></tr>
+          <tr><td>ผู้ดูแล</td><td class="m">DELETE</td><td><code>/api/v1/coupons/{id}</code></td><td>ลบคูปอง</td><td>admin</td></tr>
           <tr><td>ผู้ดูแล</td><td class="m">GET</td><td><code>/api/v1/settings</code></td><td>ค่าตั้งระบบที่ใช้อยู่</td><td>ทุกคน</td></tr>
           <tr><td>ผู้ดูแล</td><td class="m">PATCH</td><td><code>/api/v1/settings</code></td><td>แก้ค่าตั้งระบบ</td><td>admin</td></tr>
       </tbody>
@@ -683,7 +695,7 @@ pnpm db:migrate          # สร้างตาราง
 pnpm db:seed             # ข้อมูลตัวอย่าง (หรือ pnpm db:reset เพื่อล้างและสร้างใหม่)
 pnpm dev                 # API :3000 และเว็บ :5173</code></pre>
     <h3>ทดสอบ</h3>
-    <pre><code>pnpm test                # ชุดทดสอบ API 98 กรณี กับฐานข้อมูล sporthub_test</code></pre>
+    <pre><code>pnpm test                # ชุดทดสอบ API 112 กรณี กับฐานข้อมูล sporthub_test</code></pre>
     <p>ชุดทดสอบครอบคลุมการสมัครและสิทธิ์ การจัดการสนามและอุปกรณ์ ตะกร้า การยืนยันพร้อมกันสองคน (จองซ้อนและยืมเกินสต็อก) การชำระเงิน อีเมล การเช็คอิน การคืนอุปกรณ์ รีวิว งานอัตโนมัติ และสถิติ</p>
     <h3>Production</h3>
     <pre><code>docker build -t sporthub .
