@@ -3,8 +3,9 @@ import { one, query } from '../db';
 import { hashPassword, userColumns, verifyPassword } from '../lib/auth';
 import { fail, found } from '../lib/http';
 import { route } from '../lib/route';
+import { setClause } from '../lib/sql';
 import { imageUpload, publicUrl, uploadedFile } from '../lib/upload';
-import { email, idParam, password, personName, phone, User, UserDetail } from '../schemas';
+import { email, idParam, Ok, password, personName, phone, User, UserDetail } from '../schemas';
 
 route({
   method: 'patch',
@@ -147,3 +148,40 @@ for (const [field, label, values] of [
     },
   });
 }
+
+route({
+  method: 'patch',
+  path: '/users/:id',
+  tag: 'Users',
+  summary: 'แก้ไขข้อมูลสมาชิก (โดย admin)',
+  description: 'แก้ชื่อ อีเมล หรือเบอร์โทรของสมาชิก ส่งเฉพาะช่องที่ต้องการแก้ ส่ง `phone: null` เพื่อลบเบอร์',
+  access: 'admin',
+  params: idParam,
+  body: z.object({ name: personName.optional(), email: email.optional(), phone: phone.nullable().optional() }),
+  response: User,
+  errors: { 404: 'ไม่พบสมาชิก (NOT_FOUND)', 409: 'อีเมลนี้ถูกใช้แล้ว (EMAIL_TAKEN)' },
+  handler: async ({ params, body }) => {
+    if (body.email && (await one('SELECT 1 FROM users WHERE email = $1 AND id <> $2', [body.email, params.id]))) {
+      fail(409, 'EMAIL_TAKEN', 'อีเมลนี้ถูกใช้แล้ว');
+    }
+    const { set, values } = setClause(body, { name: 'name', email: 'email', phone: 'phone' });
+    return found(await one(`UPDATE users SET ${set} WHERE id = $1 RETURNING ${userColumns}`, [params.id, ...values]), 'สมาชิก');
+  },
+});
+
+route({
+  method: 'post',
+  path: '/users/:id/password',
+  tag: 'Users',
+  summary: 'ตั้งรหัสผ่านใหม่ให้สมาชิก',
+  description: 'ใช้เมื่อสมาชิกลืมรหัสผ่าน แจ้งรหัสใหม่ให้สมาชิกแล้วให้เปลี่ยนเองที่หน้าข้อมูลส่วนตัว',
+  access: 'admin',
+  params: idParam,
+  body: z.object({ password }),
+  response: Ok,
+  errors: { 404: 'ไม่พบสมาชิก (NOT_FOUND)' },
+  handler: async ({ params, body }) => {
+    found(await one('UPDATE users SET password_hash = $2 WHERE id = $1 RETURNING id', [params.id, await hashPassword(body.password)]), 'สมาชิก');
+    return { ok: true };
+  },
+});

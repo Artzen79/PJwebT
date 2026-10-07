@@ -9,6 +9,10 @@ export const settingFields = {
   checkinEarlyMinutes: z.number().int().min(0).max(43_200).describe('เช็คอินได้ก่อนเวลาเริ่มกี่นาที'),
   cancelBeforeHours: z.number().int().min(0).max(720).describe('สมาชิกยกเลิกการจองที่ชำระแล้วได้ก่อนเริ่มกี่ชั่วโมง'),
   maxDaysAhead: z.number().int().min(0).max(365).describe('จองล่วงหน้าได้กี่วันตามปฏิทิน (0 = วันนี้เท่านั้น, 1 = วันนี้และพรุ่งนี้)'),
+  announcement: z.string().trim().max(500).describe('ข้อความประกาศบนหน้าแรก (ว่าง = ไม่แสดง)'),
+  contactPhone: z.string().trim().max(30).describe('เบอร์ติดต่อสนาม'),
+  contactLine: z.string().trim().max(50).describe('LINE ID ของสนาม'),
+  address: z.string().trim().max(300).describe('ที่อยู่สนาม'),
 };
 
 export const Settings = z.object(settingFields).meta({ id: 'Settings', description: 'ค่าตั้งระบบที่ใช้อยู่ตอนนี้' });
@@ -21,6 +25,10 @@ const defaults = (): SettingsValue => ({
   cancelBeforeHours: 24,
   // today and tomorrow only, unless the admin opens a longer window
   maxDaysAhead: Number(process.env.MAX_DAYS_AHEAD || 1),
+  announcement: '',
+  contactPhone: '',
+  contactLine: '',
+  address: '',
 });
 
 export async function getSettings(db: Db = pool): Promise<SettingsValue> {

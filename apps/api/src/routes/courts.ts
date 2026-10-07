@@ -2,10 +2,10 @@ import { z } from 'zod';
 import { one, query } from '../db';
 import { found } from '../lib/http';
 import { route } from '../lib/route';
-import { setClause } from '../lib/sql';
+import { removeOrExplain, setClause } from '../lib/sql';
 import { atBangkok, bangkokIso, HOUR } from '../lib/time';
 import { imageUpload, publicUrl, uploadedFile } from '../lib/upload';
-import { Court, idParam, Slot } from '../schemas';
+import { Court, idParam, Ok, Slot } from '../schemas';
 
 const courtSelect = `
   SELECT c.id, c.sport_id AS "sportId", s.name AS "sportName", s.icon AS "sportIcon", c.name, c.description,
@@ -241,3 +241,19 @@ async function slotsFor(courts: Hours[], date: string, userId: number | null) {
   }
   return result;
 }
+
+route({
+  method: 'delete',
+  path: '/courts/:id',
+  tag: 'Courts',
+  summary: 'ลบสนาม',
+  description: 'ลบได้เฉพาะสนามที่ยังไม่เคยถูกจองหรือรีวิว ถ้ามีประวัติแล้วให้ปิดใช้งานด้วย `PATCH {isActive: false}` แทน เพื่อเก็บประวัติไว้',
+  access: 'admin',
+  params: idParam,
+  response: Ok,
+  errors: { 404: 'ไม่พบสนาม (NOT_FOUND)', 409: 'มีประวัติการจองแล้ว (IN_USE)' },
+  handler: async ({ params }) => {
+    await removeOrExplain('DELETE FROM courts WHERE id = $1 RETURNING id', params.id, 'สนาม');
+    return { ok: true };
+  },
+});

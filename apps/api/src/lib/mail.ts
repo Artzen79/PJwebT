@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import { one, query } from '../db';
 import { env } from '../env';
 import type { BookingRow } from './bookings';
-import { getSettings } from './settings';
+import { getSettings, type SettingsValue } from './settings';
 
 // Every email is first stored (member inbox + admin mail log in the web app), then delivered by SMTP
 // in the background when SMTP_URL is set. A mail outage never fails the request that triggered it.
@@ -22,7 +22,12 @@ function items(b: BookingRow) {
   return `<ul>${rows.map((r) => `<li>${r}</li>`).join('')}</ul>`;
 }
 
-function layout(b: BookingRow, heading: string, body: string) {
+function contact(s: SettingsValue) {
+  const parts = [s.contactPhone && `โทร ${esc(s.contactPhone)}`, s.contactLine && `LINE ${esc(s.contactLine)}`, s.address && esc(s.address)].filter(Boolean);
+  return parts.length ? `<br>${parts.join(' | ')}` : '';
+}
+
+function layout(b: BookingRow, heading: string, body: string, s: SettingsValue) {
   return `<div style="font-family:sans-serif;max-width:560px">
   <h2 style="color:#0f766e">${heading}</h2>
   <p>สวัสดีคุณ ${esc(b.userName)}</p>
@@ -30,7 +35,7 @@ function layout(b: BookingRow, heading: string, body: string) {
   <p><b>เลขที่การจอง:</b> ${b.code}<br><b>ยอดรวม:</b> ${baht(b.total)}</p>
   ${items(b)}
   <p><a href="${env.appUrl}/bookings/${b.id}">ดูรายละเอียดการจอง</a></p>
-  <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>`;
+  <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์${contact(s)}</p></div>`;
 }
 
 async function record(b: BookingRow, kind: Kind, subject: string, html: string) {
@@ -66,32 +71,34 @@ export async function deliver(id: number): Promise<'web' | 'sent' | 'failed'> {
 
 export const mail = {
   confirmed: async (b: BookingRow) => {
-    const { payWithinMinutes } = await getSettings();
+    const s = await getSettings();
+    const { payWithinMinutes } = s;
     return record(
       b,
       'confirmed',
       `[SportHub] ยืนยันการจอง #${b.code} — กรุณาชำระเงินภายใน ${payWithinMinutes} นาที`,
-      layout(b, 'ได้รับการจองแล้ว', `<p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน ${payWithinMinutes} นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>`),
+      layout(b, 'ได้รับการจองแล้ว', `<p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน ${payWithinMinutes} นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>`, s),
     );
   },
-  approved: (b: BookingRow) =>
+  approved: async (b: BookingRow) =>
     record(
       b,
       'approved',
       `[SportHub] ชำระเงินสำเร็จ #${b.code}`,
-      layout(b, 'ชำระเงินสำเร็จ', `<p>แสดง QR นี้ที่เคาน์เตอร์เพื่อเช็คอิน</p><img src="${b.checkinQr}" width="200" alt="QR เช็คอิน">`),
+      layout(b, 'ชำระเงินสำเร็จ', `<p>แสดง QR นี้ที่เคาน์เตอร์เพื่อเช็คอิน</p><img src="${b.checkinQr}" width="200" alt="QR เช็คอิน">`, await getSettings()),
     ),
   rejected: async (b: BookingRow, note: string | null) => {
-    const { payWithinMinutes } = await getSettings();
+    const s = await getSettings();
+    const { payWithinMinutes } = s;
     return record(
       b,
       'rejected',
       `[SportHub] สลิปไม่ผ่านการตรวจสอบ #${b.code}`,
-      layout(b, 'สลิปไม่ผ่านการตรวจสอบ', `<p>เหตุผล: ${esc(note ?? '-')}</p><p>กรุณาแนบสลิปใหม่ภายใน ${payWithinMinutes} นาที</p>`),
+      layout(b, 'สลิปไม่ผ่านการตรวจสอบ', `<p>เหตุผล: ${esc(note ?? '-')}</p><p>กรุณาแนบสลิปใหม่ภายใน ${payWithinMinutes} นาที</p>`, s),
     );
   },
-  cancelled: (b: BookingRow, reason: string) =>
-    record(b, 'cancelled', `[SportHub] การจอง #${b.code} ถูกยกเลิก`, layout(b, 'การจองถูกยกเลิก', `<p>${esc(reason)}</p>`)),
-  reminder: (b: BookingRow) =>
-    record(b, 'reminder', `[SportHub] อีก 1 ชั่วโมงถึงเวลาจอง #${b.code}`, layout(b, 'ใกล้ถึงเวลาแล้ว', '<p>อย่าลืมแสดง QR เช็คอินที่เคาน์เตอร์</p>')),
+  cancelled: async (b: BookingRow, reason: string) =>
+    record(b, 'cancelled', `[SportHub] การจอง #${b.code} ถูกยกเลิก`, layout(b, 'การจองถูกยกเลิก', `<p>${esc(reason)}</p>`, await getSettings())),
+  reminder: async (b: BookingRow) =>
+    record(b, 'reminder', `[SportHub] อีก 1 ชั่วโมงถึงเวลาจอง #${b.code}`, layout(b, 'ใกล้ถึงเวลาแล้ว', '<p>อย่าลืมแสดง QR เช็คอินที่เคาน์เตอร์</p>', await getSettings())),
 };

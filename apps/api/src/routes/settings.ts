@@ -26,6 +26,10 @@ route({
       checkinEarlyMinutes: settingFields.checkinEarlyMinutes.nullable(),
       cancelBeforeHours: settingFields.cancelBeforeHours.nullable(),
       maxDaysAhead: settingFields.maxDaysAhead.nullable(),
+      announcement: settingFields.announcement.nullable(),
+      contactPhone: settingFields.contactPhone.nullable(),
+      contactLine: settingFields.contactLine.nullable(),
+      address: settingFields.address.nullable(),
     })
     .partial(),
   response: Settings,

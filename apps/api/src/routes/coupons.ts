@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { one, query } from '../db';
 import { found } from '../lib/http';
 import { route } from '../lib/route';
-import { setClause } from '../lib/sql';
-import { Coupon, dateTime, idParam } from '../schemas';
+import { removeOrExplain, setClause } from '../lib/sql';
+import { Coupon, dateTime, idParam, Ok } from '../schemas';
 
 const couponSelect = `
   SELECT id, code, percent_off AS "percentOff", amount_off AS "amountOff", min_total AS "minTotal", max_uses AS "maxUses",
@@ -82,5 +82,21 @@ route({
     const { set, values } = setClause(body, columns);
     found(await one(`UPDATE coupons SET ${set} WHERE id = $1 RETURNING id`, [params.id, ...values]), 'คูปอง');
     return one(`${couponSelect} WHERE id = $1`, [params.id]);
+  },
+});
+
+route({
+  method: 'delete',
+  path: '/coupons/:id',
+  tag: 'Admin',
+  summary: 'ลบคูปอง',
+  description: 'ลบได้เฉพาะคูปองที่ยังไม่มีการจองใช้ ถ้าเคยใช้แล้วให้ปิดคูปองด้วย `PATCH {isActive: false}` แทน',
+  access: 'admin',
+  params: idParam,
+  response: Ok,
+  errors: { 404: 'ไม่พบคูปอง (NOT_FOUND)', 409: 'มีการจองใช้คูปองนี้แล้ว (IN_USE)' },
+  handler: async ({ params }) => {
+    await removeOrExplain('DELETE FROM coupons WHERE id = $1 RETURNING id', params.id, 'คูปอง');
+    return { ok: true };
   },
 });

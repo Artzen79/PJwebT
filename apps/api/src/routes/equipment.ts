@@ -2,10 +2,10 @@ import { z } from 'zod';
 import { one, query } from '../db';
 import { fail, found } from '../lib/http';
 import { route } from '../lib/route';
-import { setClause } from '../lib/sql';
+import { removeOrExplain, setClause } from '../lib/sql';
 import { stockFor } from '../lib/stock';
 import { imageUpload, publicUrl, uploadedFile } from '../lib/upload';
-import { dateTime, Equipment, idParam } from '../schemas';
+import { dateTime, Equipment, idParam, Ok } from '../schemas';
 
 const equipmentSelect = `
   SELECT e.id, e.sport_id AS "sportId", s.name AS "sportName", s.icon AS "sportIcon", e.name, e.description,
@@ -141,5 +141,21 @@ route({
     if (Date.parse(q.endAt) <= Date.parse(q.startAt)) fail(400, 'INVALID_PERIOD', 'เวลาคืนต้องหลังเวลาเริ่มยืม');
     const stock = found(await stockFor(params.id, q.startAt, q.endAt), 'อุปกรณ์');
     return { equipmentId: params.id, ...stock, startAt: q.startAt, endAt: q.endAt };
+  },
+});
+
+route({
+  method: 'delete',
+  path: '/equipment/:id',
+  tag: 'Equipment',
+  summary: 'ลบอุปกรณ์',
+  description: 'ลบได้เฉพาะอุปกรณ์ที่ยังไม่เคยถูกยืม ถ้ามีประวัติแล้วให้ปิดใช้งานด้วย `PATCH {isActive: false}` แทน',
+  access: 'admin',
+  params: idParam,
+  response: Ok,
+  errors: { 404: 'ไม่พบอุปกรณ์ (NOT_FOUND)', 409: 'มีประวัติการยืมแล้ว (IN_USE)' },
+  handler: async ({ params }) => {
+    await removeOrExplain('DELETE FROM equipment WHERE id = $1 RETURNING id', params.id, 'อุปกรณ์');
+    return { ok: true };
   },
 });

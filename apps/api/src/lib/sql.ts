@@ -1,4 +1,5 @@
-import { fail } from './http';
+import { one } from '../db';
+import { fail, found } from './http';
 
 // Builds "col = $2, col2 = $3" for a PATCH body; column names come from a fixed map, never from input.
 export function setClause(body: Record<string, unknown>, columns: Record<string, string>, firstParam = 2) {
@@ -8,4 +9,14 @@ export function setClause(body: Record<string, unknown>, columns: Record<string,
     set: keys.map((k, i) => `${columns[k]} = $${firstParam + i}`).join(', '),
     values: keys.map((k) => body[k]),
   };
+}
+
+// Deletes one row; a foreign-key refusal becomes a 409 that tells the admin to deactivate instead.
+export async function removeOrExplain(sql: string, id: number, what: string) {
+  try {
+    found(await one(sql, [id]), what);
+  } catch (err) {
+    if ((err as { code?: string }).code === '23503') fail(409, 'IN_USE', `${what}นี้มีประวัติการใช้งานแล้ว ลบไม่ได้ ให้ปิดใช้งานแทน`);
+    throw err;
+  }
 }

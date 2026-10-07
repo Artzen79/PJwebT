@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { one, query } from '../db';
 import { getVisibleBooking } from '../lib/bookings';
-import { fail } from '../lib/http';
+import { fail, found } from '../lib/http';
 import { route } from '../lib/route';
-import { dateTime, idParam } from '../schemas';
+import { dateTime, idParam, Ok } from '../schemas';
 import { getCourt } from './courts';
 
 const Review = z
@@ -69,5 +69,41 @@ route({
       [booking.id, user!.id, body.courtId, body.rating, body.comment],
     );
     return one(`${reviewSelect} WHERE r.id = $1`, [id]);
+  },
+});
+
+route({
+  method: 'get',
+  path: '/reviews',
+  tag: 'Reviews',
+  summary: 'รีวิวทั้งหมด (สำหรับตรวจสอบ)',
+  description: 'รีวิวทุกสนาม ล่าสุดก่อน (500 รายการ) กรองตามคะแนนได้',
+  access: 'admin',
+  query: z.object({ rating: z.coerce.number().int().min(1).max(5).optional().describe('เฉพาะคะแนนนี้') }),
+  response: z.array(Review.extend({ courtName: z.string(), bookingCode: z.string() }).meta({ id: 'ReviewAdmin' })),
+  handler: ({ query: q }) =>
+    query(
+      `SELECT r.id, r.court_id AS "courtId", c.name AS "courtName", b.code AS "bookingCode", u.name AS "userName",
+         r.rating, r.comment, r.created_at AS "createdAt"
+       FROM reviews r JOIN users u ON u.id = r.user_id JOIN courts c ON c.id = r.court_id JOIN bookings b ON b.id = r.booking_id
+       WHERE ($1::int IS NULL OR r.rating = $1)
+       ORDER BY r.created_at DESC LIMIT 500`,
+      [q.rating ?? null],
+    ),
+});
+
+route({
+  method: 'delete',
+  path: '/reviews/:id',
+  tag: 'Reviews',
+  summary: 'ลบรีวิว',
+  description: 'ลบรีวิวที่ไม่เหมาะสม คะแนนเฉลี่ยของสนามจะคำนวณใหม่ทันที',
+  access: 'admin',
+  params: idParam,
+  response: Ok,
+  errors: { 404: 'ไม่พบรีวิว (NOT_FOUND)' },
+  handler: async ({ params }) => {
+    found(await one('DELETE FROM reviews WHERE id = $1 RETURNING id', [params.id]), 'รีวิว');
+    return { ok: true };
   },
 });
