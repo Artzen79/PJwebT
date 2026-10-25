@@ -122,11 +122,6 @@ body {
   outline-offset: 2px;
 }
 
-/* a booked hour reads like a filled court: hatched with the sport's colour */
-.cell-booked {
-  background: repeating-linear-gradient(135deg, var(--sport) 0 3px, color-mix(in oklab, var(--sport) 45%, var(--sunken)) 3px 7px);
-}
-
 /* the one orchestrated motion: a cell flips like a scoreboard tile when its status changes */
 @keyframes flip {
   from {

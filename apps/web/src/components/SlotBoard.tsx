@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import type { BoardRow, Slot } from '../api';
-import { baht, hourLabel, sportColor } from '../lib/format';
+import { baht, bangkokDate, hourLabel, sportColor } from '../lib/format';
 
 const statusText: Record<Slot['status'], string> = {
   free: 'ว่าง',
@@ -11,13 +11,25 @@ const statusText: Record<Slot['status'], string> = {
   past: 'เลยเวลาแล้ว',
 };
 
-const cellClass: Record<Slot['status'], string> = {
-  free: 'bg-turf-soft ring-1 ring-inset ring-turf/50 hover:ring-2 hover:ring-turf cursor-pointer',
-  in_cart: 'bg-mark text-mark-ink cursor-pointer hover:brightness-95',
-  mine: 'bg-violet text-white ring-1 ring-inset ring-line-hi',
-  booked: 'cell-booked',
-  past: 'bg-sunken opacity-50',
+// Every cell says what it is, so the board reads without the legend:
+// green = can book, gold = picked, violet = yours, grey = taken, empty = gone or closed.
+const cellLabel: Record<Slot['status'], string> = {
+  free: 'ว่าง',
+  in_cart: '✓ เลือก',
+  mine: '★ ของคุณ',
+  booked: 'เต็ม',
+  past: '',
 };
+
+const cellClass: Record<Slot['status'], string> = {
+  free: 'bg-turf/15 text-turf ring-1 ring-inset ring-turf/60 cursor-pointer hover:bg-turf hover:text-turf-ink',
+  in_cart: 'bg-mark text-mark-ink cursor-pointer hover:brightness-95',
+  mine: 'bg-violet text-white',
+  booked: 'bg-white/[0.07] text-muted',
+  past: 'bg-white/[0.02]',
+};
+
+const bangkokHour = () => Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hourCycle: 'h23', timeZone: 'Asia/Bangkok' }).format(new Date()));
 
 type Row = Pick<BoardRow, 'courtId' | 'courtName' | 'sportIcon' | 'sportId' | 'pricePerHour' | 'slots'>;
 
@@ -28,6 +40,10 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
   const first = Math.min(...hours);
   const last = Math.max(...hours);
   const columns = Array.from({ length: last - first + 1 }, (_, i) => first + i);
+  // gold "now" marker, like the game's timeline, only when the board shows today
+  const anySlot = rows[0]?.slots[0];
+  const nowHour = anySlot && bangkokDate(new Date(anySlot.startAt)) === bangkokDate() ? bangkokHour() : null;
+  const rowHover = 'group-hover/row:bg-[color-mix(in_oklab,var(--sunken),white_5%)]';
 
   return (
     <div className="overflow-x-auto rounded-xl border-2 border-line bg-sunken" role="grid" aria-label="ตารางช่วงเวลาว่าง">
@@ -35,52 +51,64 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
         className="grid w-full min-w-max [grid-template-columns:minmax(7.5rem,9rem)_repeat(var(--cols),minmax(2.75rem,1fr))] sm:[grid-template-columns:minmax(11rem,16rem)_repeat(var(--cols),minmax(3.1rem,1fr))]"
         style={{ '--cols': columns.length } as CSSProperties}
       >
-        <div className="sticky left-0 z-10 border-b border-line bg-sunken" />
-        {columns.map((h) => (
-          <div key={h} className="num border-b border-line py-2 text-center text-xs text-muted">
-            {hourLabel(h)}
-          </div>
-        ))}
+        <div role="row" className="contents">
+          <div className="label sticky left-0 z-10 flex items-end border-b border-line bg-sunken px-3 py-2">สนาม / เวลา</div>
+          {columns.map((h) => (
+            <div key={h} className={`num border-b border-line py-2 text-center text-sm ${h === nowHour ? 'bg-mark/10' : 'text-muted'}`}>
+              {h === nowHour ? <span className="rounded-full bg-mark px-2 py-0.5 font-bold text-mark-ink">{hourLabel(h)}</span> : hourLabel(h)}
+            </div>
+          ))}
+        </div>
         {rows.map((row) => {
           const bySlot = new Map(row.slots.map((s) => [s.hour, s]));
-          return [
-            <div key={`n${row.courtId}`} className="sticky left-0 z-10 flex items-center gap-2 border-b border-line bg-sunken px-3 py-2">
-              <span className="h-8 w-1.5 shrink-0 rounded-full" style={{ background: sportColor(row.sportIcon, row.sportId) }} aria-hidden />
-              <div className="min-w-0">
-                {linkCourt ? (
-                  <Link to={linkCourt(row.courtId)} className="block truncate font-medium hover:underline">
-                    {row.courtName}
-                  </Link>
-                ) : (
-                  <span className="block truncate font-medium">{row.courtName}</span>
-                )}
-                <span className="num text-xs text-muted">
-                  {row.sportIcon} {baht(row.pricePerHour)}/ชม.
-                </span>
-              </div>
-            </div>,
-            ...columns.map((hour, col) => {
-              const slot = bySlot.get(hour);
-              if (!slot) return <div key={`${row.courtId}-${hour}`} className="border-b border-line" aria-hidden />;
-              const clickable = slot.status === 'free' || slot.status === 'in_cart';
-              return (
-                <div key={`${row.courtId}-${hour}`} className="border-b border-line p-1 [perspective:400px]">
-                  <button
-                    type="button"
-                    disabled={!clickable}
-                    onClick={() => onPick(row, slot)}
-                    aria-label={`${row.courtName} ${hourLabel(hour)} ${statusText[slot.status]}`}
-                    title={`${hourLabel(hour)} ${statusText[slot.status]} ${baht(slot.price)}`}
-                    className={`flip grid h-10 w-full place-items-center rounded-md text-xs font-semibold transition ${cellClass[slot.status]}`}
-                    style={{ '--sport': sportColor(row.sportIcon, row.sportId), animationDelay: `${col * 18}ms` } as CSSProperties}
-                    key={slot.status}
-                  >
-                    {slot.status === 'in_cart' ? '✓' : slot.status === 'mine' ? '★' : ''}
-                  </button>
+          return (
+            <div key={row.courtId} role="row" className="group/row contents">
+              <div className={`sticky left-0 z-10 flex items-center gap-2 border-b border-line bg-sunken px-3 py-2 ${rowHover}`}>
+                <span className="h-9 w-1.5 shrink-0 rounded-full" style={{ background: sportColor(row.sportIcon, row.sportId) }} aria-hidden />
+                <div className="min-w-0">
+                  {linkCourt ? (
+                    <Link to={linkCourt(row.courtId)} className="block truncate font-semibold hover:underline">
+                      {row.courtName}
+                    </Link>
+                  ) : (
+                    <span className="block truncate font-semibold">{row.courtName}</span>
+                  )}
+                  <span className="num text-xs text-muted">
+                    {row.sportIcon} {baht(row.pricePerHour)}/ชม.
+                  </span>
                 </div>
-              );
-            }),
-          ];
+              </div>
+              {columns.map((hour, col) => {
+                const slot = bySlot.get(hour);
+                const now = hour === nowHour ? 'bg-mark/10' : '';
+                if (!slot) return <div key={hour} className={`border-b border-line ${now} ${rowHover}`} aria-hidden />;
+                const clickable = slot.status === 'free' || slot.status === 'in_cart';
+                return (
+                  <div key={hour} className={`border-b border-line p-1 [perspective:400px] ${now} ${rowHover}`}>
+                    <button
+                      type="button"
+                      disabled={!clickable}
+                      onClick={() => onPick(row, slot)}
+                      aria-label={`${row.courtName} ${hourLabel(hour)} ${statusText[slot.status]}`}
+                      title={`${row.courtName} ${hourLabel(hour)} ${statusText[slot.status]} ${baht(slot.price)}`}
+                      className={`group/cell flip grid h-10 w-full place-items-center truncate rounded-md px-1 text-xs font-semibold transition ${cellClass[slot.status]}`}
+                      style={{ animationDelay: `${col * 18}ms` }}
+                      key={slot.status}
+                    >
+                      {slot.status === 'free' ? (
+                        <>
+                          <span className="group-hover/cell:hidden">ว่าง</span>
+                          <span className="hidden group-hover/cell:inline">+ จอง</span>
+                        </>
+                      ) : (
+                        cellLabel[slot.status]
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          );
         })}
       </div>
     </div>
@@ -89,18 +117,20 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
 
 export function BoardLegend() {
   const items: [Slot['status'], string][] = [
-    ['free', 'ว่าง กดเพื่อจอง'],
-    ['in_cart', 'อยู่ในตะกร้า (กดซ้ำเพื่อเอาออก)'],
+    ['free', 'กดเพื่อเพิ่มลงตะกร้า'],
+    ['in_cart', 'อยู่ในตะกร้า กดอีกครั้งเพื่อเอาออก'],
     ['mine', 'การจองของคุณ'],
-    ['booked', 'มีผู้จองแล้ว'],
-    ['past', 'เลยเวลาแล้ว'],
+    ['booked', 'มีคนจองแล้ว'],
+    ['past', 'ช่องว่างเปล่า = เลยเวลาแล้วหรือสนามปิด'],
   ];
   return (
-    <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 text-sm sm:flex-wrap" aria-label="ความหมายของสี">
+    <ul className="-mx-1 flex gap-x-5 gap-y-2 overflow-x-auto px-1 pb-1 text-sm sm:flex-wrap" aria-label="ความหมายของช่อง">
       {items.map(([status, label]) => (
-        <li key={status} className="flex shrink-0 items-center gap-2 rounded-full bg-sunken py-1 pr-3 pl-1.5 whitespace-nowrap">
-          <span className={`inline-block size-4 rounded ring-1 ring-line ${cellClass[status]}`} style={{ '--sport': '#8c82aa' } as CSSProperties} />
-          {label}
+        <li key={status} className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+          <span className={`inline-grid h-7 min-w-14 place-items-center rounded-md px-2 text-xs font-semibold ${cellClass[status]} ${status === 'past' ? 'ring-1 ring-line' : ''}`} aria-hidden>
+            {cellLabel[status]}
+          </span>
+          <span className="text-muted">{label}</span>
         </li>
       ))}
     </ul>
