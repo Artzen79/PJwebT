@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router';
 import { Toaster } from 'sonner';
 import { api, ok, useMe, useSettings } from '../api';
 import { useCart } from '../lib/cart';
 import { useInbox } from '../pages/Inbox';
+import { LinkButton } from './ui';
 
 // Server-Sent Events: whenever any booking holds or frees a slot, refetch what shows availability.
 // All tabs share one stream through a SharedWorker (see public/live-worker.js) so open tabs
@@ -33,53 +34,62 @@ function useLiveAvailability() {
   }, [qc]);
 }
 
-function readTheme() {
-  try {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-  } catch {
-    // storage blocked: fall back to the system preference
-  }
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+const clockFmt = new Intl.DateTimeFormat('th-TH', { weekday: 'short', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' });
+
+// Ticks on its own so the rest of the page never re-renders every second.
+function Clock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <span className="num hidden h-9 items-center gap-1.5 rounded-lg bg-sunken px-3 text-sm sm:flex">
+      <Icon className="text-muted">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </Icon>
+      {clockFmt.format(now)}
+    </span>
+  );
 }
 
-function ThemeToggle() {
-  const [theme, setTheme] = useState(readTheme);
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    try {
-      localStorage.setItem('theme', theme);
-    } catch {
-      // per-viewer convenience only
-    }
-  }, [theme]);
+function greeting() {
+  const h = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hourCycle: 'h23', timeZone: 'Asia/Bangkok' }).format(new Date()));
+  return h < 5 || h >= 18 ? '☾ สวัสดีตอนค่ำ' : h < 12 ? '☀ สวัสดีตอนเช้า' : '☀ สวัสดีตอนบ่าย';
+}
+
+function Icon({ className = '', children }: { className?: string; children: ReactNode }) {
   return (
-    <button
-      type="button"
-      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="grid size-9 place-items-center rounded-lg text-muted hover:bg-sunken hover:text-ink"
-      aria-label={theme === 'dark' ? 'ใช้ธีมสว่าง' : 'ใช้ธีมมืด'}
-    >
-      {theme === 'dark' ? '☀' : '☾'}
-    </button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`size-4 shrink-0 ${className}`} aria-hidden>
+      {children}
+    </svg>
+  );
+}
+
+// The round badge in the middle of the menu: a court inside a ring, with a slowly turning gold arc.
+export function Emblem({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden>
+      <circle cx="32" cy="32" r="30.5" fill="none" stroke="var(--line-hi)" strokeWidth="1.2" strokeDasharray="0.8 3" />
+      <circle cx="32" cy="32" r="25" fill="var(--sunken)" stroke="var(--line-hi)" strokeWidth="2.5" />
+      <path d="M32 7a25 25 0 0 1 25 25" fill="none" stroke="var(--mark)" strokeWidth="3" strokeLinecap="round" className="origin-[32px_32px] motion-safe:animate-[spin_14s_linear_infinite]" />
+      <g fill="none" stroke="#fff" strokeWidth="2">
+        <rect x="19" y="23" width="26" height="18" rx="1.5" />
+        <circle cx="32" cy="32" r="4" />
+      </g>
+      <path d="M32 21v22" stroke="var(--mark)" strokeWidth="2.5" />
+    </svg>
   );
 }
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
-  `whitespace-nowrap rounded-lg px-3 py-1.5 text-[0.95rem] transition ${isActive ? 'bg-ink text-bg' : 'text-muted hover:text-ink'}`;
+  `relative whitespace-nowrap px-3 py-2 text-sm font-semibold uppercase tracking-wide transition ${
+    isActive ? 'text-mark after:absolute after:inset-x-3 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-mark' : 'text-muted hover:text-ink'
+  }`;
 
-export function Logo() {
-  return (
-    <Link to="/" className="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
-      <svg viewBox="0 0 32 32" className="size-8" aria-hidden>
-        <rect width="32" height="32" rx="7" className="fill-turf" />
-        <rect x="6" y="8" width="20" height="16" fill="none" stroke="white" strokeWidth="2" />
-        <path d="M16 8v16" stroke="#f5c518" strokeWidth="2" />
-      </svg>
-      SportHub
-    </Link>
-  );
-}
+const iconLink = 'relative grid size-9 shrink-0 place-items-center rounded-lg border-2 border-line bg-sunken text-ink transition hover:border-line-hi';
+const countBadge = 'num absolute -top-2 -right-2 grid min-w-5 place-items-center rounded-full px-1 text-xs font-bold';
 
 export function Layout() {
   useLiveAvailability();
@@ -97,115 +107,138 @@ export function Layout() {
       navigate('/');
     },
   });
+  const links: [string, string][] = [
+    ['/', 'ตารางว่าง'],
+    ['/courts', 'สนาม'],
+    ['/equipment', 'ยืมอุปกรณ์'],
+    ...(me ? ([['/bookings', 'การจองของฉัน']] as [string, string][]) : []),
+    ...(me?.role === 'admin' ? ([['/admin', 'ผู้ดูแลระบบ']] as [string, string][]) : []),
+  ];
+  const navLinks = (list: [string, string][]) =>
+    list.map(([to, label]) => (
+      <NavLink key={to} to={to} end={to === '/'} className={navClass}>
+        {label}
+      </NavLink>
+    ));
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5">
-          <Logo />
-          <nav className="ml-4 hidden gap-1 md:flex" aria-label="เมนูหลัก">
-            <MainLinks admin={me?.role === 'admin'} signedIn={Boolean(me)} />
-          </nav>
-          <div className="ml-auto flex items-center gap-1.5">
-            <ThemeToggle />
-            {me && (
-              <Link to="/inbox" className="relative grid h-9 place-items-center rounded-lg px-3 text-sm font-medium hover:bg-sunken" aria-label={`กล่องข้อความ ยังไม่อ่าน ${unread} ฉบับ`}>
-                ข้อความ
-                {unread > 0 && (
-                  <span className="num absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-danger text-xs font-bold text-white">{unread}</span>
-                )}
+      <header className="sticky top-0 z-30 px-3 pt-3 sm:px-4">
+        <div className="frame mx-auto max-w-7xl rounded-2xl px-3 py-2 sm:px-4">
+          <div className="flex items-center gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
+            <div className="flex min-w-0 items-center gap-3">
+              <Link to="/" className="lg:hidden" aria-label="หน้าแรก">
+                <Emblem className="size-10" />
               </Link>
-            )}
-            {me && (
-              <Link to="/cart" className="relative grid h-9 place-items-center rounded-lg px-3 text-sm font-medium hover:bg-sunken" aria-label={`ตะกร้า ${count} รายการ`}>
-                ตะกร้า
-                {count > 0 && (
-                  <span className="num absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-mark text-xs font-bold text-mark-ink">{count}</span>
-                )}
+              <div className="min-w-0 leading-tight">
+                <Link to="/" className="font-display text-xl font-extrabold tracking-wide uppercase">
+                  SportHub
+                </Link>
+                <p className="truncate text-xs text-muted">
+                  {greeting()}
+                  {me && <span className="font-semibold text-ink uppercase">, {me.name}</span>}
+                </p>
+              </div>
+            </div>
+            {/* desktop: menu split around the emblem, as in the game's top bar */}
+            <nav className="hidden grid-cols-[1fr_auto_1fr] items-center lg:grid" aria-label="เมนูหลัก">
+              <div className="flex justify-end">{navLinks(links.slice(0, 3))}</div>
+              <Link to="/" className="-my-5 mx-2" aria-label="หน้าแรก">
+                <Emblem className="size-16 drop-shadow-[0_0_10px_rgb(124_92_230/0.6)]" />
               </Link>
-            )}
-            {me ? (
-              <details className="relative">
-                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1 hover:bg-sunken">
-                  {me.avatarUrl ? (
-                    <img src={me.avatarUrl} alt="" className="size-8 rounded-full object-cover" />
-                  ) : (
-                    <span className="grid size-8 place-items-center rounded-full bg-turf font-display text-sm font-bold text-white">{me.name.slice(0, 1)}</span>
-                  )}
-                  <span className="hidden max-w-32 truncate text-sm sm:block">{me.name}</span>
-                </summary>
-                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-line bg-surface p-1.5 shadow-lg">
-                  <Link to="/profile" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
-                    ข้อมูลส่วนตัว
-                  </Link>
-                  <Link to="/bookings" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
-                    การจองของฉัน
-                  </Link>
-                  <Link to="/inbox" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
-                    กล่องข้อความ
-                  </Link>
-                  <button type="button" onClick={() => logout.mutate()} className="block w-full rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft">
-                    ออกจากระบบ
-                  </button>
-                </div>
-              </details>
-            ) : (
-              <Link to="/login" className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-bg">
-                เข้าสู่ระบบ
-              </Link>
-            )}
+              <div className="flex">{navLinks(links.slice(3))}</div>
+            </nav>
+            <div className="ml-auto flex items-center gap-2 lg:justify-self-end">
+              <Clock />
+              {me && (
+                <Link to="/inbox" className={iconLink} aria-label={`กล่องข้อความ ยังไม่อ่าน ${unread} ฉบับ`} title="กล่องข้อความ">
+                  <Icon>
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="m3 7 9 6 9-6" />
+                  </Icon>
+                  {unread > 0 && <span className={`${countBadge} bg-danger-strong text-white`}>{unread}</span>}
+                </Link>
+              )}
+              {me && (
+                <Link to="/cart" className={iconLink} aria-label={`ตะกร้า ${count} รายการ`} title="ตะกร้า">
+                  <Icon>
+                    <path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 1.9-1.4L21 8H6.2" />
+                    <circle cx="10" cy="20" r="1.3" />
+                    <circle cx="17" cy="20" r="1.3" />
+                  </Icon>
+                  {count > 0 && <span className={`${countBadge} bg-mark text-mark-ink`}>{count}</span>}
+                </Link>
+              )}
+              {me ? (
+                <details className="relative">
+                  <summary className="flex cursor-pointer list-none items-center rounded-full" aria-label="เมนูบัญชี">
+                    {me.avatarUrl ? (
+                      <img src={me.avatarUrl} alt="" className="size-9 rounded-full object-cover ring-2 ring-mark" />
+                    ) : (
+                      <span className="grid size-9 place-items-center rounded-full bg-violet font-display text-sm font-bold text-white ring-2 ring-mark">{me.name.slice(0, 1)}</span>
+                    )}
+                  </summary>
+                  <div className="absolute right-0 mt-3 w-52 rounded-xl border-2 border-line-hi bg-panel p-1.5 shadow-[0_0_0_3px_var(--frame),0_12px_30px_rgb(0_0_0/0.5)]">
+                    <p className="truncate px-3 pt-1 pb-2 text-sm font-semibold uppercase">{me.name}</p>
+                    <Link to="/profile" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
+                      ข้อมูลส่วนตัว
+                    </Link>
+                    <Link to="/bookings" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
+                      การจองของฉัน
+                    </Link>
+                    <Link to="/inbox" className="block rounded-lg px-3 py-2 text-sm hover:bg-sunken">
+                      กล่องข้อความ
+                    </Link>
+                    <button type="button" onClick={() => logout.mutate()} className="block w-full rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft">
+                      ออกจากระบบ
+                    </button>
+                  </div>
+                </details>
+              ) : (
+                <LinkButton to="/login" variant="primary" className="h-9 px-4 text-sm">
+                  เข้าสู่ระบบ
+                </LinkButton>
+              )}
+            </div>
           </div>
+          <nav className="-mx-1 mt-1 flex overflow-x-auto lg:hidden" aria-label="เมนูหลัก">
+            {navLinks(links)}
+          </nav>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-4 pb-2 md:hidden" aria-label="เมนูหลัก">
-          <MainLinks admin={me?.role === 'admin'} signedIn={Boolean(me)} />
-        </nav>
       </header>
-      {settings?.announcement && (
-        <p role="status" className="bg-mark px-4 py-2 text-center text-sm font-medium whitespace-pre-line text-mark-ink">
-          {settings.announcement}
-        </p>
-      )}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
-        <Outlet />
-      </main>
-      <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-6 text-sm text-muted">
-          <span>SportHub ระบบจองสนามกีฬาและยืมอุปกรณ์</span>
-          {settings?.contactPhone && <a href={`tel:${settings.contactPhone}`} className="num hover:text-ink">โทร {settings.contactPhone}</a>}
-          {settings?.contactLine && <span>LINE {settings.contactLine}</span>}
-          {settings?.address && <span>{settings.address}</span>}
-          <a href="/docs" className="hover:text-ink">
-            เอกสาร API
-          </a>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-3 py-5 sm:px-4">
+        {settings?.announcement && (
+          <p role="status" className="mb-4 flex items-center gap-3 rounded-xl border-2 border-line bg-panel/90 px-3 py-2 text-sm">
+            <span className="grid size-8 shrink-0 place-items-center rounded-full bg-violet text-white ring-2 ring-mark">
+              <Icon>
+                <path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1z" />
+                <path d="M17 9a4 4 0 0 1 0 6" />
+              </Icon>
+            </span>
+            <span className="whitespace-pre-line">
+              <b className="text-mark">ประกาศ: </b>
+              {settings.announcement}
+            </span>
+          </p>
+        )}
+        <div className="frame p-4 sm:p-6">
+          <Outlet />
         </div>
+      </main>
+      <footer className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 pb-6 text-sm text-muted">
+        <span>SportHub ระบบจองสนามกีฬาและยืมอุปกรณ์</span>
+        {settings?.contactPhone && (
+          <a href={`tel:${settings.contactPhone}`} className="num hover:text-ink">
+            โทร {settings.contactPhone}
+          </a>
+        )}
+        {settings?.contactLine && <span>LINE {settings.contactLine}</span>}
+        {settings?.address && <span>{settings.address}</span>}
+        <a href="/docs" className="hover:text-ink">
+          เอกสาร API
+        </a>
       </footer>
-      <Toaster position="bottom-center" richColors closeButton />
+      <Toaster position="bottom-center" theme="dark" richColors closeButton />
     </div>
-  );
-}
-
-function MainLinks({ admin, signedIn }: { admin: boolean; signedIn: boolean }) {
-  return (
-    <>
-      <NavLink to="/" end className={navClass}>
-        ตารางว่าง
-      </NavLink>
-      <NavLink to="/courts" className={navClass}>
-        สนาม
-      </NavLink>
-      <NavLink to="/equipment" className={navClass}>
-        ยืมอุปกรณ์
-      </NavLink>
-      {signedIn && (
-        <NavLink to="/bookings" className={navClass}>
-          การจองของฉัน
-        </NavLink>
-      )}
-      {admin && (
-        <NavLink to="/admin" className={navClass}>
-          ผู้ดูแลระบบ
-        </NavLink>
-      )}
-    </>
   );
 }

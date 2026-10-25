@@ -38,7 +38,7 @@ export default function Profile() {
           {me.avatarUrl ? (
             <img src={me.avatarUrl} alt="รูปโปรไฟล์" className="aspect-square w-full rounded-2xl border border-line object-cover" />
           ) : (
-            <div className="grid aspect-square w-full place-items-center rounded-2xl bg-turf font-display text-6xl font-bold text-white">{me.name.slice(0, 1)}</div>
+            <div className="grid aspect-square w-full place-items-center rounded-full bg-violet font-display text-6xl font-bold text-white ring-4 ring-mark">{me.name.slice(0, 1)}</div>
           )}
           <Field label="เปลี่ยนรูป" hint="JPG, PNG หรือ WEBP ไม่เกิน 5 MB">
             <Input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={avatar.isPending} onChange={(e) => e.target.files?.[0] && avatar.mutate(e.target.files[0])} />

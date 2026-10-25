@@ -39,7 +39,7 @@ export function EquipmentList() {
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.data.map((e) => (
             <li key={e.id}>
-              <Link to={`/equipment/${e.id}`} className="block overflow-hidden rounded-2xl border border-line bg-surface transition hover:border-ink/40">
+              <Link to={`/equipment/${e.id}`} className="block overflow-hidden rounded-xl border-2 border-line bg-surface transition hover:border-ink/40">
                 <SportArt icon={e.sportIcon} sportId={e.sportId} imageUrl={e.imageUrl} gear className="h-36 w-full" />
                 <div className="space-y-1 p-4">
                   <h2 className="font-semibold">{e.name}</h2>
@@ -108,7 +108,7 @@ export function EquipmentDetail() {
           {e.sportIcon} {e.sportName}
         </p>
         {e.description && <p className="max-w-prose text-lg">{e.description}</p>}
-        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-line bg-line">
+        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border-2 border-line bg-line">
           {[
             ['ค่าเช่า', `${baht(e.rentPrice)}/ชิ้น`],
             ['มัดจำ', e.deposit > 0 ? `${baht(e.deposit)}/ชิ้น` : 'ไม่มี'],

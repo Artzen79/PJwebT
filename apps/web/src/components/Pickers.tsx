@@ -19,7 +19,7 @@ export function DateStrip({ value, onChange }: { value: string; onChange: (date:
             aria-checked={active}
             onClick={() => onChange(d)}
             className={`flex min-w-16 shrink-0 flex-col items-center rounded-xl border px-2.5 py-1.5 transition ${
-              active ? 'border-ink bg-ink text-bg' : 'border-line bg-surface hover:border-ink/40'
+              active ? 'border-mark bg-mark font-semibold text-mark-ink' : 'border-line bg-sunken hover:border-line-hi'
             }`}
           >
             <span className="text-xs">{relativeDay(d)}</span>
@@ -41,7 +41,7 @@ export function useSports() {
 export function SportChips({ value, onChange }: { value: number | undefined; onChange: (sport: number | undefined) => void }) {
   const sports = useSports().data ?? [];
   const chip = (active: boolean) =>
-    `flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition ${active ? 'border-ink bg-ink text-bg' : 'border-line bg-surface hover:border-ink/40'}`;
+    `flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition ${active ? 'border-mark bg-mark font-semibold text-mark-ink' : 'border-line bg-sunken hover:border-line-hi'}`;
   return (
     <div className="flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-label="เลือกกีฬา">
       <button type="button" role="radio" aria-checked={value === undefined} onClick={() => onChange(undefined)} className={chip(value === undefined)}>

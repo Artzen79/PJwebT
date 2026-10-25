@@ -5,10 +5,11 @@ import { sportColor } from '../lib/format';
 type Variant = 'primary' | 'turf' | 'ghost' | 'danger' | 'quiet' | 'quiet-danger';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-mark text-mark-ink hover:brightness-95 shadow-[inset_0_-2px_0_rgb(0_0_0/0.15)]',
-  turf: 'bg-turf text-white hover:brightness-110',
-  ghost: 'border border-line bg-surface hover:border-ink/40',
-  danger: 'bg-danger text-white hover:brightness-110',
+  primary:
+    'bg-linear-to-b from-mark-hi to-mark text-mark-ink font-semibold shadow-[inset_0_-3px_0_rgb(0_0_0/0.22)] hover:shadow-[inset_0_-3px_0_rgb(0_0_0/0.22),0_0_14px_rgb(245_197_66/0.45)]',
+  turf: 'bg-turf text-turf-ink font-semibold shadow-[inset_0_-3px_0_rgb(0_0_0/0.2)] hover:brightness-110',
+  ghost: 'border-2 border-line bg-sunken hover:border-line-hi',
+  danger: 'bg-danger-strong text-white shadow-[inset_0_-3px_0_rgb(0_0_0/0.25)] hover:brightness-110',
   quiet: 'text-muted hover:text-ink hover:bg-sunken',
   'quiet-danger': 'text-danger hover:bg-danger-soft',
 };
@@ -26,7 +27,7 @@ export function Button({
     <button
       type="button"
       disabled={pending || props.disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
       {...props}
     >
       {pending && <Spinner />}
@@ -46,7 +47,7 @@ export function LinkButton({ to, variant = 'ghost', className = '', children }: 
 export const Spinner = () => <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent" />;
 
 const inputClass =
-  'w-full rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-muted/70 focus:border-turf focus:outline-none focus:ring-2 focus:ring-turf/25 file:mr-3 file:rounded-md file:border-0 file:bg-sunken file:px-3 file:py-1 file:text-sm file:text-ink';
+  'w-full rounded-lg border-2 border-line bg-sunken px-3 py-2 text-ink placeholder:text-muted/70 focus:border-mark focus:outline-none focus:ring-2 focus:ring-mark/25 file:mr-3 file:rounded-md file:border-0 file:bg-surface file:px-3 file:py-1 file:text-sm file:text-ink';
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
@@ -60,17 +61,17 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 // :read-only also matches <select>, so the read-only look lives on Input alone
 export const Input = (props: ComponentProps<'input'>) => (
-  <input {...props} className={`${inputClass} read-only:bg-sunken read-only:text-muted ${props.className ?? ''}`} />
+  <input {...props} className={`${inputClass} read-only:border-line/50 read-only:text-muted ${props.className ?? ''}`} />
 );
 export const Select = (props: ComponentProps<'select'>) => <select {...props} className={`${inputClass} ${props.className ?? ''}`} />;
 export const Textarea = (props: ComponentProps<'textarea'>) => <textarea rows={3} {...props} className={`${inputClass} ${props.className ?? ''}`} />;
 
 const tones = {
-  mark: 'bg-mark/25 text-ink ring-mark/60',
-  turf: 'bg-turf-soft text-turf ring-turf/30',
-  info: 'bg-info/10 text-info ring-info/30',
+  mark: 'bg-mark/15 text-mark ring-mark/70',
+  turf: 'bg-turf/15 text-turf ring-turf/60',
+  info: 'bg-info/15 text-info ring-info/50',
   muted: 'bg-sunken text-muted ring-line',
-  danger: 'bg-danger-soft text-danger ring-danger/30',
+  danger: 'bg-danger/15 text-danger ring-danger/60',
 };
 
 export function Badge({ tone, children }: { tone: keyof typeof tones; children: ReactNode }) {
@@ -78,13 +79,13 @@ export function Badge({ tone, children }: { tone: keyof typeof tones; children: 
 }
 
 export function Panel({ className = '', children }: { className?: string; children: ReactNode }) {
-  return <section className={`rounded-2xl border border-line bg-surface ${className}`}>{children}</section>;
+  return <section className={`rounded-xl border-2 border-line bg-linear-to-b from-surface-hi to-surface ${className}`}>{children}</section>;
 }
 
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-line px-6 py-12 text-center">
-      <p className="font-display text-lg">{title}</p>
+    <div className="rounded-xl border-2 border-dashed border-line bg-sunken/50 px-6 py-12 text-center">
+      <p className="font-display text-lg font-semibold uppercase">{title}</p>
       {children && <div className="mt-3 text-muted">{children}</div>}
     </div>
   );
@@ -93,7 +94,7 @@ export function Empty({ title, children }: { title: string; children?: ReactNode
 export function ErrorNote({ error }: { error: unknown }) {
   if (!error) return null;
   return (
-    <p role="alert" className="rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">
+    <p role="alert" className="rounded-lg border border-danger/50 bg-danger-soft px-3 py-2 text-sm text-danger">
       {error instanceof Error ? error.message : String(error)}
     </p>
   );
@@ -119,15 +120,15 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
     <dialog
       ref={ref}
       onClose={onClose}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-line bg-surface p-0 text-ink"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-[20px] border-2 border-line-hi bg-panel p-0 text-ink shadow-[0_0_0_4px_var(--frame),0_18px_50px_rgb(0_0_0/0.6)]"
     >
-      <div className="flex items-center justify-between border-b border-line px-5 py-3">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <button type="button" onClick={onClose} className="rounded-md px-2 text-2xl leading-none text-muted hover:text-ink" aria-label="ปิด">
+      <div className="m-2 flex items-center justify-between gap-3 rounded-xl bg-sunken/70 px-4 py-2.5">
+        <h2 className="text-lg">{title}</h2>
+        <IconButton label="ปิด" onClick={onClose} tone="danger">
           ×
-        </button>
+        </IconButton>
       </div>
-      <div className="p-5">{open && children}</div>
+      <div className="px-5 pt-2 pb-5">{open && children}</div>
     </dialog>
   );
 }
@@ -185,11 +186,35 @@ export function SportArt({
   );
 }
 
+// Square 32px icon button from the game header (settings, mail, close).
+export function IconButton({ label, tone, className = '', children, ...props }: ComponentProps<'button'> & { label: string; tone?: 'danger' }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      className={`grid size-8 shrink-0 place-items-center rounded-lg border-2 text-lg leading-none transition hover:border-line-hi ${tone === 'danger' ? 'border-danger-strong/70 bg-danger-soft text-danger' : 'border-line bg-sunken text-ink'} ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
+// Amber progress bar on a dark well track, as in the farming HUD and battle pass.
+export function Progress({ value, className = '' }: { value: number; className?: string }) {
+  return (
+    <div className={`h-2 overflow-hidden rounded-full bg-sunken ${className}`}>
+      <div className="h-full rounded-full bg-linear-to-r from-prog to-prog-hi" style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%` }} />
+    </div>
+  );
+}
+
 export function Stars({ value }: { value: number }) {
   return (
     <span className="text-mark" aria-label={`${value} จาก 5 ดาว`}>
       {'★'.repeat(Math.round(value))}
-      <span className="text-line">{'★'.repeat(5 - Math.round(value))}</span>
+      <span className="text-muted/40">{'★'.repeat(5 - Math.round(value))}</span>
     </span>
   );
 }

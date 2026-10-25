@@ -198,7 +198,7 @@ function CatalogTable({ kind }: { kind: Kind }) {
           {kind === 'courts' ? 'เพิ่มสนาม' : 'เพิ่มอุปกรณ์'}
         </Button>
       </div>
-      <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+      <ul className="divide-y divide-line rounded-xl border-2 border-line bg-surface">
         {list.data.map((r) => (
           <li key={r.id} className="grid grid-cols-[4.5rem_1fr] items-center gap-4 p-3 sm:grid-cols-[4.5rem_1fr_auto]">
             <SportArt icon={r.sportIcon} sportId={r.sportId} imageUrl={r.imageUrl} gear={kind === 'equipment'} className="h-14 w-full rounded-lg" />
@@ -273,7 +273,7 @@ function SportsTable() {
   if (sports.isPending) return <Loading />;
   return (
     <div className="space-y-4">
-      <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+      <ul className="divide-y divide-line rounded-xl border-2 border-line bg-surface">
         {sports.data?.map((s) => (
           <li key={s.id}>
             <form
@@ -307,7 +307,7 @@ function SportsTable() {
         ))}
       </ul>
       <form
-        className="flex flex-wrap items-end gap-2 rounded-2xl border border-dashed border-line p-4"
+        className="flex flex-wrap items-end gap-2 rounded-xl border-2 border-dashed border-line p-4"
         onSubmit={(e) => {
           const f = formData(e);
           add.mutate({ name: String(f.get('name')), icon: String(f.get('icon') || '🏅') }, { onSuccess: () => (e.target as HTMLFormElement).reset() });
@@ -423,7 +423,7 @@ function CouponsTable() {
   if (coupons.isPending) return <Loading />;
   return (
     <div className="space-y-4">
-      <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+      <ul className="divide-y divide-line rounded-xl border-2 border-line bg-surface">
         {coupons.data?.length === 0 && <li className="p-4 text-muted">ยังไม่มีคูปอง</li>}
         {coupons.data?.map((c) => (
           <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 p-3">
@@ -446,7 +446,7 @@ function CouponsTable() {
           </li>
         ))}
       </ul>
-      <div className="rounded-2xl border border-dashed border-line p-4">
+      <div className="rounded-xl border-2 border-dashed border-line p-4">
         <h2 className="mb-3 font-semibold">สร้างคูปองใหม่</h2>
         {/* remount after each create so the form clears */}
         <CouponForm key={coupons.data?.length} pending={create.isPending} error={create.error} onSubmit={(v) => create.mutate(v)} />
@@ -491,7 +491,7 @@ function ReviewsTable() {
       ) : reviews.data.length === 0 ? (
         <p className="text-muted">ยังไม่มีรีวิว</p>
       ) : (
-        <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+        <ul className="divide-y divide-line rounded-xl border-2 border-line bg-surface">
           {reviews.data.map((r) => (
             <li key={r.id} className="flex items-start gap-4 p-3">
               <div className="min-w-0 flex-1">
@@ -535,7 +535,7 @@ export default function Catalog() {
             role="tab"
             aria-selected={tab === key}
             onClick={() => setParams({ tab: key })}
-            className={`flex-1 whitespace-nowrap rounded-lg px-4 py-1.5 text-sm ${tab === key ? 'bg-surface font-semibold shadow-sm' : 'text-muted'}`}
+            className={`flex-1 whitespace-nowrap rounded-lg px-4 py-1.5 text-sm ${tab === key ? 'bg-mark font-semibold text-mark-ink' : 'text-muted'}`}
           >
             {label}
           </button>

@@ -59,7 +59,7 @@ function RevenueColumns({ days }: { days: Stats['revenueByDay'] }) {
                 aria-label={`${d.date} รายได้ ${baht(d.revenue)} ${d.bookings} การจอง`}
               >
                 <span
-                  className="block w-full max-w-6 rounded-t-[4px] bg-turf transition group-hover:brightness-125 group-focus-visible:outline-2 group-focus-visible:outline-mark"
+                  className="block w-full max-w-6 rounded-t-[4px] bg-chart transition group-hover:brightness-125 group-focus-visible:outline-2 group-focus-visible:outline-mark"
                   style={{ height: `${(d.revenue / max) * 100}%` }}
                 />
                 <Tip value={baht(d.revenue)} label={`${Number(d.date.slice(8))}/${Number(d.date.slice(5, 7))} ${d.bookings} การจอง`} />
@@ -89,7 +89,7 @@ function PeakHours({ hours }: { hours: Stats['peakHours'] }) {
             key={h.hour}
             type="button"
             className="group relative h-12 rounded-[3px] focus:outline-none focus-visible:outline-2 focus-visible:outline-mark"
-            style={{ background: h.bookings ? `color-mix(in oklab, var(--turf) ${15 + (85 * h.bookings) / max}%, var(--surface))` : 'var(--sunken)' }}
+            style={{ background: h.bookings ? `color-mix(in oklab, var(--chart) ${15 + (85 * h.bookings) / max}%, var(--surface))` : 'var(--sunken)' }}
             aria-label={`${hourLabel(h.hour)} ${h.bookings} ชั่วโมงที่ถูกจอง`}
           >
             <Tip value={`${h.bookings} ชม.`} label={`${hourLabel(h.hour)}–${hourLabel(h.hour + 1)}`} />
@@ -126,7 +126,7 @@ function Ranked({ rows }: { rows: { key: string | number; label: string; icon: s
             <span className="num shrink-0 text-muted">{r.note}</span>
           </div>
           <div className="h-2.5 rounded-full bg-sunken">
-            <div className="h-full rounded-full bg-turf" style={{ width: `${(r.value / max) * 100}%` }} />
+            <div className="h-full rounded-full bg-linear-to-r from-prog to-prog-hi" style={{ width: `${(r.value / max) * 100}%` }} />
           </div>
         </li>
       ))}
@@ -192,7 +192,7 @@ export default function Dashboard() {
                 key={days}
                 type="button"
                 onClick={() => setRange({ from: addDays(today, 1 - days), to: today })}
-                className={`rounded-lg px-3 py-1.5 text-sm ${active ? 'bg-surface font-semibold shadow-sm' : 'text-muted'}`}
+                className={`rounded-lg px-3 py-1.5 text-sm ${active ? 'bg-mark font-semibold text-mark-ink' : 'text-muted'}`}
                 aria-pressed={active}
               >
                 {label}
@@ -214,7 +214,7 @@ export default function Dashboard() {
         <ErrorNote error={stats.error} />
       ) : (
         <div className={`space-y-6 transition-opacity ${stats.isPlaceholderData ? 'opacity-60' : ''}`}>
-          <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
+          <div className="grid gap-px overflow-hidden rounded-xl border-2 border-line bg-line sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr]">
             <div className="bg-surface p-5 sm:col-span-2 lg:col-span-1">
               <p className="text-sm text-muted">รายได้ที่อนุมัติแล้ว</p>
               <p className="mt-1 text-5xl font-semibold sm:text-6xl">{baht(stats.data.revenue)}</p>

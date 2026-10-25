@@ -10,7 +10,7 @@ import { useSlotPicker } from '../lib/pick';
 const hourClass: Record<Slot['status'], string> = {
   free: 'border-turf/40 bg-turf-soft text-turf hover:border-turf',
   in_cart: 'border-mark bg-mark text-mark-ink',
-  mine: 'border-turf bg-turf text-white',
+  mine: 'border-line-hi bg-violet text-white',
   booked: 'border-line bg-sunken text-muted line-through',
   past: 'border-transparent bg-sunken/60 text-muted/60',
 };
@@ -51,7 +51,7 @@ export default function CourtDetail() {
           </div>
           {me?.role === 'admin' && <LinkButton to={`/admin/catalog?edit=court-${c.id}`}>แก้ไขสนาม</LinkButton>}
         </div>
-        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-line bg-line">
+        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border-2 border-line bg-line">
           {[
             [
               'ราคา',
@@ -75,7 +75,7 @@ export default function CourtDetail() {
           {reviews.data?.length ? (
             <ul className="space-y-3">
               {reviews.data.map((r) => (
-                <li key={r.id} className="rounded-xl border border-line bg-surface p-4">
+                <li key={r.id} className="rounded-xl border-2 border-line bg-surface p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-medium">{r.userName}</span>
                     <Stars value={r.rating} />

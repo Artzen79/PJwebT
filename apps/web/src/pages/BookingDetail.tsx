@@ -108,7 +108,7 @@ export default function BookingDetail() {
           {b.payments.length > 0 && (
             <section className="space-y-2">
               <h2 className="text-xl font-semibold">ประวัติการชำระเงิน</h2>
-              <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+              <ul className="divide-y divide-line rounded-xl border-2 border-line bg-surface">
                 {b.payments.map((p) => (
                   <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 p-4">
                     <span>

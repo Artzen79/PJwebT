@@ -14,7 +14,7 @@ const statusText: Record<Slot['status'], string> = {
 const cellClass: Record<Slot['status'], string> = {
   free: 'bg-turf-soft ring-1 ring-inset ring-turf/50 hover:ring-2 hover:ring-turf cursor-pointer',
   in_cart: 'bg-mark text-mark-ink cursor-pointer hover:brightness-95',
-  mine: 'bg-turf text-white',
+  mine: 'bg-violet text-white ring-1 ring-inset ring-line-hi',
   booked: 'cell-booked',
   past: 'bg-sunken opacity-50',
 };
@@ -30,12 +30,12 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
   const columns = Array.from({ length: last - first + 1 }, (_, i) => first + i);
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-line bg-surface" role="grid" aria-label="ตารางช่วงเวลาว่าง">
+    <div className="overflow-x-auto rounded-xl border-2 border-line bg-sunken" role="grid" aria-label="ตารางช่วงเวลาว่าง">
       <div
         className="grid min-w-max [grid-template-columns:minmax(7.5rem,9rem)_repeat(var(--cols),2.75rem)] sm:[grid-template-columns:minmax(11rem,14rem)_repeat(var(--cols),3.1rem)]"
         style={{ '--cols': columns.length } as CSSProperties}
       >
-        <div className="sticky left-0 z-10 border-b border-line bg-surface" />
+        <div className="sticky left-0 z-10 border-b border-line bg-sunken" />
         {columns.map((h) => (
           <div key={h} className="num border-b border-line py-2 text-center text-xs text-muted">
             {hourLabel(h)}
@@ -44,7 +44,7 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
         {rows.map((row) => {
           const bySlot = new Map(row.slots.map((s) => [s.hour, s]));
           return [
-            <div key={`n${row.courtId}`} className="sticky left-0 z-10 flex items-center gap-2 border-b border-line bg-surface px-3 py-2">
+            <div key={`n${row.courtId}`} className="sticky left-0 z-10 flex items-center gap-2 border-b border-line bg-sunken px-3 py-2">
               <span className="h-8 w-1.5 shrink-0 rounded-full" style={{ background: sportColor(row.sportIcon, row.sportId) }} aria-hidden />
               <div className="min-w-0">
                 {linkCourt ? (
@@ -99,7 +99,7 @@ export function BoardLegend() {
     <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted">
       {items.map(([status, label]) => (
         <li key={status} className="flex items-center gap-2">
-          <span className={`inline-block size-4 rounded ${cellClass[status]}`} style={{ '--sport': '#5b6b63' } as CSSProperties} />
+          <span className={`inline-block size-4 rounded ${cellClass[status]}`} style={{ '--sport': '#8c82aa' } as CSSProperties} />
           {label}
         </li>
       ))}

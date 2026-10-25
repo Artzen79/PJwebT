@@ -32,7 +32,7 @@ export function MailList({
 }) {
   if (items.length === 0) return <Empty title="ยังไม่มีอีเมล">อีเมลแจ้งการจอง การชำระเงิน และการเตือนจะมาอยู่ที่นี่</Empty>;
   return (
-    <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+    <ul className="divide-y divide-line overflow-hidden rounded-xl border-2 border-line bg-surface">
       {items.map((m) => {
         const unread = !showRecipient && !m.readAt;
         return (

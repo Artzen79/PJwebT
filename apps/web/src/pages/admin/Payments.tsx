@@ -39,7 +39,7 @@ export default function Payments() {
               role="tab"
               aria-selected={status === s}
               onClick={() => setStatus(s)}
-              className={`rounded-lg px-3 py-1.5 text-sm ${status === s ? 'bg-surface font-semibold shadow-sm' : 'text-muted'}`}
+              className={`rounded-lg px-3 py-1.5 text-sm ${status === s ? 'bg-mark font-semibold text-mark-ink' : 'text-muted'}`}
             >
               {paymentStatus[s].label}
             </button>
@@ -55,7 +55,7 @@ export default function Payments() {
       ) : (
         <ul className="grid gap-4 md:grid-cols-2">
           {list.data.map((p) => (
-            <li key={p.id} className="grid grid-cols-[6rem_1fr] gap-4 rounded-2xl border border-line bg-surface p-4">
+            <li key={p.id} className="grid grid-cols-[6rem_1fr] gap-4 rounded-xl border-2 border-line bg-surface p-4">
               <a href={p.slipUrl} target="_blank" rel="noreferrer" className="block" aria-label={`เปิดสลิปของ ${p.userName}`}>
                 <img src={p.slipUrl} alt="" className="h-32 w-24 rounded-lg border border-line bg-sunken object-cover" loading="lazy" />
               </a>

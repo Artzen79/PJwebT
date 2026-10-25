@@ -34,7 +34,7 @@ export function StatusTabs({ value, onChange }: { value: Status | undefined; onC
 
 export function BookingTable({ rows, showMember }: { rows: BookingSummary[]; showMember?: boolean }) {
   return (
-    <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+    <ul className="divide-y divide-line rounded-xl border-2 border-line bg-surface">
       {rows.map((b) => (
         <li key={b.id}>
           <Link to={`/bookings/${b.id}`} className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 p-4 hover:bg-sunken sm:grid-cols-[10rem_1fr_auto_auto]">

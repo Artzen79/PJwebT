@@ -71,7 +71,7 @@ export default function Users() {
       ) : users.data.length === 0 ? (
         <Empty title="ไม่พบผู้ใช้" />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-line bg-surface">
+        <div className="overflow-x-auto rounded-xl border-2 border-line bg-surface">
           <table className="w-full min-w-[44rem] text-left">
             <thead className="text-sm text-muted">
               <tr className="border-b border-line">
@@ -199,7 +199,7 @@ export function UserDetail() {
         {u.avatarUrl ? (
           <img src={u.avatarUrl} alt="" className="size-20 rounded-2xl object-cover" />
         ) : (
-          <span className="grid size-20 place-items-center rounded-2xl bg-turf font-display text-3xl font-bold text-white">{u.name.slice(0, 1)}</span>
+          <span className="grid size-20 place-items-center rounded-full bg-violet font-display text-3xl font-bold text-white ring-4 ring-mark">{u.name.slice(0, 1)}</span>
         )}
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold">{u.name}</h1>
