@@ -18,9 +18,9 @@ function useSignedIn() {
 
 function AuthShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mx-auto grid max-w-4xl overflow-hidden rounded-xl border-2 border-line bg-surface md:grid-cols-2">
+    <div className="grid flex-1 overflow-hidden rounded-xl border-2 border-line bg-surface md:grid-cols-[minmax(0,1fr)_30rem]">
       <div className="relative hidden bg-linear-to-br from-violet to-panel md:block" aria-hidden>
-        <svg viewBox="0 0 200 300" className="absolute inset-0 size-full" preserveAspectRatio="xMidYMid slice">
+        <svg viewBox="0 0 200 300" className="absolute inset-0 size-full" preserveAspectRatio="xMidYMid meet">
           <g fill="none" stroke="white" strokeOpacity="0.6" strokeWidth="2">
             <rect x="20" y="20" width="160" height="260" />
             <path d="M20 150h160" stroke="#f5c542" strokeOpacity="1" strokeWidth="3" />
@@ -30,7 +30,7 @@ function AuthShell({ title, children }: { title: string; children: React.ReactNo
           </g>
         </svg>
       </div>
-      <div className="space-y-6 p-8 sm:p-10">
+      <div className="space-y-6 self-center p-8 sm:p-10">
         <h1 className="text-2xl sm:text-3xl">{title}</h1>
         {children}
       </div>

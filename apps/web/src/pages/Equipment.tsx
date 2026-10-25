@@ -37,7 +37,7 @@ export function EquipmentList() {
       ) : items.data.length === 0 ? (
         <Empty title="ยังไม่มีอุปกรณ์ของกีฬานี้" />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {items.data.map((e) => (
             <li key={e.id}>
               <Link to={`/equipment/${e.id}`} className="block h-full overflow-hidden rounded-xl border-2 border-line bg-surface transition hover:-translate-y-0.5 hover:border-line-hi">

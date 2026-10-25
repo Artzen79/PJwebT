@@ -124,7 +124,7 @@ export function Layout() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 px-3 pt-3 sm:px-4">
-        <div className="frame mx-auto max-w-7xl rounded-2xl px-3 py-2 sm:px-4">
+        <div className="frame rounded-2xl px-3 py-2 sm:px-4">
           <div className="flex items-center gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
             <div className="flex min-w-0 items-center gap-3">
               <Link to="/" className="lg:hidden" aria-label="หน้าแรก">
@@ -206,7 +206,7 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-7xl flex-1 px-3 py-5 sm:px-4">
+      <main className="flex w-full flex-1 flex-col px-3 py-5 sm:px-4">
         {settings?.announcement && (
           <p role="status" className="mb-4 flex items-center gap-3 rounded-xl border-2 border-line bg-panel/90 px-3 py-2 text-sm">
             <span className="grid size-8 shrink-0 place-items-center rounded-full bg-violet text-white ring-2 ring-mark">
@@ -221,11 +221,11 @@ export function Layout() {
             </span>
           </p>
         )}
-        <div className="frame p-4 sm:p-6">
+        <div className="frame flex flex-1 flex-col p-4 sm:p-6">
           <Outlet />
         </div>
       </main>
-      <footer className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-6 gap-y-2 px-4 pb-6 text-sm text-muted">
+      <footer className="flex w-full flex-wrap items-center gap-x-6 gap-y-2 px-4 pb-6 text-sm text-muted sm:px-5">
         <span>SportHub ระบบจองสนามกีฬาและยืมอุปกรณ์</span>
         {settings?.contactPhone && (
           <a href={`tel:${settings.contactPhone}`} className="num hover:text-ink">

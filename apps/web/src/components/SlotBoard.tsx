@@ -32,7 +32,7 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
   return (
     <div className="overflow-x-auto rounded-xl border-2 border-line bg-sunken" role="grid" aria-label="ตารางช่วงเวลาว่าง">
       <div
-        className="grid min-w-max [grid-template-columns:minmax(7.5rem,9rem)_repeat(var(--cols),2.75rem)] sm:[grid-template-columns:minmax(11rem,14rem)_repeat(var(--cols),3.1rem)]"
+        className="grid w-full min-w-max [grid-template-columns:minmax(7.5rem,9rem)_repeat(var(--cols),minmax(2.75rem,1fr))] sm:[grid-template-columns:minmax(11rem,16rem)_repeat(var(--cols),minmax(3.1rem,1fr))]"
         style={{ '--cols': columns.length } as CSSProperties}
       >
         <div className="sticky left-0 z-10 border-b border-line bg-sunken" />

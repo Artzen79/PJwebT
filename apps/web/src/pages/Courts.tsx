@@ -58,7 +58,7 @@ export default function Courts() {
       ) : (
         <>
           <p className="label">{courts.data.length} สนาม</p>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {courts.data.map((c) => (
               <li key={c.id}>
                 <Link
