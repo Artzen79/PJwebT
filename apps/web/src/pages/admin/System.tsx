@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, errorText, ok, type Settings } from '../../api';
-import { Badge, Button, ErrorNote, Field, Input, Loading, Panel, Textarea } from '../../components/ui';
+import { Badge, Button, ErrorNote, Field, Input, Loading, PageHeader, Panel, Textarea } from '../../components/ui';
 import { dateTimeTh } from '../../lib/format';
 import { formData } from '../../lib/pick';
 
@@ -49,10 +49,10 @@ export default function System() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">ระบบหลังบ้าน</h1>
+      <PageHeader title="ระบบหลังบ้าน" sub="ค่าตั้งการจองและการชำระเงิน ประกาศและข้อมูลติดต่อ และสถานะของเซิร์ฟเวอร์" />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <Panel className="p-5">
-          <h2 className="mb-4 text-xl font-semibold">ค่าตั้งการจองและการชำระเงิน</h2>
+          <h2 className="mb-4 text-lg">ค่าตั้งการจองและการชำระเงิน</h2>
           <p className="-mt-2 mb-4 text-sm text-muted">ราคาสนามและอุปกรณ์แก้ได้ที่เมนูจัดการข้อมูล</p>
           {settings.isPending ? (
             <Loading />

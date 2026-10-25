@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { api, errorText, ok, useMe } from '../../api';
-import { Badge, Button, Empty, ErrorNote, Field, Input, Loading, Modal, Panel, Select } from '../../components/ui';
+import { Badge, Button, Empty, ErrorNote, Field, InfoChip, Input, Loading, Modal, PageHeader, Panel, Select, StatBox } from '../../components/ui';
 import { baht, dateTh } from '../../lib/format';
 import { formData } from '../../lib/pick';
 import { BookingTable } from '../Bookings';
@@ -50,12 +50,11 @@ export default function Users() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">สมาชิก</h1>
+      <PageHeader title="สมาชิก" sub="ค้นหา ระงับหรือเปิดใช้งาน ตั้งสิทธิ์แอดมิน และกดชื่อเพื่อดูประวัติการจองของแต่ละคน">
         <Button variant="primary" onClick={() => setCreating(true)}>
           เพิ่มผู้ใช้
         </Button>
-      </div>
+      </PageHeader>
       <div className="flex flex-wrap gap-3">
         <Input type="search" placeholder="ค้นหาชื่อหรืออีเมล" defaultValue={q} onChange={(e) => set('q', e.target.value)} className="max-w-xs" aria-label="ค้นหาชื่อหรืออีเมล" />
         <Select value={role ?? ''} onChange={(e) => set('role', e.target.value)} className="max-w-48" aria-label="กรองตามสิทธิ์">
@@ -197,15 +196,16 @@ export function UserDetail() {
       </Link>
       <Panel className="flex flex-wrap items-center gap-5 p-5">
         {u.avatarUrl ? (
-          <img src={u.avatarUrl} alt="" className="size-20 rounded-2xl object-cover" />
+          <img src={u.avatarUrl} alt="" className="size-20 rounded-full object-cover ring-4 ring-mark" />
         ) : (
           <span className="grid size-20 place-items-center rounded-full bg-violet font-display text-3xl font-bold text-white ring-4 ring-mark">{u.name.slice(0, 1)}</span>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold">{u.name}</h1>
-          <p className="text-muted">
-            {u.email} {u.phone && `โทร ${u.phone}`}
-          </p>
+          <h1 className="text-2xl">{u.name}</h1>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <InfoChip label="อีเมล">{u.email}</InfoChip>
+            <InfoChip label="โทร">{u.phone ?? '-'}</InfoChip>
+          </div>
           <div className="mt-2 flex gap-1">
             <Button size="sm" variant="quiet" onClick={() => setOpen('edit')}>
               แก้ไขข้อมูล
@@ -215,18 +215,12 @@ export function UserDetail() {
             </Button>
           </div>
         </div>
-        <dl className="grid grid-cols-2 gap-6 text-right">
-          <div>
-            <dt className="text-sm text-muted">การจอง</dt>
-            <dd className="num text-2xl font-semibold">{u.bookingCount}</dd>
-          </div>
-          <div>
-            <dt className="text-sm text-muted">ยอดใช้จ่าย</dt>
-            <dd className="num text-2xl font-semibold">{baht(u.totalSpent)}</dd>
-          </div>
-        </dl>
+        <div className="flex gap-3">
+          <StatBox label="การจอง" value={u.bookingCount} unit="ครั้ง" />
+          <StatBox label="ยอดใช้จ่าย" value={u.totalSpent.toLocaleString('th-TH')} unit="บาท" />
+        </div>
       </Panel>
-      <h2 className="text-xl font-semibold">ประวัติการจอง</h2>
+      <h2 className="text-lg">ประวัติการจอง</h2>
       {bookings.data?.length ? <BookingTable rows={bookings.data} /> : <Empty title="ยังไม่มีการจอง" />}
       <Modal open={open === 'edit'} onClose={() => setOpen(null)} title={`แก้ไขข้อมูล ${u.name}`}>
         <form

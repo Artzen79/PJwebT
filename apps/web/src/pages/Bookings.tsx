@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router';
 import { api, type BookingSummary, ok } from '../api';
-import { Badge, Empty, ErrorNote, LinkButton, Loading } from '../components/ui';
+import { Badge, Empty, ErrorNote, LinkButton, Loading, PageHeader } from '../components/ui';
 import { baht, bookingStatus, dateTimeTh } from '../lib/format';
 
 type Status = Exclude<BookingSummary['status'], 'cart'>;
@@ -62,8 +62,12 @@ export default function Bookings() {
   const list = useQuery({ queryKey: ['bookings', 'mine', status], queryFn: () => ok(api.GET('/api/v1/bookings', { params: { query: { status } } })) });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <h1 className="text-4xl font-bold">การจองของฉัน</h1>
+    <div className="space-y-5">
+      <PageHeader title="การจองของฉัน" sub="ดูสถานะ ชำระเงิน และตั๋วเช็คอินของแต่ละการจอง กดรายการเพื่อดูรายละเอียด">
+        <LinkButton to="/" variant="primary">
+          จองสนามเพิ่ม
+        </LinkButton>
+      </PageHeader>
       <StatusTabs value={status} onChange={(s) => setParams(s ? { status: s } : {})} />
       {list.isPending ? (
         <Loading />

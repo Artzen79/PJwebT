@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { api, errorText, ok, type User, upload, useMe } from '../api';
-import { Button, ErrorNote, Field, Input, Loading, Panel } from '../components/ui';
+import { Button, ErrorNote, Field, InfoChip, Input, Loading, PageHeader, Panel } from '../components/ui';
 import { dateTh } from '../lib/format';
 import { formData } from '../lib/pick';
 
@@ -31,19 +31,32 @@ export default function Profile() {
   if (!me) return <Loading />;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-4xl font-bold">ข้อมูลส่วนตัว</h1>
-      <Panel className="grid gap-6 p-6 sm:grid-cols-[12rem_1fr]">
-        <div className="space-y-3">
-          {me.avatarUrl ? (
-            <img src={me.avatarUrl} alt="รูปโปรไฟล์" className="aspect-square w-full rounded-2xl border border-line object-cover" />
-          ) : (
-            <div className="grid aspect-square w-full place-items-center rounded-full bg-violet font-display text-6xl font-bold text-white ring-4 ring-mark">{me.name.slice(0, 1)}</div>
-          )}
+    <div className="space-y-5">
+      <PageHeader title="ข้อมูลส่วนตัว" sub="แก้ชื่อ เบอร์โทร รูปโปรไฟล์ และรหัสผ่านของคุณ" />
+      <Panel className="flex flex-wrap items-center gap-5 p-5">
+        {me.avatarUrl ? (
+          <img src={me.avatarUrl} alt="รูปโปรไฟล์" className="size-24 rounded-full object-cover ring-4 ring-mark" />
+        ) : (
+          <div className="grid size-24 place-items-center rounded-full bg-violet font-display text-4xl font-bold text-white ring-4 ring-mark">{me.name.slice(0, 1)}</div>
+        )}
+        <div className="min-w-0 flex-1 space-y-2">
+          <p className="font-display text-2xl font-extrabold uppercase">{me.name}</p>
+          <div className="flex flex-wrap gap-2">
+            <InfoChip label="อีเมล">{me.email}</InfoChip>
+            <InfoChip label="โทร">{me.phone ?? '-'}</InfoChip>
+            <InfoChip label="สมาชิกตั้งแต่">{dateTh(me.createdAt)}</InfoChip>
+          </div>
+        </div>
+        <div className="w-full sm:w-72">
           <Field label="เปลี่ยนรูป" hint="JPG, PNG หรือ WEBP ไม่เกิน 5 MB">
             <Input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={avatar.isPending} onChange={(e) => e.target.files?.[0] && avatar.mutate(e.target.files[0])} />
           </Field>
         </div>
+      </Panel>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+      <Panel className="p-5">
+        <h2 className="mb-4 text-lg">แก้ไขข้อมูล</h2>
         <form
           className="space-y-4"
           onSubmit={(e) => {
@@ -51,7 +64,7 @@ export default function Profile() {
             save.mutate({ name: String(f.get('name')), phone: String(f.get('phone')) || null });
           }}
         >
-          <Field label="อีเมล">
+          <Field label="อีเมล" hint="เปลี่ยนอีเมลได้โดยติดต่อผู้ดูแลระบบ">
             <Input value={me.email} readOnly />
           </Field>
           <Field label="ชื่อ-นามสกุล">
@@ -61,8 +74,7 @@ export default function Profile() {
             <Input name="phone" defaultValue={me.phone ?? ''} inputMode="tel" pattern="0[0-9]{8,9}" />
           </Field>
           <ErrorNote error={save.error} />
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-muted">สมาชิกตั้งแต่ {dateTh(me.createdAt)}</span>
+          <div className="flex justify-end">
             <Button type="submit" variant="primary" pending={save.isPending}>
               บันทึกข้อมูล
             </Button>
@@ -70,10 +82,10 @@ export default function Profile() {
         </form>
       </Panel>
 
-      <Panel className="p-6">
-        <h2 className="mb-4 text-xl font-semibold">เปลี่ยนรหัสผ่าน</h2>
+      <Panel className="p-5">
+        <h2 className="mb-4 text-lg">เปลี่ยนรหัสผ่าน</h2>
         <form
-          className="grid gap-4 sm:grid-cols-2"
+          className="grid gap-4"
           onSubmit={(e) => {
             const f = formData(e);
             password.mutate(
@@ -88,14 +100,13 @@ export default function Profile() {
           <Field label="รหัสผ่านใหม่" hint="อย่างน้อย 8 ตัวอักษร">
             <Input name="next" type="password" required minLength={8} autoComplete="new-password" />
           </Field>
-          <div className="sm:col-span-2">
-            <ErrorNote error={password.error} />
-          </div>
-          <Button type="submit" pending={password.isPending} className="sm:col-span-2 sm:justify-self-end">
+          <ErrorNote error={password.error} />
+          <Button type="submit" pending={password.isPending} className="justify-self-end">
             เปลี่ยนรหัสผ่าน
           </Button>
         </form>
       </Panel>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { api, ok, type Slot, useMe, useSettings } from '../api';
 import { DateStrip } from '../components/Pickers';
-import { Empty, ErrorNote, Field, LinkButton, Loading, Panel, Select, SportArt, Stars } from '../components/ui';
+import { Empty, ErrorNote, Field, LinkButton, Loading, PageHeader, Panel, Select, SportArt, Stars } from '../components/ui';
 import { baht, bangkokDate, dateTh, hourLabel, timeRange } from '../lib/format';
 import { useSlotPicker } from '../lib/pick';
 
@@ -36,22 +36,17 @@ export default function CourtDetail() {
   const c = court.data;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
-      <div className="space-y-6">
-        <Link to="/courts" className="text-sm text-muted hover:text-ink">
-          สนามทั้งหมด
-        </Link>
-        <SportArt icon={c.sportIcon} sportId={c.sportId} imageUrl={c.imageUrl} className="aspect-[16/9] w-full rounded-2xl" />
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h1 className="text-3xl font-bold sm:text-4xl">{c.name}</h1>
-            <p className="mt-1 text-muted">
-              {c.sportIcon} {c.sportName}
-            </p>
-          </div>
-          {me?.role === 'admin' && <LinkButton to={`/admin/catalog?edit=court-${c.id}`}>แก้ไขสนาม</LinkButton>}
-        </div>
-        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border-2 border-line bg-line">
+    <div className="space-y-5">
+      <Link to="/courts" className="text-sm text-muted hover:text-ink">
+        ← สนามทั้งหมด
+      </Link>
+      <PageHeader title={c.name} sub={`${c.sportIcon} ${c.sportName} · เลือกวันและเวลาที่แผงด้านขวา แล้วกดช่องสีเขียวเพื่อเพิ่มลงตะกร้า`}>
+        {me?.role === 'admin' && <LinkButton to={`/admin/catalog?edit=court-${c.id}`}>แก้ไขสนาม</LinkButton>}
+      </PageHeader>
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="space-y-5">
+        <SportArt icon={c.sportIcon} sportId={c.sportId} imageUrl={c.imageUrl} className="aspect-[21/9] w-full rounded-xl" />
+        <dl className="grid grid-cols-3 gap-3">
           {[
             [
               'ราคา',
@@ -62,16 +57,16 @@ export default function CourtDetail() {
             ['เวลาเปิด', `${hourLabel(c.openHour)}–${hourLabel(c.closeHour)}`],
             ['รีวิว', c.rating === null ? 'ยังไม่มี' : `${c.rating} จาก ${c.reviewCount} รีวิว`],
           ].map(([k, v]) => (
-            <div key={k} className="bg-surface p-4">
-              <dt className="text-sm text-muted">{k}</dt>
-              <dd className="num text-lg font-semibold">{v}</dd>
+            <div key={k} className="rounded-xl bg-sunken p-3">
+              <dt className="label">{k}</dt>
+              <dd className="num font-semibold sm:text-lg">{v}</dd>
             </div>
           ))}
         </dl>
-        {c.description && <p className="max-w-prose text-lg">{c.description}</p>}
+        {c.description && <p className="max-w-prose">{c.description}</p>}
 
         <section className="space-y-3">
-          <h2 className="text-2xl font-semibold">รีวิวจากผู้ใช้</h2>
+          <h2 className="text-lg">รีวิวจากผู้ใช้ {reviews.data?.length ? <span className="num text-sm font-normal text-muted">({reviews.data.length})</span> : null}</h2>
           {reviews.data?.length ? (
             <ul className="space-y-3">
               {reviews.data.map((r) => (
@@ -91,8 +86,8 @@ export default function CourtDetail() {
         </section>
       </div>
 
-      <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-20">
-        <h2 className="text-xl font-semibold">เลือกเวลา</h2>
+      <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-28">
+        <h2 className="text-lg">เลือกเวลา</h2>
         <DateStrip value={date} onChange={(d) => setParams({ date: d }, { replace: true })} />
         {maxWeeks > 1 && (
           <Field label="จองประจำ" hint="เพิ่มชั่วโมงเดียวกันทุกสัปดาห์ ถ้าสัปดาห์ใดไม่ว่างจะไม่เพิ่มเลย">
@@ -134,6 +129,7 @@ export default function CourtDetail() {
           </LinkButton>
         )}
       </Panel>
+    </div>
     </div>
   );
 }

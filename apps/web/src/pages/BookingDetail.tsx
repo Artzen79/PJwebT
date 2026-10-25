@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { toast } from 'sonner';
 import { api, type Booking, errorText, ok, type Payment, upload, useMe, useSettings } from '../api';
-import { Badge, Button, ErrorNote, Field, Input, Loading, Panel, Textarea } from '../components/ui';
+import { Badge, Button, ErrorNote, Field, Input, Loading, PageHeader, Panel, Textarea } from '../components/ui';
 import { baht, bookingStatus, dateTimeTh, dayLabel, paymentStatus, timeRange } from '../lib/format';
 import { formData } from '../lib/pick';
 
@@ -38,18 +38,23 @@ export default function BookingDetail() {
   const canCancel = b.status === 'pending_payment' || (b.status === 'paid' && (admin || firstStart - Date.now() >= cancelHours * HOUR));
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="space-y-5">
       <Link to={admin && b.userId !== me?.id ? '/admin/bookings' : '/bookings'} className="text-sm text-muted hover:text-ink">
-        รายการจองทั้งหมด
+        ← รายการจองทั้งหมด
       </Link>
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="num text-3xl font-bold sm:text-4xl">การจอง #{b.code}</h1>
-        <Badge tone={bookingStatus[b.status].tone}>{bookingStatus[b.status].label}</Badge>
-      </div>
-      <p className="text-muted">
-        {b.confirmedAt ? `ยืนยันเมื่อ ${dateTimeTh(b.confirmedAt)}` : `สร้างเมื่อ ${dateTimeTh(b.createdAt)}`}
-        {admin && ` โดย ${b.userName} (${b.userEmail})`}
-      </p>
+      <PageHeader
+        title={
+          <span className="num inline-flex flex-wrap items-center gap-3">
+            การจอง #{b.code} <Badge tone={bookingStatus[b.status].tone}>{bookingStatus[b.status].label}</Badge>
+          </span>
+        }
+        sub={
+          <>
+            {b.confirmedAt ? `ยืนยันเมื่อ ${dateTimeTh(b.confirmedAt)}` : `สร้างเมื่อ ${dateTimeTh(b.createdAt)}`}
+            {admin && ` โดย ${b.userName} (${b.userEmail})`}
+          </>
+        }
+      />
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-6">

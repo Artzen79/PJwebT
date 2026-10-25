@@ -89,17 +89,17 @@ export function SlotBoard({ rows, onPick, linkCourt }: { rows: Row[]; onPick: (r
 
 export function BoardLegend() {
   const items: [Slot['status'], string][] = [
-    ['free', 'ว่าง กดเพื่อเพิ่มลงตะกร้า'],
-    ['in_cart', 'อยู่ในตะกร้า กดอีกครั้งเพื่อเอาออก'],
+    ['free', 'ว่าง กดเพื่อจอง'],
+    ['in_cart', 'อยู่ในตะกร้า (กดซ้ำเพื่อเอาออก)'],
     ['mine', 'การจองของคุณ'],
     ['booked', 'มีผู้จองแล้ว'],
     ['past', 'เลยเวลาแล้ว'],
   ];
   return (
-    <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted">
+    <ul className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 text-sm sm:flex-wrap" aria-label="ความหมายของสี">
       {items.map(([status, label]) => (
-        <li key={status} className="flex items-center gap-2">
-          <span className={`inline-block size-4 rounded ${cellClass[status]}`} style={{ '--sport': '#8c82aa' } as CSSProperties} />
+        <li key={status} className="flex shrink-0 items-center gap-2 rounded-full bg-sunken py-1 pr-3 pl-1.5 whitespace-nowrap">
+          <span className={`inline-block size-4 rounded ring-1 ring-line ${cellClass[status]}`} style={{ '--sport': '#8c82aa' } as CSSProperties} />
           {label}
         </li>
       ))}

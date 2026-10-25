@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router';
 import { api, ok } from '../api';
 import { MailList, MailReader } from '../components/Mail';
-import { ErrorNote, Loading } from '../components/ui';
+import { ErrorNote, Loading, PageHeader } from '../components/ui';
 
 export function useInbox(enabled = true) {
   return useQuery({ queryKey: ['inbox'], queryFn: () => ok(api.GET('/api/v1/users/me/emails')), enabled, refetchInterval: 30_000 });
@@ -14,10 +14,7 @@ export default function Inbox() {
   const inbox = useInbox();
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-4xl font-bold">กล่องข้อความ</h1>
-        <p className="mt-2 text-muted">อีเมลทุกฉบับที่ระบบส่งถึงคุณ: ยืนยันการจอง ผลตรวจสลิป ตั๋วเช็คอิน และการเตือนก่อนเวลา</p>
-      </div>
+      <PageHeader title="กล่องข้อความ" sub="อีเมลทุกฉบับที่ระบบส่งถึงคุณ: ยืนยันการจอง ผลตรวจสลิป ตั๋วเช็คอิน และการเตือนก่อนเวลา เลือกฉบับทางซ้ายเพื่ออ่าน" />
       {inbox.isPending ? (
         <Loading />
       ) : inbox.error ? (

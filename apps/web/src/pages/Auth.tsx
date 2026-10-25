@@ -18,7 +18,7 @@ function useSignedIn() {
 
 function AuthShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mx-auto grid max-w-4xl overflow-hidden frame md:grid-cols-2">
+    <div className="mx-auto grid max-w-4xl overflow-hidden rounded-xl border-2 border-line bg-surface md:grid-cols-2">
       <div className="relative hidden bg-linear-to-br from-violet to-panel md:block" aria-hidden>
         <svg viewBox="0 0 200 300" className="absolute inset-0 size-full" preserveAspectRatio="xMidYMid slice">
           <g fill="none" stroke="white" strokeOpacity="0.6" strokeWidth="2">
@@ -31,7 +31,7 @@ function AuthShell({ title, children }: { title: string; children: React.ReactNo
         </svg>
       </div>
       <div className="space-y-6 p-8 sm:p-10">
-        <h1 className="text-3xl font-bold">{title}</h1>
+        <h1 className="text-2xl sm:text-3xl">{title}</h1>
         {children}
       </div>
     </div>
@@ -137,7 +137,7 @@ export function RequireAuth({ admin = false }: { admin?: boolean }) {
 export function NotFound() {
   return (
     <Panel className="mx-auto max-w-lg p-10 text-center">
-      <h1 className="text-3xl font-bold">ไม่พบหน้านี้</h1>
+      <h1 className="text-2xl sm:text-3xl">ไม่พบหน้านี้</h1>
       <p className="mt-2 text-muted">ลิงก์อาจผิดหรือหน้านี้ถูกย้ายไปแล้ว</p>
       <Link to="/" className="mt-6 inline-block font-medium underline">
         กลับไปหน้าตารางสนามว่าง

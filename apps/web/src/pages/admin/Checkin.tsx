@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { api, type Booking, errorText, ok } from '../../api';
-import { Badge, Button, Field, Input, Panel } from '../../components/ui';
+import { Badge, Button, Field, Input, PageHeader, Panel } from '../../components/ui';
 import { bookingStatus, dayLabel, timeRange } from '../../lib/format';
 import { formData } from '../../lib/pick';
 
@@ -68,7 +68,7 @@ export default function Checkin() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-3xl font-bold">เช็คอินหน้าสนาม</h1>
+      <PageHeader title="เช็คอินหน้าสนาม" sub="สแกน QR จากตั๋วของสมาชิก หรือพิมพ์เลขที่การจอง ระบบจะแสดงสนามและอุปกรณ์ที่ต้องส่งมอบ" />
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel className="space-y-5 p-5">
           <Scanner onScan={(text) => checkin.mutate(text)} />

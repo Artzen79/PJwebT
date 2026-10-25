@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { toast } from 'sonner';
 import { api, errorText, ok, type Payment } from '../../api';
-import { Badge, Button, Empty, ErrorNote, Field, Loading, Modal, Textarea } from '../../components/ui';
+import { Badge, Button, Empty, ErrorNote, Field, Loading, Modal, PageHeader, Textarea } from '../../components/ui';
 import { baht, dateTimeTh, paymentStatus } from '../../lib/format';
 import { formData } from '../../lib/pick';
 
@@ -29,8 +29,7 @@ export default function Payments() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">ตรวจสลิป</h1>
+      <PageHeader title="ตรวจสลิป" sub="เทียบยอดในสลิปกับยอดที่ต้องชำระ แล้วกดอนุมัติหรือปฏิเสธพร้อมเหตุผล">
         <div className="flex gap-1 rounded-xl bg-sunken p-1" role="tablist">
           {(['pending', 'approved', 'rejected'] as const).map((s) => (
             <button
@@ -45,7 +44,7 @@ export default function Payments() {
             </button>
           ))}
         </div>
-      </div>
+      </PageHeader>
       {list.isPending ? (
         <Loading />
       ) : list.error ? (

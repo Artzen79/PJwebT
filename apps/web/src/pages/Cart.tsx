@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { errorText, useSettings } from '../api';
-import { Badge, Button, Empty, ErrorNote, Input, LinkButton, Loading, Panel } from '../components/ui';
+import { Badge, Button, Empty, ErrorNote, Input, LinkButton, Loading, PageHeader, Panel, Steps } from '../components/ui';
 import { useCart, useCartActions } from '../lib/cart';
 import { baht, dateTh, dayLabel, timeRange } from '../lib/format';
 import { formData } from '../lib/pick';
@@ -31,32 +31,25 @@ export default function Cart() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <h1 className="text-4xl font-bold">ตะกร้า</h1>
-      <Panel className="overflow-hidden">
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line bg-sunken/50 p-5">
-          <div>
-            <p className="font-display text-xl font-semibold text-info">การจองเลขที่ {c.code}</p>
-            <p className="text-sm text-muted">สร้างเมื่อ {dateTh(c.createdAt)}</p>
+    <div className="space-y-5">
+      <PageHeader title="ตะกร้า" sub={`การจองเลขที่ ${c.code} · ตรวจรายการ ใส่คูปอง (ถ้ามี) แล้วกดยืนยัน`} />
+      <Steps items={['ตรวจรายการ', 'ยืนยันการจอง', `ชำระด้วย PromptPay ภายใน ${payWithin} นาที`, 'แนบสลิปแล้วรอตรวจ']} />
+      {count === 0 ? (
+        <Empty title="ตะกร้ายังว่าง">
+          <div className="flex flex-wrap justify-center gap-3">
+            <LinkButton to="/" variant="primary">
+              ดูตารางสนามว่าง
+            </LinkButton>
+            <LinkButton to="/equipment">ยืมอุปกรณ์</LinkButton>
           </div>
-          <p className="text-right">
-            <span className="text-muted">{count} รายการ ยอดรวม </span>
-            <span className="num text-2xl font-semibold">{baht(c.total)}</span>
-          </p>
-        </div>
-        {count === 0 ? (
-          <div className="p-5">
-            <Empty title="ตะกร้ายังว่าง">
-              <div className="flex flex-wrap justify-center gap-3">
-                <LinkButton to="/" variant="primary">
-                  ดูตารางสนามว่าง
-                </LinkButton>
-                <LinkButton to="/equipment">ยืมอุปกรณ์</LinkButton>
-              </div>
-            </Empty>
-          </div>
-        ) : (
-          <>
+        </Empty>
+      ) : (
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <Panel className="h-fit overflow-hidden">
+            <div className="flex items-center justify-between gap-3 border-b border-line bg-sunken/50 px-5 py-3">
+              <h2 className="text-lg">รายการ <span className="num text-sm font-normal text-muted">({count})</span></h2>
+              <span className="text-sm text-muted">สร้างเมื่อ {dateTh(c.createdAt)}</span>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead className="text-sm text-muted">
@@ -113,60 +106,60 @@ export default function Cart() {
                 </tbody>
               </table>
             </div>
-            <div className="space-y-4 border-t border-line p-5">
-              {c.couponCode ? (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-turf-soft px-4 py-3">
-                  <span>
-                    คูปอง <span className="num font-semibold">{c.couponCode}</span>{' '}
-                    {c.discount > 0 ? (
-                      <span className="num">ลด {baht(c.discount)}</span>
-                    ) : (
-                      <span className="text-sm text-muted">ยอดยังไม่ถึงขั้นต่ำของคูปอง</span>
-                    )}
-                  </span>
-                  <Button size="sm" variant="quiet" pending={actions.removeCoupon.isPending} onClick={() => actions.removeCoupon.mutate()}>
-                    เอาคูปองออก
-                  </Button>
-                </div>
-              ) : (
-                <form
-                  className="flex max-w-md gap-2"
-                  onSubmit={(e) => {
-                    const code = String(formData(e).get('code')).trim();
-                    if (code) actions.applyCoupon.mutate(code, { onSuccess: () => toast.success('ใช้คูปองแล้ว'), onError: (err) => toast.error(errorText(err)) });
-                  }}
-                >
-                  <Input name="code" placeholder="รหัสคูปอง" aria-label="รหัสคูปอง" className="uppercase" />
-                  <Button type="submit" pending={actions.applyCoupon.isPending}>
-                    ใช้คูปอง
-                  </Button>
-                </form>
-              )}
-              {c.discount > 0 && (
-                <dl className="num ml-auto grid max-w-xs grid-cols-2 gap-y-1 text-right">
-                  <dt className="text-muted">ยอดก่อนส่วนลด</dt>
-                  <dd>{baht(c.subtotal)}</dd>
-                  <dt className="text-muted">ส่วนลด</dt>
-                  <dd>−{baht(c.discount)}</dd>
-                  <dt className="font-semibold">ยอดชำระ</dt>
-                  <dd className="font-semibold">{baht(c.total)}</dd>
-                </dl>
-              )}
-              {c.depositTotal > 0 && <p className="text-sm text-muted">มัดจำอุปกรณ์ {baht(c.depositTotal)} จ่ายที่เคาน์เตอร์ตอนรับของ และได้คืนเมื่อคืนอุปกรณ์</p>}
-              {anyTaken && <ErrorNote error="มีช่วงเวลาที่คนอื่นจองไปแล้ว กรุณาลบออกก่อนยืนยัน" />}
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <Button variant="danger" onClick={clear} pending={actions.clear.isPending}>
-                  ลบตะกร้า
-                </Button>
-                <Button variant="primary" size="lg" onClick={confirm} pending={actions.confirm.isPending} disabled={anyTaken}>
-                  ยืนยันการจอง
+          </Panel>
+
+          <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-28">
+            <h2 className="text-lg">สรุปยอด</h2>
+            <dl className="num grid grid-cols-2 gap-y-1">
+              <dt className="text-muted">ยอดก่อนส่วนลด</dt>
+              <dd className="text-right">{baht(c.subtotal)}</dd>
+              <dt className="text-muted">ส่วนลด</dt>
+              <dd className="text-right">{c.discount > 0 ? `−${baht(c.discount)}` : '-'}</dd>
+            </dl>
+            <div className="flex items-baseline justify-between rounded-xl bg-sunken px-4 py-3">
+              <span className="label">ยอดชำระ</span>
+              <span className="num text-3xl font-extrabold">{baht(c.total)}</span>
+            </div>
+            {c.couponCode ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-turf-soft px-4 py-3">
+                <span>
+                  คูปอง <span className="num font-semibold">{c.couponCode}</span>{' '}
+                  {c.discount > 0 ? (
+                    <span className="num">ลด {baht(c.discount)}</span>
+                  ) : (
+                    <span className="text-sm text-muted">ยอดยังไม่ถึงขั้นต่ำของคูปอง</span>
+                  )}
+                </span>
+                <Button size="sm" variant="quiet" pending={actions.removeCoupon.isPending} onClick={() => actions.removeCoupon.mutate()}>
+                  เอาคูปองออก
                 </Button>
               </div>
-              <p className="text-sm text-muted">หลังยืนยันจะแก้ไขรายการไม่ได้ และต้องชำระเงินภายใน {payWithin} นาที</p>
-            </div>
-          </>
-        )}
-      </Panel>
+            ) : (
+              <form
+                className="flex gap-2"
+                onSubmit={(e) => {
+                  const code = String(formData(e).get('code')).trim();
+                  if (code) actions.applyCoupon.mutate(code, { onSuccess: () => toast.success('ใช้คูปองแล้ว'), onError: (err) => toast.error(errorText(err)) });
+                }}
+              >
+                <Input name="code" placeholder="รหัสคูปอง" aria-label="รหัสคูปอง" className="uppercase" />
+                <Button type="submit" pending={actions.applyCoupon.isPending}>
+                  ใช้คูปอง
+                </Button>
+              </form>
+            )}
+            {c.depositTotal > 0 && <p className="text-sm text-muted">มัดจำอุปกรณ์ {baht(c.depositTotal)} จ่ายที่เคาน์เตอร์ตอนรับของ และได้คืนเมื่อคืนอุปกรณ์</p>}
+            {anyTaken && <ErrorNote error="มีช่วงเวลาที่คนอื่นจองไปแล้ว กรุณาลบออกก่อนยืนยัน" />}
+            <Button variant="primary" size="lg" className="w-full" onClick={confirm} pending={actions.confirm.isPending} disabled={anyTaken}>
+              ยืนยันการจอง
+            </Button>
+            <p className="text-sm text-muted">หลังยืนยันจะแก้ไขรายการไม่ได้ และต้องชำระเงินภายใน {payWithin} นาที</p>
+            <Button variant="quiet-danger" size="sm" className="w-full" onClick={clear} pending={actions.clear.isPending}>
+              ลบทั้งตะกร้า
+            </Button>
+          </Panel>
+        </div>
+      )}
     </div>
   );
 }

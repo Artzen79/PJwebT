@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
 import { Link } from 'react-router';
 import { api, ok, type Stats } from '../../api';
-import { ErrorNote, Field, Input, Loading, Panel } from '../../components/ui';
+import { ErrorNote, Field, Input, Loading, PageHeader, Panel } from '../../components/ui';
 import { addDays, baht, bangkokDate, bookingStatus, hourLabel, sportColor } from '../../lib/format';
 
 const number = (n: number) => n.toLocaleString('th-TH');
@@ -182,8 +182,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-3">
-        <h1 className="mr-auto text-3xl font-bold">ภาพรวม</h1>
+      <PageHeader title="ภาพรวม" sub="รายได้ การจอง และสถิติการใช้สนามในช่วงวันที่เลือก">
         <div className="flex gap-1 rounded-xl bg-sunken p-1">
           {presets.map(([days, label]) => {
             const active = range.to === today && range.from === addDays(today, 1 - days);
@@ -206,7 +205,7 @@ export default function Dashboard() {
         <Field label="ถึง">
           <Input type="date" value={range.to} min={range.from} onChange={(e) => e.target.value && setRange({ ...range, to: e.target.value })} />
         </Field>
-      </div>
+      </PageHeader>
 
       {stats.isPending ? (
         <Loading />

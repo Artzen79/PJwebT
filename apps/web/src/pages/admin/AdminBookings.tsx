@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router';
 import { api, type BookingSummary, ok } from '../../api';
-import { Empty, ErrorNote, Input, Loading } from '../../components/ui';
+import { Empty, ErrorNote, Input, Loading, PageHeader } from '../../components/ui';
 import { BookingTable, StatusTabs } from '../Bookings';
 
 type Status = Exclude<BookingSummary['status'], 'cart'>;
@@ -23,10 +23,9 @@ export default function AdminBookings() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">การจองทั้งหมด</h1>
-        <Input type="search" placeholder="ค้นหาเลขที่การจอง" defaultValue={code} onChange={(e) => set('code', e.target.value)} className="max-w-xs" aria-label="ค้นหาเลขที่การจอง" />
-      </div>
+      <PageHeader title="การจองทั้งหมด" sub="การจองของสมาชิกทุกคน กรองตามสถานะหรือค้นหาด้วยเลขที่การจอง">
+        <Input type="search" placeholder="ค้นหาเลขที่การจอง" defaultValue={code} onChange={(e) => set('code', e.target.value)} className="w-64" aria-label="ค้นหาเลขที่การจอง" />
+      </PageHeader>
       <StatusTabs value={status} onChange={(s) => set('status', s)} />
       {list.isPending ? (
         <Loading />

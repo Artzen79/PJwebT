@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { api, errorText, ok, useMe } from '../api';
 import { DateStrip, SportChips } from '../components/Pickers';
-import { Button, Empty, ErrorNote, Field, Input, Loading, Panel, Select, SportArt } from '../components/ui';
+import { Button, Empty, ErrorNote, Field, FilterRow, Input, Loading, PageHeader, Panel, Select, SportArt } from '../components/ui';
 import { useCartActions } from '../lib/cart';
 import { atHour, baht, bangkokDate, hourLabel } from '../lib/format';
 
@@ -15,10 +15,9 @@ export function EquipmentList() {
 
   return (
     <div className="space-y-6">
-      <div className="max-w-2xl">
-        <h1 className="text-4xl font-bold">ยืมอุปกรณ์</h1>
-        <p className="mt-2 text-lg text-muted">เลือกอุปกรณ์และช่วงเวลาที่ใช้ ค่าเช่าคิดต่อชิ้นต่อการจอง ส่วนมัดจำจ่ายที่เคาน์เตอร์และได้คืนเมื่อคืนของ</p>
-      </div>
+      <PageHeader title="ยืมอุปกรณ์" sub="เลือกอุปกรณ์และช่วงเวลาที่ใช้ ค่าเช่าคิดต่อชิ้นต่อการจอง ส่วนมัดจำจ่ายที่เคาน์เตอร์และได้คืนเมื่อคืนของ" />
+      <div className="rounded-xl border-2 border-line bg-sunken/60 p-3">
+        <FilterRow label="กีฬา">
       <SportChips
         value={sport}
         onChange={(s) =>
@@ -29,6 +28,8 @@ export function EquipmentList() {
           })
         }
       />
+        </FilterRow>
+      </div>
       {items.isPending ? (
         <Loading />
       ) : items.error ? (
@@ -39,10 +40,10 @@ export function EquipmentList() {
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.data.map((e) => (
             <li key={e.id}>
-              <Link to={`/equipment/${e.id}`} className="block overflow-hidden rounded-xl border-2 border-line bg-surface transition hover:border-ink/40">
+              <Link to={`/equipment/${e.id}`} className="block h-full overflow-hidden rounded-xl border-2 border-line bg-surface transition hover:-translate-y-0.5 hover:border-line-hi">
                 <SportArt icon={e.sportIcon} sportId={e.sportId} imageUrl={e.imageUrl} gear className="h-36 w-full" />
                 <div className="space-y-1 p-4">
-                  <h2 className="font-semibold">{e.name}</h2>
+                  <h2 className="text-lg">{e.name}</h2>
                   <p className="text-sm text-muted">
                     {e.sportIcon} {e.sportName} มีทั้งหมด <span className="num">{e.totalQty}</span> ชิ้น
                   </p>
@@ -97,33 +98,31 @@ export function EquipmentDetail() {
   };
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]">
+    <div className="space-y-5">
+      <Link to="/equipment" className="text-sm text-muted hover:text-ink">
+        ← อุปกรณ์ทั้งหมด
+      </Link>
+      <PageHeader title={e.name} sub={`${e.sportIcon} ${e.sportName} · เลือกวัน เวลา และจำนวนที่แผงด้านขวา`} />
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
       <div className="space-y-5">
-        <Link to="/equipment" className="text-sm text-muted hover:text-ink">
-          อุปกรณ์ทั้งหมด
-        </Link>
-        <SportArt icon={e.sportIcon} sportId={e.sportId} imageUrl={e.imageUrl} gear className="aspect-[16/9] w-full rounded-2xl" />
-        <h1 className="text-3xl font-bold sm:text-4xl">{e.name}</h1>
-        <p className="text-muted">
-          {e.sportIcon} {e.sportName}
-        </p>
-        {e.description && <p className="max-w-prose text-lg">{e.description}</p>}
-        <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border-2 border-line bg-line">
+        <SportArt icon={e.sportIcon} sportId={e.sportId} imageUrl={e.imageUrl} gear className="aspect-[21/9] w-full rounded-xl" />
+        <dl className="grid grid-cols-3 gap-3">
           {[
             ['ค่าเช่า', `${baht(e.rentPrice)}/ชิ้น`],
             ['มัดจำ', e.deposit > 0 ? `${baht(e.deposit)}/ชิ้น` : 'ไม่มี'],
             ['ในคลัง', `${e.totalQty} ชิ้น`],
           ].map(([k, v]) => (
-            <div key={k} className="bg-surface p-4">
-              <dt className="text-sm text-muted">{k}</dt>
-              <dd className="num text-lg font-semibold">{v}</dd>
+            <div key={k} className="rounded-xl bg-sunken p-3">
+              <dt className="label">{k}</dt>
+              <dd className="num font-semibold sm:text-lg">{v}</dd>
             </div>
           ))}
         </dl>
+        {e.description && <p className="max-w-prose">{e.description}</p>}
       </div>
 
-      <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-20">
-        <h2 className="text-xl font-semibold">ยืมอุปกรณ์</h2>
+      <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-28">
+        <h2 className="text-lg">ยืมอุปกรณ์</h2>
         <DateStrip value={date} onChange={setDate} />
         <div className="grid grid-cols-3 gap-3">
           <Field label="เริ่ม">
@@ -160,6 +159,7 @@ export function EquipmentDetail() {
           เพิ่มลงตะกร้า
         </Button>
       </Panel>
+    </div>
     </div>
   );
 }

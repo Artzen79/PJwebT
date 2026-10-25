@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { api, type EmailSummary, errorText, ok } from '../../api';
 import { MailList, MailReader, mailKind, mailStatus } from '../../components/Mail';
-import { Button, ErrorNote, Input, Loading, Select } from '../../components/ui';
+import { Button, ErrorNote, Input, Loading, PageHeader, Select } from '../../components/ui';
 
 export default function Emails() {
   const [params, setParams] = useSearchParams();
@@ -36,15 +36,15 @@ export default function Emails() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold">อีเมล</h1>
-          <p className="mt-1 text-muted">
+      <PageHeader
+        title="อีเมล"
+        sub={
+          <>
             ทุกอีเมลที่ระบบส่ง สมาชิกเห็นฉบับของตัวเองในกล่องข้อความบนเว็บ{' '}
             {system.data && (system.data.smtpEnabled ? 'และส่งออกทาง SMTP ด้วย' : '(ยังไม่ได้ตั้ง SMTP จึงไม่ส่งออกไปอีเมลจริง)')}
-          </p>
-        </div>
-      </div>
+          </>
+        }
+      />
       <div className="flex flex-wrap gap-3">
         <Input
           type="search"

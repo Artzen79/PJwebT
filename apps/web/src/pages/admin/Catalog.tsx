@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { api, type Body, type Court, type Equipment, errorText, ok, type Sport, upload } from '../../api';
 import { useSports } from '../../components/Pickers';
-import { Badge, Button, ErrorNote, Field, Input, Loading, Modal, Select, SportArt, Stars, Textarea } from '../../components/ui';
+import { Badge, Button, ErrorNote, Field, Input, Loading, Modal, PageHeader, Select, SportArt, Stars, Textarea } from '../../components/ui';
 import { baht, bangkokDate, dateTh, dateTimeTh, hourLabel } from '../../lib/format';
 import { formData } from '../../lib/pick';
 
@@ -526,7 +526,7 @@ export default function Catalog() {
   ];
   return (
     <div className="space-y-5">
-      <h1 className="text-3xl font-bold">จัดการข้อมูล</h1>
+      <PageHeader title="จัดการข้อมูล" sub="เพิ่ม แก้ไข และลบสนาม อุปกรณ์ ประเภทกีฬา คูปอง และรีวิว เลือกหมวดจากแท็บด้านล่าง" />
       <div className="flex gap-1 overflow-x-auto rounded-xl bg-sunken p-1 sm:w-fit" role="tablist">
         {tabs.map(([key, label]) => (
           <button

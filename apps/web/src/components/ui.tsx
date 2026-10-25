@@ -82,6 +82,65 @@ export function Panel({ className = '', children }: { className?: string; childr
   return <section className={`rounded-xl border-2 border-line bg-linear-to-b from-surface-hi to-surface ${className}`}>{children}</section>;
 }
 
+// Every page opens the same way: what it is, what it is for, and its main action on the right.
+export function PageHeader({ title, sub, children }: { title: ReactNode; sub?: ReactNode; children?: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-line pb-4">
+      <div className="min-w-0 max-w-3xl">
+        <h1 className="text-2xl sm:text-3xl">{title}</h1>
+        {sub && <p className="mt-1 text-muted">{sub}</p>}
+      </div>
+      {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
+    </div>
+  );
+}
+
+// Big number in a dark well, like the game's ONLINE PLAYERS box.
+export function StatBox({ label, value, unit }: { label: string; value: ReactNode; unit?: string }) {
+  return (
+    <div className="rounded-xl bg-sunken px-4 py-2">
+      <p className="label">{label}</p>
+      <p className="num text-2xl leading-tight font-extrabold">
+        {value} {unit && <span className="text-sm font-medium text-muted">{unit}</span>}
+      </p>
+    </div>
+  );
+}
+
+// Dark chip with a muted label and a value: ID 1401, JOB ประชาชน.
+export function InfoChip({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-lg bg-sunken px-2.5 py-1 text-sm">
+      <span className="label">{label}</span>
+      <span className="font-semibold">{children}</span>
+    </span>
+  );
+}
+
+// One labelled row of a filter panel: label on the left, choices on the right.
+export function FilterRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="grid items-center gap-x-3 gap-y-1 sm:grid-cols-[4.5rem_minmax(0,1fr)]">
+      <span className="text-sm font-semibold text-muted">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+// Numbered how-to strip, e.g. how booking works.
+export function Steps({ items }: { items: string[] }) {
+  return (
+    <ol className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 text-sm sm:flex-wrap">
+      {items.map((label, i) => (
+        <li key={label} className="flex shrink-0 items-center gap-2 rounded-full border-2 border-line bg-sunken py-1 pr-3 pl-1 whitespace-nowrap">
+          <span className="num grid size-6 place-items-center rounded-full bg-violet text-xs font-bold text-white">{i + 1}</span>
+          {label}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function Empty({ title, children }: { title: string; children?: ReactNode }) {
   return (
     <div className="rounded-xl border-2 border-dashed border-line bg-sunken/50 px-6 py-12 text-center">

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router';
 import { api, ok } from '../api';
 import { DateStrip, SportChips } from '../components/Pickers';
 import { BoardLegend, SlotBoard } from '../components/SlotBoard';
-import { Empty, ErrorNote, LinkButton, Loading } from '../components/ui';
+import { Empty, ErrorNote, FilterRow, LinkButton, Loading, PageHeader, StatBox, Steps } from '../components/ui';
 import { bangkokDate, relativeDay } from '../lib/format';
 import { useSlotPicker } from '../lib/pick';
 
@@ -32,23 +32,24 @@ export default function Home() {
   const openCourts = courts.filter((c) => c.slots.some((s) => s.status === 'free')).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b-4 border-mark pb-5">
-        <div className="max-w-2xl">
-          <h1 className="text-4xl font-bold sm:text-5xl">ตารางสนามว่าง</h1>
-          <p className="mt-3 text-lg text-muted">
-            {relativeDay(date)} ยังว่าง <span className="num font-semibold text-ink">{freeHours}</span> ชั่วโมงใน{' '}
-            <span className="num font-semibold text-ink">{openCourts}</span> สนาม กดช่องสีเขียวเพื่อเพิ่มลงตะกร้า แล้วยืนยันและจ่ายด้วย PromptPay ได้ทันที
-          </p>
-        </div>
-        <LinkButton to="/equipment">ยืมอุปกรณ์เพิ่ม</LinkButton>
+    <div className="space-y-5">
+      <PageHeader title="ตารางสนามว่าง" sub="ดูช่วงเวลาว่างของทุกสนามในวันเดียว แล้วกดช่องที่ต้องการเพื่อจอง">
+        <StatBox label={`ว่าง${relativeDay(date)}`} value={freeHours} unit={`ชม. · ${openCourts} สนาม`} />
+        <LinkButton to="/equipment">ยืมอุปกรณ์</LinkButton>
+      </PageHeader>
+
+      <Steps items={['เลือกวันและกีฬา', 'กดช่องสีเขียวเพื่อเพิ่มลงตะกร้า', 'ยืนยันที่ตะกร้า', 'จ่ายด้วย PromptPay']} />
+
+      <div className="space-y-3 rounded-xl border-2 border-line bg-sunken/60 p-3">
+        <FilterRow label="วันที่">
+          <DateStrip value={date} onChange={(d) => update('date', d === bangkokDate() ? undefined : d)} />
+        </FilterRow>
+        <FilterRow label="กีฬา">
+          <SportChips value={sport} onChange={(s) => update('sport', s)} />
+        </FilterRow>
       </div>
 
-      <div className="space-y-3">
-        <DateStrip value={date} onChange={(d) => update('date', d === bangkokDate() ? undefined : d)} />
-        <SportChips value={sport} onChange={(s) => update('sport', s)} />
-      </div>
-
+      <BoardLegend />
       {board.isPending ? (
         <Loading label="กำลังโหลดตาราง" />
       ) : board.error ? (
@@ -58,7 +59,6 @@ export default function Home() {
       ) : (
         <SlotBoard rows={courts} onPick={pick} linkCourt={(id) => `/courts/${id}?date=${date}`} />
       )}
-      <BoardLegend />
     </div>
   );
 }
