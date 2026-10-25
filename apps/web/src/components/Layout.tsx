@@ -83,10 +83,42 @@ export function Emblem({ className = '' }: { className?: string }) {
   );
 }
 
+// Menu items are game buttons: dark with a lavender rim and a pressed bottom edge; the open page glows gold.
 const navClass = ({ isActive }: { isActive: boolean }) =>
-  `relative whitespace-nowrap px-3 py-2 text-sm font-semibold uppercase tracking-wide transition ${
-    isActive ? 'text-mark after:absolute after:inset-x-3 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-mark' : 'text-muted hover:text-ink'
+  `inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border-2 px-4 text-sm font-semibold whitespace-nowrap shadow-[inset_0_-3px_0_rgb(0_0_0/0.25)] transition hover:-translate-y-0.5 active:translate-y-0 ${
+    isActive
+      ? 'border-mark bg-linear-to-b from-mark-hi to-mark text-mark-ink shadow-[inset_0_-3px_0_rgb(0_0_0/0.22),0_0_16px_rgb(245_197_66/0.4)]'
+      : 'border-line bg-sunken text-ink/85 hover:border-line-hi hover:text-ink'
   }`;
+
+const navIcons: Record<string, ReactNode> = {
+  '/': (
+    <>
+      <rect x="3" y="4.5" width="18" height="16" rx="2" />
+      <path d="M3 9.5h18M8 2.5v4M16 2.5v4M8 14h2M14 14h2" />
+    </>
+  ),
+  '/courts': (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="1.5" />
+      <path d="M12 5v14" />
+      <circle cx="12" cy="12" r="2.5" />
+    </>
+  ),
+  '/equipment': (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M5.6 5.6c3.5 3.5 3.5 9.3 0 12.8M18.4 5.6c-3.5 3.5-3.5 9.3 0 12.8" />
+    </>
+  ),
+  '/bookings': (
+    <>
+      <path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z" />
+      <path d="M14 7v10" strokeDasharray="2 2" />
+    </>
+  ),
+  '/admin': <path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z" />,
+};
 
 const iconLink = 'relative grid size-9 shrink-0 place-items-center rounded-lg border-2 border-line bg-sunken text-ink transition hover:border-line-hi';
 const countBadge = 'num absolute -top-2 -right-2 grid min-w-5 place-items-center rounded-full px-1 text-xs font-bold';
@@ -117,6 +149,7 @@ export function Layout() {
   const navLinks = (list: [string, string][]) =>
     list.map(([to, label]) => (
       <NavLink key={to} to={to} end={to === '/'} className={navClass}>
+        <Icon>{navIcons[to]}</Icon>
         {label}
       </NavLink>
     ));
@@ -142,11 +175,11 @@ export function Layout() {
             </div>
             {/* desktop: menu split around the emblem, as in the game's top bar */}
             <nav className="hidden grid-cols-[1fr_auto_1fr] items-center lg:grid" aria-label="เมนูหลัก">
-              <div className="flex justify-end">{navLinks(links.slice(0, 3))}</div>
-              <Link to="/" className="-my-5 mx-2" aria-label="หน้าแรก">
+              <div className="flex justify-end gap-2">{navLinks(links.slice(0, 3))}</div>
+              <Link to="/" className="-my-5 mx-3" aria-label="หน้าแรก">
                 <Emblem className="size-16 drop-shadow-[0_0_10px_rgb(124_92_230/0.6)]" />
               </Link>
-              <div className="flex">{navLinks(links.slice(3))}</div>
+              <div className="flex gap-2">{navLinks(links.slice(3))}</div>
             </nav>
             <div className="ml-auto flex items-center gap-2 lg:justify-self-end">
               <Clock />
@@ -201,7 +234,7 @@ export function Layout() {
               )}
             </div>
           </div>
-          <nav className="-mx-1 mt-1 flex overflow-x-auto lg:hidden" aria-label="เมนูหลัก">
+          <nav className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pt-1 pb-1.5 lg:hidden" aria-label="เมนูหลัก">
             {navLinks(links)}
           </nav>
         </div>

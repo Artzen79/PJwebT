@@ -4,8 +4,11 @@ import { NavLink, Outlet } from 'react-router';
 import { api, ok } from '../../api';
 import { Loading } from '../../components/ui';
 
+// same game buttons as the main menu, one size smaller
 const tab = ({ isActive }: { isActive: boolean }) =>
-  `flex shrink-0 items-center gap-2 border-b-2 px-4 py-2 transition ${isActive ? 'border-mark font-semibold' : 'border-transparent text-muted hover:text-ink'}`;
+  `inline-flex h-9 shrink-0 items-center gap-2 rounded-lg border-2 px-3.5 text-sm font-semibold whitespace-nowrap shadow-[inset_0_-3px_0_rgb(0_0_0/0.25)] transition hover:-translate-y-0.5 ${
+    isActive ? 'border-mark bg-linear-to-b from-mark-hi to-mark text-mark-ink' : 'border-line bg-sunken text-ink/85 hover:border-line-hi hover:text-ink'
+  }`;
 
 export default function AdminLayout() {
   const pending = useQuery({
@@ -16,13 +19,13 @@ export default function AdminLayout() {
   const waiting = pending.data?.length ?? 0;
   return (
     <div className="space-y-6">
-      <nav className="flex overflow-x-auto border-b border-line" aria-label="เมนูผู้ดูแลระบบ">
+      <nav className="-mx-1 flex gap-2 overflow-x-auto border-b border-line px-1 pt-1 pb-4" aria-label="เมนูผู้ดูแลระบบ">
         <NavLink to="/admin" end className={tab}>
           ภาพรวม
         </NavLink>
         <NavLink to="/admin/payments" className={tab}>
           ตรวจสลิป
-          {waiting > 0 && <span className="num grid min-w-5 place-items-center rounded-full bg-mark px-1.5 text-xs font-bold text-mark-ink">{waiting}</span>}
+          {waiting > 0 && <span className="num grid min-w-5 place-items-center rounded-full bg-danger-strong px-1.5 text-xs font-bold text-white">{waiting}</span>}
         </NavLink>
         <NavLink to="/admin/checkin" className={tab}>
           เช็คอิน
