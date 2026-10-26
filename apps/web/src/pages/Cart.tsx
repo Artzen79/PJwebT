@@ -142,7 +142,7 @@ export default function Cart() {
                   if (code) actions.applyCoupon.mutate(code, { onSuccess: () => toast.success('ใช้คูปองแล้ว'), onError: (err) => toast.error(errorText(err)) });
                 }}
               >
-                <Input name="code" placeholder="รหัสคูปอง" aria-label="รหัสคูปอง" className="uppercase" />
+                <Input name="code" placeholder="รหัสคูปอง" aria-label="รหัสคูปอง" className="min-w-0 uppercase" />
                 <Button type="submit" pending={actions.applyCoupon.isPending}>
                   ใช้คูปอง
                 </Button>

@@ -27,7 +27,7 @@ export function Button({
     <button
       type="button"
       disabled={pending || props.disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium whitespace-nowrap transition active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
       {...props}
     >
       {pending && <Spinner />}
@@ -38,7 +38,7 @@ export function Button({
 
 export function LinkButton({ to, variant = 'ghost', className = '', children }: { to: string; variant?: Variant; className?: string; children: ReactNode }) {
   return (
-    <Link to={to} className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 font-medium transition ${variants[variant]} ${className}`}>
+    <Link to={to} className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 font-medium whitespace-nowrap transition ${variants[variant]} ${className}`}>
       {children}
     </Link>
   );
