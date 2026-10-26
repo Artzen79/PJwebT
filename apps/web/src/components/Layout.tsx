@@ -92,7 +92,8 @@ const navClass = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 const navIcons: Record<string, ReactNode> = {
-  '/': (
+  '/': <path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h5v-6h3v6h5V9.5" />,
+  '/book': (
     <>
       <rect x="3" y="4.5" width="18" height="16" rx="2" />
       <path d="M3 9.5h18M8 2.5v4M16 2.5v4M8 14h2M14 14h2" />
@@ -140,7 +141,8 @@ export function Layout() {
     },
   });
   const links: [string, string][] = [
-    ['/', 'ตารางว่าง'],
+    ['/', 'หน้าแรก'],
+    ['/book', 'ตารางว่าง'],
     ['/courts', 'สนาม'],
     ['/equipment', 'ยืมอุปกรณ์'],
     ...(me ? ([['/bookings', 'การจองของฉัน']] as [string, string][]) : []),
@@ -158,30 +160,24 @@ export function Layout() {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 px-3 pt-3 sm:px-4">
         <div className="frame rounded-2xl px-3 py-2 sm:px-4">
-          <div className="flex items-center gap-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
-            <div className="flex min-w-0 items-center gap-3">
-              <Link to="/" className="lg:hidden" aria-label="หน้าแรก">
-                <Emblem className="size-10" />
+          <div className="flex items-center gap-3">
+            {/* left: emblem, name and the menu buttons; right: clock and account */}
+            <Link to="/" className="shrink-0" aria-label="หน้าแรก">
+              <Emblem className="size-11 drop-shadow-[0_0_10px_rgb(124_92_230/0.6)] lg:size-12" />
+            </Link>
+            <div className="min-w-0 shrink-0 leading-tight">
+              <Link to="/" className="font-display text-xl font-extrabold tracking-wide uppercase">
+                SportHub
               </Link>
-              <div className="min-w-0 leading-tight">
-                <Link to="/" className="font-display text-xl font-extrabold tracking-wide uppercase">
-                  SportHub
-                </Link>
-                <p className="truncate text-xs text-muted">
-                  {greeting()}
-                  {me && <span className="font-semibold text-ink uppercase">, {me.name}</span>}
-                </p>
-              </div>
+              <p className="truncate text-xs text-muted">
+                {greeting()}
+                {me && <span className="font-semibold text-ink uppercase">, {me.name}</span>}
+              </p>
             </div>
-            {/* desktop: menu split around the emblem, as in the game's top bar */}
-            <nav className="hidden grid-cols-[1fr_auto_1fr] items-center lg:grid" aria-label="เมนูหลัก">
-              <div className="flex justify-end gap-2">{navLinks(links.slice(0, 3))}</div>
-              <Link to="/" className="-my-5 mx-3" aria-label="หน้าแรก">
-                <Emblem className="size-16 drop-shadow-[0_0_10px_rgb(124_92_230/0.6)]" />
-              </Link>
-              <div className="flex gap-2">{navLinks(links.slice(3))}</div>
+            <nav className="ml-4 hidden items-center gap-2 xl:flex" aria-label="เมนูหลัก">
+              {navLinks(links)}
             </nav>
-            <div className="ml-auto flex items-center gap-2 lg:justify-self-end">
+            <div className="ml-auto flex items-center gap-2">
               <Clock />
               {me && (
                 <Link to="/inbox" className={iconLink} aria-label={`กล่องข้อความ ยังไม่อ่าน ${unread} ฉบับ`} title="กล่องข้อความ">
@@ -234,7 +230,7 @@ export function Layout() {
               )}
             </div>
           </div>
-          <nav className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pt-1 pb-1.5 lg:hidden" aria-label="เมนูหลัก">
+          <nav className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pt-1 pb-1.5 xl:hidden" aria-label="เมนูหลัก">
             {navLinks(links)}
           </nav>
         </div>

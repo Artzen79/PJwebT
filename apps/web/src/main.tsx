@@ -12,6 +12,7 @@ import Cart from './pages/Cart';
 import CourtDetail from './pages/CourtDetail';
 import Courts from './pages/Courts';
 import { EquipmentDetail, EquipmentList } from './pages/Equipment';
+import Board from './pages/Board';
 import Home from './pages/Home';
 import Inbox from './pages/Inbox';
 import Profile from './pages/Profile';
@@ -45,6 +46,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true, element: <Home /> },
+      { path: 'book', element: <Board /> },
       { path: 'courts', element: <Courts /> },
       { path: 'courts/:id', element: <CourtDetail /> },
       { path: 'equipment', element: <EquipmentList /> },

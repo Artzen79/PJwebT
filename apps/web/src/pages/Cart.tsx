@@ -37,7 +37,7 @@ export default function Cart() {
       {count === 0 ? (
         <Empty title="ตะกร้ายังว่าง">
           <div className="flex flex-wrap justify-center gap-3">
-            <LinkButton to="/" variant="primary">
+            <LinkButton to="/book" variant="primary">
               ดูตารางสนามว่าง
             </LinkButton>
             <LinkButton to="/equipment">ยืมอุปกรณ์</LinkButton>

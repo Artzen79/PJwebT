@@ -64,7 +64,7 @@ export default function Bookings() {
   return (
     <div className="space-y-5">
       <PageHeader title="การจองของฉัน" sub="ดูสถานะ ชำระเงิน และตั๋วเช็คอินของแต่ละการจอง กดรายการเพื่อดูรายละเอียด">
-        <LinkButton to="/" variant="primary">
+        <LinkButton to="/book" variant="primary">
           จองสนามเพิ่ม
         </LinkButton>
       </PageHeader>
@@ -75,7 +75,7 @@ export default function Bookings() {
         <ErrorNote error={list.error} />
       ) : list.data.length === 0 ? (
         <Empty title="ยังไม่มีการจองในหมวดนี้">
-          <LinkButton to="/" variant="primary">
+          <LinkButton to="/book" variant="primary">
             ดูตารางสนามว่าง
           </LinkButton>
         </Empty>
