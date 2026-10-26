@@ -60,6 +60,44 @@ app.get('/openapi.json', (req, res) => {
 // The API reference script is served from here, not a CDN, so the docs work offline at a demo.
 // Mounted before helmet: the page renders with an inline bootstrap script.
 // (the package does not export this file, so it is located inside our own node_modules)
+// Same purple game theme as the web app (apps/web/src/styles.css): violet panels, dark wells, gold accent.
+const docsTheme = `
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap');
+.dark-mode {
+  --scalar-font: 'Kanit', 'Prompt', sans-serif;
+  --scalar-background-1: #2f2452;
+  --scalar-background-2: #463774;
+  --scalar-background-3: #54428a;
+  --scalar-background-accent: rgb(245 197 66 / 0.15);
+  --scalar-color-1: #ffffff;
+  --scalar-color-2: #d6cff0;
+  --scalar-color-3: #bdb3dc;
+  --scalar-color-accent: #f5c542;
+  --scalar-link-color: #f5c542;
+  --scalar-border-color: #7a68cc;
+  --scalar-button-1: #f5c542;
+  --scalar-button-1-color: #2b1d05;
+  --scalar-button-1-hover: #ffd975;
+  --scalar-color-green: #7ac943;
+  --scalar-color-red: #ff8b9b;
+  --scalar-color-blue: #9db6ff;
+  --scalar-color-orange: #f5a524;
+  --scalar-color-purple: #a796ff;
+  --scalar-sidebar-background-1: #18121f;
+  --scalar-sidebar-color-1: #ffffff;
+  --scalar-sidebar-color-2: #bdb3dc;
+  --scalar-sidebar-color-active: #2b1d05;
+  --scalar-sidebar-item-active-background: #f5c542;
+  --scalar-sidebar-item-hover-background: #2f2452;
+  --scalar-sidebar-item-hover-color: #ffffff;
+  --scalar-sidebar-border-color: #7a68cc;
+  --scalar-sidebar-search-background: #2f2452;
+  --scalar-sidebar-search-border-color: #7a68cc;
+  --scalar-sidebar-search-color: #bdb3dc;
+}
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+`;
 const scalarBundle = fileURLToPath(new URL('../node_modules/@scalar/api-reference/dist/browser/standalone.js', import.meta.url));
 app.get('/docs/scalar.js', (_req, res) => res.sendFile(scalarBundle, { maxAge: '1d' }));
 app.use(
@@ -69,6 +107,10 @@ app.use(
     pageTitle: 'SportHub API',
     cdn: '/docs/scalar.js',
     withDefaultFonts: false,
+    theme: 'none',
+    customCss: docsTheme,
+    forceDarkModeState: 'dark',
+    hideDarkModeToggle: true,
     // only our API on the page: no hosted AI chat, MCP generator, developer toolbar or telemetry
     agent: { disabled: true },
     mcp: { disabled: true },

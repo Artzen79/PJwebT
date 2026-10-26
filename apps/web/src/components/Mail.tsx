@@ -65,6 +65,21 @@ export function MailList({
   );
 }
 
+// Restyles the stored email in the site theme when shown on the web. Emails keep their light, inline-styled
+// HTML for real mail clients (SMTP); only this view changes, so old and new emails look the same here.
+const mailTheme = `<style>
+html{scrollbar-width:none}::-webkit-scrollbar{display:none}
+body{margin:0;padding:20px 24px;background:#18121f;color:#fff;line-height:1.65}
+body,body *{font-family:Kanit,Prompt,sans-serif!important}
+body>div{max-width:none!important}
+h2{margin:0 0 12px;color:#f5c542!important;font-size:22px;text-transform:uppercase}
+a{color:#f5c542}
+ul{margin:12px 0;padding:12px 12px 12px 32px;border:2px solid #7a68cc;border-radius:12px;background:#463774}
+li{margin:4px 0}
+p[style*="color"]{margin-top:20px;padding-top:12px;border-top:1px solid #7a68cc;color:#bdb3dc!important}
+img{padding:8px;border-radius:12px;background:#fff}
+</style><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap">`;
+
 // Opens one email. The HTML renders in a sandboxed frame (no scripts); links open in a new tab.
 export function MailReader({ id, actions }: { id: number | null; actions?: (mail: { id: number; status: string }) => ReactNode }) {
   const qc = useQueryClient();
@@ -103,8 +118,8 @@ export function MailReader({ id, actions }: { id: number | null; actions?: (mail
       <iframe
         title={m.subject}
         sandbox="allow-popups allow-popups-to-escape-sandbox"
-        srcDoc={`<base target="_blank">${m.html}`}
-        className="h-[32rem] w-full bg-white"
+        srcDoc={`<base target="_blank">${mailTheme}${m.html}`}
+        className="h-[32rem] w-full bg-sunken"
       />
     </Panel>
   );
