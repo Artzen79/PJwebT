@@ -183,7 +183,11 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <PageHeader title="ภาพรวม" sub="รายได้ การจอง และสถิติการใช้สนามในช่วงวันที่เลือก">
-        <div className="flex gap-1 rounded-xl bg-sunken p-1">
+        {/* one row, one height: every control has a label on top and a 44px box below */}
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5">
+            <span className="block text-sm font-medium">ช่วงเวลา</span>
+            <div className="flex h-11 items-stretch gap-1 rounded-lg border-2 border-line bg-sunken p-1">
           {presets.map(([days, label]) => {
             const active = range.to === today && range.from === addDays(today, 1 - days);
             return (
@@ -191,20 +195,22 @@ export default function Dashboard() {
                 key={days}
                 type="button"
                 onClick={() => setRange({ from: addDays(today, 1 - days), to: today })}
-                className={`rounded-lg px-3 py-1.5 text-sm ${active ? 'bg-mark font-semibold text-mark-ink' : 'text-muted'}`}
+                className={`rounded-md px-3 text-sm ${active ? 'bg-mark font-semibold text-mark-ink' : 'text-muted hover:text-ink'}`}
                 aria-pressed={active}
               >
                 {label}
               </button>
             );
           })}
+            </div>
+          </div>
+          <Field label="ตั้งแต่">
+            <Input type="date" value={range.from} max={range.to} onChange={(e) => e.target.value && setRange({ ...range, from: e.target.value })} className="h-11 py-0" />
+          </Field>
+          <Field label="ถึง">
+            <Input type="date" value={range.to} min={range.from} onChange={(e) => e.target.value && setRange({ ...range, to: e.target.value })} className="h-11 py-0" />
+          </Field>
         </div>
-        <Field label="ตั้งแต่">
-          <Input type="date" value={range.from} max={range.to} onChange={(e) => e.target.value && setRange({ ...range, from: e.target.value })} />
-        </Field>
-        <Field label="ถึง">
-          <Input type="date" value={range.to} min={range.from} onChange={(e) => e.target.value && setRange({ ...range, to: e.target.value })} />
-        </Field>
       </PageHeader>
 
       {stats.isPending ? (
