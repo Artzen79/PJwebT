@@ -3,8 +3,8 @@ import { Link } from 'react-router';
 import { api, ok, useMe, useSettings } from '../api';
 import { Emblem } from '../components/Layout';
 import { useSports } from '../components/Pickers';
-import { LinkButton, Panel, Section, SportArt, StatBox } from '../components/ui';
-import { addDays, baht, bangkokDate, hourLabel } from '../lib/format';
+import { LinkButton, Section, SportArt, StatBox } from '../components/ui';
+import { baht, bangkokDate } from '../lib/format';
 
 // The front page is a poster: what SportHub is, how booking works, what you can play and the house rules.
 // Booking itself lives on /book.
@@ -32,14 +32,6 @@ export default function Home() {
     queryFn: () => ok(api.GET('/api/v1/availability', { params: { query: { date: today } } })),
   }).data;
   const freeToday = board?.courts.reduce((n, c) => n + c.slots.filter((s) => s.status === 'free').length, 0);
-  // the courts that free up soonest today, for the live card in the hero
-  const nextFree = (board?.courts ?? [])
-    .flatMap((c) => {
-      const slot = c.slots.find((s) => s.status === 'free');
-      return slot ? [{ court: c, slot }] : [];
-    })
-    .sort((a, b) => a.slot.hour - b.slot.hour || a.slot.price - b.slot.price)
-    .slice(0, 6);
   const names = sports.map((s) => s.name);
   const sportList = names.length > 5 ? `${names.slice(0, 3).join(' ')} ไปจนถึง${names.slice(-3).join(' ')}` : names.join(' ');
   const fromPrice = (sportId: number) => Math.min(...courts.filter((c) => c.sportId === sportId).map((c) => c.pricePerHour));
@@ -64,18 +56,18 @@ export default function Home() {
   return (
     <div className="space-y-14">
       {/* hero poster */}
-      {/* three columns on wide screens (text | live card | emblem); the card drops below them on medium screens */}
-      <section className="grid items-center gap-8 lg:grid-cols-2 2xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.95fr)_minmax(0,0.8fr)]">
-        <div className="space-y-6 lg:order-1 2xl:order-none">
-          <p className="inline-flex items-center gap-2 rounded-full border-2 border-line bg-sunken px-3 py-1 text-sm">
+      {/* text and wheel sit side by side as one centred pair, no gap between them on wide screens */}
+      <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,auto)_auto] lg:justify-center lg:gap-12">
+        <div className="space-y-7">
+          <p className="inline-flex items-center gap-2 rounded-full border-2 border-line bg-sunken px-4 py-1.5 text-base">
             <span className="size-2 rounded-full bg-turf" aria-hidden /> ระบบจองสนามกีฬาและยืมอุปกรณ์ออนไลน์
           </p>
-          <h1 className="text-4xl leading-tight sm:text-5xl 2xl:text-6xl">
-            จองสนาม ยืมอุปกรณ์
+          <h1 className="text-5xl leading-[1.15] sm:text-6xl xl:text-7xl 2xl:text-8xl">
+            จองสนาม <span className="inline-block">ยืมอุปกรณ์</span>
             <br />
             <span className="text-mark">จบในที่เดียว</span>
           </h1>
-          <p className="max-w-2xl text-lg text-muted">
+          <p className="max-w-4xl text-lg text-muted sm:text-xl 2xl:text-2xl">
             SportHub รวมสนามกีฬา {sports.length || 'หลาย'} ประเภท{sportList && ` ตั้งแต่${sportList}`} ไว้ในตารางเดียว ดูว่าชั่วโมงไหนว่าง กดจอง จ่ายด้วย
             PromptPay แล้วใช้ตั๋ว QR เช็คอินที่หน้าสนาม ไม่ต้องโทร ไม่ต้องรอคิว
           </p>
@@ -99,62 +91,21 @@ export default function Home() {
           </div>
         </div>
 
-        <Panel className="p-5 lg:order-3 lg:col-span-2 2xl:order-none 2xl:col-span-1">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <h2 className="flex items-center gap-2 text-lg">
-              <span className="size-2.5 rounded-full bg-turf motion-safe:animate-pulse" aria-hidden /> ว่างเร็วที่สุดวันนี้
-            </h2>
-            <Link to="/book" className="text-sm text-mark hover:underline">
-              ดูตารางทั้งหมด →
-            </Link>
-          </div>
-          {nextFree.length ? (
-            <ul className="grid gap-2 lg:grid-cols-2 2xl:grid-cols-1">
-              {nextFree.map(({ court, slot }) => (
-                <li key={court.courtId}>
-                  <Link
-                    to={`/courts/${court.courtId}`}
-                    className="flex items-center gap-3 rounded-xl bg-sunken px-3 py-2.5 transition hover:ring-2 hover:ring-turf"
-                  >
-                    <span className="text-2xl" aria-hidden>
-                      {court.sportIcon}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-semibold">{court.courtName}</span>
-                      <span className="num text-sm text-muted">{baht(slot.price)}/ชม.</span>
-                    </span>
-                    <span className="num rounded-lg bg-turf/15 px-2.5 py-1 font-bold text-turf ring-1 ring-turf/60">{hourLabel(slot.hour)}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-muted">
-              {board ? 'วันนี้ไม่มีช่วงเวลาว่างแล้ว ' : 'กำลังโหลด '}
-              {board && (
-                <Link to={`/book?date=${addDays(today, 1)}`} className="text-mark hover:underline">
-                  ดูพรุ่งนี้
-                </Link>
-              )}
-            </p>
-          )}
-        </Panel>
-
         <div
-          className="relative mx-auto grid aspect-square w-full max-w-[30rem] place-items-center rounded-full bg-[radial-gradient(circle_at_50%_50%,rgb(124_92_230/0.5),transparent_68%)] lg:order-2 2xl:order-none 2xl:max-w-[26rem]"
+          className="relative mx-auto grid aspect-square w-full max-w-[32rem] place-items-center rounded-full bg-[radial-gradient(circle_at_50%_50%,rgb(124_92_230/0.5),transparent_68%)] lg:w-[30rem] xl:w-[36rem] 2xl:w-[42rem] lg:max-w-none"
           aria-hidden
         >
           <div className="absolute inset-[12%] rounded-full border-2 border-dashed border-line/60" />
-          <Emblem className="size-44 drop-shadow-[0_0_30px_rgb(124_92_230/0.9)] sm:size-56" />
+          <Emblem className="size-44 drop-shadow-[0_0_30px_rgb(124_92_230/0.9)] sm:size-56 xl:size-64 2xl:size-80" />
           {sports.map((s, i) => {
             const angle = (i / sports.length) * 2 * Math.PI - Math.PI / 2;
-            const position = { left: `${50 + 40 * Math.cos(angle)}%`, top: `${50 + 40 * Math.sin(angle)}%` };
+            const position = { left: `${50 + 42 * Math.cos(angle)}%`, top: `${50 + 42 * Math.sin(angle)}%` };
             // up to 8 sports fit as named chips; beyond that the ring shows icons only
             return sports.length > 8 ? (
               <span
                 key={s.id}
                 title={s.name}
-                className="absolute grid size-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-line bg-sunken text-xl shadow-lg"
+                className="absolute grid size-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-line bg-sunken text-xl shadow-lg xl:size-14 xl:text-2xl 2xl:size-16 2xl:text-3xl"
                 style={position}
               >
                 {s.icon}
