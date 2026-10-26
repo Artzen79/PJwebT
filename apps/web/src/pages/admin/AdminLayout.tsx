@@ -48,6 +48,9 @@ export default function AdminLayout() {
         <NavLink to="/admin/api" className={tab}>
           API
         </NavLink>
+        <NavLink to="/admin/about" className={tab}>
+          ข้อมูลระบบ
+        </NavLink>
       </nav>
       <Suspense fallback={<Loading />}>
         <Outlet />

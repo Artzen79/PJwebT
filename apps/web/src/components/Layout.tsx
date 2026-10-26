@@ -263,6 +263,9 @@ export function Layout() {
         )}
         {settings?.contactLine && <span>LINE {settings.contactLine}</span>}
         {settings?.address && <span>{settings.address}</span>}
+        <Link to="/about" className="hover:text-ink">
+          ข้อมูลระบบ
+        </Link>
         <a href="/docs" className="hover:text-ink">
           เอกสาร API
         </a>

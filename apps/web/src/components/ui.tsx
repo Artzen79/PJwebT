@@ -95,6 +95,20 @@ export function PageHeader({ title, sub, children }: { title: ReactNode; sub?: R
   );
 }
 
+// A titled block on long pages: gold kicker in English (game-style), Thai heading, one-line summary.
+export function Section({ id, kicker, title, sub, children }: { id?: string; kicker: string; title: string; sub?: string; children: ReactNode }) {
+  return (
+    <section id={id} className="scroll-mt-32 space-y-5">
+      <div>
+        <p className="label text-mark!">{kicker}</p>
+        <h2 className="text-2xl sm:text-3xl">{title}</h2>
+        {sub && <p className="mt-1 max-w-3xl text-muted">{sub}</p>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
 // Big number in a dark well, like the game's ONLINE PLAYERS box.
 export function StatBox({ label, value, unit }: { label: string; value: ReactNode; unit?: string }) {
   return (

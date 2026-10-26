@@ -1,29 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { api, ok, useMe, useSettings } from '../api';
 import { Emblem } from '../components/Layout';
 import { useSports } from '../components/Pickers';
-import { LinkButton, SportArt, StatBox } from '../components/ui';
+import { LinkButton, Section, SportArt, StatBox } from '../components/ui';
 import { baht, bangkokDate } from '../lib/format';
 
 // The front page is a poster: what SportHub is, how booking works, what you can play and the house rules.
 // Booking itself lives on /book.
 
 const duration = (minutes: number) => (minutes >= 60 && minutes % 60 === 0 ? `${minutes / 60} ชั่วโมง` : `${minutes} นาที`);
-
-function Section({ kicker, title, sub, children }: { kicker: string; title: string; sub?: string; children: ReactNode }) {
-  return (
-    <section className="space-y-5">
-      <div>
-        <p className="label text-mark!">{kicker}</p>
-        <h2 className="text-2xl sm:text-3xl">{title}</h2>
-        {sub && <p className="mt-1 max-w-3xl text-muted">{sub}</p>}
-      </div>
-      {children}
-    </section>
-  );
-}
 
 const features: [string, string, string][] = [
   ['📅', 'ตารางว่างแบบเรียลไทม์', 'เห็นทุกสนามทุกชั่วโมงในหน้าเดียว ช่องเปลี่ยนสถานะทันทีเมื่อมีคนจอง ไม่ต้องโทรถาม'],
@@ -206,9 +192,14 @@ export default function Home() {
             {settings?.contactLine && ` · LINE ${settings.contactLine}`}
           </p>
         </div>
-        <LinkButton to="/book" variant="primary" className="h-12 px-6 text-lg">
-          ไปที่ตารางว่าง
-        </LinkButton>
+        <div className="flex flex-wrap gap-3">
+          <LinkButton to="/about" className="h-12 px-6">
+            ระบบนี้สร้างยังไง
+          </LinkButton>
+          <LinkButton to="/book" variant="primary" className="h-12 px-6 text-lg">
+            ไปที่ตารางว่าง
+          </LinkButton>
+        </div>
       </section>
     </div>
   );

@@ -12,6 +12,7 @@ import Cart from './pages/Cart';
 import CourtDetail from './pages/CourtDetail';
 import Courts from './pages/Courts';
 import { EquipmentDetail, EquipmentList } from './pages/Equipment';
+import About from './pages/About';
 import Board from './pages/Board';
 import Home from './pages/Home';
 import Inbox from './pages/Inbox';
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'book', element: <Board /> },
+      { path: 'about', element: <About /> },
       { path: 'courts', element: <Courts /> },
       { path: 'courts/:id', element: <CourtDetail /> },
       { path: 'equipment', element: <EquipmentList /> },
@@ -80,6 +82,7 @@ const router = createBrowserRouter([
               { path: 'emails', element: <Emails /> },
               { path: 'system', element: <System /> },
               { path: 'api', element: <ApiDocs /> },
+              { path: 'about', element: <About /> },
             ],
           },
         ],
