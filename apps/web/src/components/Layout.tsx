@@ -250,7 +250,7 @@ export function Layout() {
             </span>
           </p>
         )}
-        <div className="frame flex flex-1 flex-col p-4 sm:p-6">
+        <div className="frame flex flex-1 flex-col p-5 sm:p-8 xl:p-10">
           <Outlet />
         </div>
       </main>

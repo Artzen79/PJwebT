@@ -56,13 +56,13 @@ export default function Home() {
   return (
     <div className="space-y-14">
       {/* hero poster */}
-      {/* text from the left edge, wheel on the right */}
-      <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,auto)_auto] lg:justify-between lg:gap-12">
+      {/* text in the left half from the edge; the wheel centred in the right half, shrinking if the half is narrow */}
+      <section className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
         <div className="space-y-7">
-          <p className="inline-flex items-center gap-2 rounded-full border-2 border-line bg-sunken px-4 py-1.5 text-base">
+          <p className="inline-flex items-center gap-2 rounded-full border-2 border-line bg-sunken px-4 py-1.5 text-sm sm:text-base">
             <span className="size-2 rounded-full bg-turf" aria-hidden /> ระบบจองสนามกีฬาและยืมอุปกรณ์ออนไลน์
           </p>
-          <h1 className="text-5xl leading-[1.15] sm:text-6xl xl:text-7xl 2xl:text-8xl">
+          <h1 className="text-[clamp(2.75rem,4.6vw,6rem)] leading-[1.15]">
             จองสนาม <span className="inline-block">ยืมอุปกรณ์</span>
             <br />
             <span className="text-mark">จบในที่เดียว</span>
@@ -92,7 +92,7 @@ export default function Home() {
         </div>
 
         <div
-          className="relative mx-auto grid aspect-square w-full max-w-[32rem] place-items-center rounded-full bg-[radial-gradient(circle_at_50%_50%,rgb(124_92_230/0.5),transparent_68%)] lg:w-[30rem] xl:w-[36rem] 2xl:w-[42rem] lg:max-w-none"
+          className="relative mx-auto grid aspect-square w-full max-w-[32rem] place-items-center rounded-full bg-[radial-gradient(circle_at_50%_50%,rgb(124_92_230/0.5),transparent_68%)] lg:max-w-[30rem] xl:max-w-[36rem] 2xl:max-w-[42rem]"
           aria-hidden
         >
           <div className="absolute inset-[12%] rounded-full border-2 border-dashed border-line/60" />
