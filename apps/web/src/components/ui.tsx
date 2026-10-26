@@ -224,6 +224,50 @@ const courtLines: Record<string, ReactNode> = {
   '🎾': <path d="M8 16h104M8 64h104M33 16v48M87 16v48M33 40h54M60 5v70" />,
   '🏓': <path d="M8 40h104M60 4v72" strokeWidth="1.6" />,
   '🏐': <path d="M43 8v64M77 8v64M60 4v72" />,
+  '🥅': (
+    <>
+      <path d="M60 8v64M8 28h12v24H8M112 28h-12v24h12" />
+      <circle cx="60" cy="40" r="8" />
+    </>
+  ),
+  '🏊': <path d="M8 24h104M8 40h104M8 56h104" strokeDasharray="6 4" />,
+  '🥊': <rect x="22" y="16" width="76" height="48" />,
+  '🎱': (
+    <>
+      <circle cx="10" cy="10" r="3" />
+      <circle cx="60" cy="9" r="3" />
+      <circle cx="110" cy="10" r="3" />
+      <circle cx="10" cy="70" r="3" />
+      <circle cx="60" cy="71" r="3" />
+      <circle cx="110" cy="70" r="3" />
+      <path d="M30 8v64" />
+    </>
+  ),
+  '🎳': <path d="M36 8v64M60 8v64M84 8v64M8 62h104" />,
+  '⛳': (
+    <>
+      <circle cx="60" cy="40" r="10" />
+      <circle cx="60" cy="40" r="22" />
+    </>
+  ),
+  '🏹': (
+    <>
+      <circle cx="60" cy="40" r="8" />
+      <circle cx="60" cy="40" r="18" />
+      <circle cx="60" cy="40" r="28" />
+    </>
+  ),
+  '🧗': <path d="M20 66l14-20 12 8 14-26 12 14 16-30 12 18" />,
+  '🏑': (
+    <>
+      <path d="M60 8v64M8 24a16 16 0 0 1 0 32M112 24a16 16 0 0 0 0 32" />
+      <circle cx="60" cy="40" r="2" />
+    </>
+  ),
+  '⚾': <path d="M60 68L28 36L60 12L92 36z" />,
+  '🏉': <path d="M20 8v64M100 8v64M60 8v64M38 8v64M82 8v64" strokeDasharray="4 4" />,
+  '🤺': <path d="M8 34h104M8 46h104M60 34v12" />,
+  '🏋️': <path d="M30 40h60M30 28v24M90 28v24M22 32v16M98 32v16" />,
 };
 
 // Placeholder art when a court or item has no photo: the sport's surface and its line markings

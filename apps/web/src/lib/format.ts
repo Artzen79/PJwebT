@@ -42,9 +42,9 @@ export const paymentStatus: Record<string, { label: string; tone: 'mark' | 'turf
   rejected: { label: 'ไม่ผ่าน', tone: 'danger' },
 };
 
-// Each sport takes a colour from its own playing surface (turf, mat, parquet, hard court, barrier, hall floor).
-// Validated as a categorical set (lightness band, chroma, CVD and normal-vision separation, 3:1 contrast)
-// against both the light (#ffffff) and dark (#14221b) surfaces; a sport name or icon always sits beside it.
+// Each sport takes a colour from its own playing surface (turf, mat, parquet, hard court, pool, felt…).
+// Every colour keeps at least 3:1 against the dark board well (#18121f) and holds white court lines.
+// With this many sports some hues are close, so a sport name or icon always sits beside the colour.
 const surfaces: Record<string, string> = {
   '⚽': '#2f8f4e',
   '🏸': '#1c7fa6',
@@ -52,6 +52,19 @@ const surfaces: Record<string, string> = {
   '🎾': '#4c5fd5',
   '🏓': '#b8405e',
   '🏐': '#b3850b',
+  '🥅': '#2a8a78',
+  '🏊': '#2f7fc4',
+  '🥊': '#b8404c',
+  '🎱': '#22865c',
+  '🎳': '#b07a30',
+  '⛳': '#5a9a32',
+  '🏹': '#8c7a36',
+  '🧗': '#8a63a0',
+  '🏑': '#3477ad',
+  '⚾': '#b0623a',
+  '🏉': '#3f9442',
+  '🤺': '#6a7a92',
+  '🏋️': '#6f7584',
 };
 const fallback = Object.values(surfaces);
 export const sportColor = (icon: string, id = 0) => surfaces[icon] ?? fallback[id % fallback.length];

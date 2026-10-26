@@ -43,7 +43,7 @@ export function SportChips({ value, onChange }: { value: number | undefined; onC
   const chip = (active: boolean) =>
     `flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition ${active ? 'border-mark bg-mark font-semibold text-mark-ink' : 'border-line bg-sunken hover:border-line-hi'}`;
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-label="เลือกกีฬา">
+    <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap" role="radiogroup" aria-label="เลือกกีฬา">
       <button type="button" role="radio" aria-checked={value === undefined} onClick={() => onChange(undefined)} className={chip(value === undefined)}>
         ทุกกีฬา
       </button>
