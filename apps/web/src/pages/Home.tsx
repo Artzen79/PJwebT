@@ -56,8 +56,8 @@ export default function Home() {
   return (
     <div className="space-y-14">
       {/* hero poster */}
-      {/* text and wheel sit side by side as one centred pair, no gap between them on wide screens */}
-      <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,auto)_auto] lg:justify-center lg:gap-12">
+      {/* text from the left edge, wheel on the right */}
+      <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,auto)_auto] lg:justify-between lg:gap-12">
         <div className="space-y-7">
           <p className="inline-flex items-center gap-2 rounded-full border-2 border-line bg-sunken px-4 py-1.5 text-base">
             <span className="size-2 rounded-full bg-turf" aria-hidden /> ระบบจองสนามกีฬาและยืมอุปกรณ์ออนไลน์
