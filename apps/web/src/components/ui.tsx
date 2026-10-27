@@ -1,4 +1,4 @@
-import { type ComponentProps, type ReactNode, useEffect, useRef } from 'react';
+import { type ChangeEvent, Children, type ComponentProps, isValidElement, type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { sportColor } from '../lib/format';
 
@@ -63,7 +63,127 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 export const Input = (props: ComponentProps<'input'>) => (
   <input {...props} className={`${inputClass} read-only:border-line/50 read-only:text-muted ${props.className ?? ''}`} />
 );
-export const Select = (props: ComponentProps<'select'>) => <select {...props} className={`${inputClass} ${props.className ?? ''}`} />;
+type SelectOption = { value: string; label: ReactNode; disabled?: boolean };
+
+// Themed dropdown with the same props as <select> (value / defaultValue / onChange / name / <option> children),
+// so every caller and form keeps working: a hidden native <select> still carries the name, value and required
+// check for FormData, while the visible list is a popover in the top layer (never clipped by a dialog).
+export function Select({ children, value, defaultValue, onChange, name, required, disabled, className = '', 'aria-label': ariaLabel }: ComponentProps<'select'>) {
+  const options: SelectOption[] = Children.toArray(children).flatMap((child) =>
+    isValidElement<ComponentProps<'option'>>(child)
+      ? [{ value: String(child.props.value ?? child.props.children), label: child.props.children, disabled: child.props.disabled }]
+      : [],
+  );
+  const [own, setOwn] = useState(String(defaultValue ?? options[0]?.value ?? ''));
+  const current = value !== undefined ? String(value) : own;
+  const selected = options.find((o) => o.value === current) ?? options[0];
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const button = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const native = useRef<HTMLSelectElement>(null);
+  const listId = useId();
+
+  // place the list under the button (or above it when there is no room below) before it opens
+  const place = () => {
+    const r = button.current!.getBoundingClientRect();
+    const height = Math.min(options.length * 40 + 12, 288);
+    const above = r.bottom + 6 + height > innerHeight && r.top - 6 - height > 0;
+    Object.assign(list.current!.style, { left: `${r.left}px`, top: `${above ? r.top - 6 - height : r.bottom + 6}px`, minWidth: `${r.width}px` });
+    setActive(Math.max(0, options.findIndex((o) => o.value === current)));
+  };
+  const pick = (v: string) => {
+    list.current!.hidePopover();
+    button.current!.focus();
+    if (v === current) return;
+    if (value === undefined) setOwn(v);
+    const el = native.current!;
+    el.value = v;
+    onChange?.({ target: el, currentTarget: el } as ChangeEvent<HTMLSelectElement>);
+  };
+  const move = (step: number) => {
+    let i = active;
+    do i = (i + step + options.length) % options.length;
+    while (options[i].disabled && i !== active);
+    setActive(i);
+  };
+
+  // a page scroll or resize would leave the list floating in the wrong place, so close it
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => e.target !== list.current && list.current?.hidePopover();
+    addEventListener('scroll', close, true);
+    addEventListener('resize', close);
+    return () => {
+      removeEventListener('scroll', close, true);
+      removeEventListener('resize', close);
+    };
+  }, [open]);
+
+  return (
+    <div className={`relative w-full ${className}`}>
+      <button
+        ref={button}
+        type="button"
+        disabled={disabled}
+        popoverTarget={listId}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+        aria-activedescendant={open ? `${listId}-${active}` : undefined}
+        onClick={place}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (!open) {
+              place();
+              list.current!.showPopover();
+            } else move(e.key === 'ArrowDown' ? 1 : -1);
+          } else if (open && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            pick(options[active].value);
+          } else if (open && e.key === 'Tab') list.current!.hidePopover();
+        }}
+        className="flex w-full items-center justify-between gap-2 rounded-lg border-2 border-line bg-sunken px-3 py-2 text-left text-ink transition hover:border-line-hi focus:border-mark focus:ring-2 focus:ring-mark/25 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <span className="truncate">{selected?.label}</span>
+        <svg viewBox="0 0 24 24" className={`size-4 shrink-0 text-muted transition ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </button>
+      <select ref={native} name={name} value={current} onChange={() => {}} required={required} disabled={disabled} tabIndex={-1} aria-hidden className="sr-only">
+        {children}
+      </select>
+      <ul
+        ref={list}
+        id={listId}
+        popover="auto"
+        role="listbox"
+        onToggle={(e) => setOpen((e.nativeEvent as ToggleEvent).newState === 'open')}
+        style={{ position: 'fixed', inset: 'auto', margin: 0 }}
+        className="max-h-72 overflow-auto rounded-xl border-2 border-line-hi bg-panel p-1 text-ink shadow-[0_0_0_3px_var(--frame),0_12px_30px_rgb(0_0_0/0.5)]"
+      >
+        {options.map((o, i) => (
+          <li
+            key={o.value}
+            id={`${listId}-${i}`}
+            role="option"
+            aria-selected={o.value === current}
+            aria-disabled={o.disabled}
+            onMouseEnter={() => setActive(i)}
+            onClick={() => !o.disabled && pick(o.value)}
+            className={`flex cursor-pointer items-center justify-between gap-4 rounded-lg px-3 py-2 whitespace-nowrap ${i === active ? 'bg-surface-hi' : ''} ${
+              o.value === current ? 'font-semibold text-mark' : ''
+            } ${o.disabled ? 'cursor-not-allowed opacity-40' : ''}`}
+          >
+            {o.label}
+            {o.value === current && <span aria-hidden>✓</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 export const Textarea = (props: ComponentProps<'textarea'>) => <textarea rows={3} {...props} className={`${inputClass} ${props.className ?? ''}`} />;
 
 const tones = {
