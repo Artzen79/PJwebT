@@ -695,11 +695,12 @@ curl -X POST http://localhost:3000/api/v1/cart/slots \
     <h3>สิ่งที่ต้องมี</h3>
     <p>Node.js 24, pnpm และ Docker Desktop (สำหรับ PostgreSQL)</p>
     <h3>ติดตั้งและรัน</h3>
-    <pre><code>docker compose up -d     # PostgreSQL 18
+    <pre><code>docker compose up -d     # PostgreSQL 18 (พอร์ตถูกใช้: ตั้ง DB_PORT ใน .env)
 pnpm install
 pnpm db:migrate          # สร้างตาราง
 pnpm db:seed             # ข้อมูลตัวอย่าง (หรือ pnpm db:reset เพื่อล้างและสร้างใหม่)
 pnpm dev                 # API :3000 และเว็บ :5173</code></pre>
+    <p>ต้องการฐานข้อมูลชุดเดียวกับอีกเครื่อง: เครื่องต้นทางรัน <code>pnpm db:export</code> แล้ว commit โฟลเดอร์ <code>apps/api/db/snapshot/</code> เครื่องปลายทางรัน <code>pnpm db:import</code> แทน <code>db:migrate</code> และ <code>db:seed</code> จะได้ทุกตาราง ทุกการจอง และไฟล์สลิปเหมือนกัน</p>
     <h3>ทดสอบ</h3>
     <pre><code>pnpm test                # ชุดทดสอบ API 112 กรณี กับฐานข้อมูล sporthub_test</code></pre>
     <p>ชุดทดสอบครอบคลุมการสมัครและสิทธิ์ การจัดการสนามและอุปกรณ์ ตะกร้า การยืนยันพร้อมกันสองคน (จองซ้อนและยืมเกินสต็อก) การชำระเงิน อีเมล การเช็คอิน การคืนอุปกรณ์ รีวิว งานอัตโนมัติ และสถิติ</p>

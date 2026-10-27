@@ -10,7 +10,9 @@
     "db:migrate": "tsx src/migrate.ts",
     "db:seed": "tsx src/seed.ts",
     "openapi:export": "tsx src/openapi-export.ts",
-    "db:reset": "tsx src/reset.ts"
+    "db:reset": "tsx src/reset.ts",
+    "db:export": "tsx src/snapshot.ts export",
+    "db:import": "tsx src/snapshot.ts import"
   },
   "dependencies": {
     "@scalar/api-reference": "^1.73.0",

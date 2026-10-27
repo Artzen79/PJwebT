@@ -36,12 +36,37 @@ pnpm dev               # API http://localhost:3000 และเว็บ http://
 
 ค่าที่ตั้งได้ทั้งหมดอยู่ใน [`.env.example`](.env.example) (คัดลอกเป็น `.env`) ไม่มี `.env` ก็รันได้ด้วยค่าเริ่มต้นสำหรับเครื่องพัฒนา
 
+### ใช้ฐานข้อมูลชุดเดียวกันบนเครื่องอื่น
+
+`apps/api/db/snapshot/` เก็บฐานข้อมูลทั้งก้อน (ทุกตาราง การจอง สมาชิก ค่าตั้งระบบ ประวัติ migration) และไฟล์ที่ข้อมูลอ้างถึง (สลิป รูปโปรไฟล์ รูปสนาม)
+
+```bash
+# เครื่องต้นทาง: บันทึกสถานะปัจจุบันลง snapshot แล้ว commit + push
+pnpm db:export
+
+# เครื่องปลายทาง: แทนที่ db:migrate และ db:seed ด้วยคำสั่งนี้
+docker compose up -d
+pnpm install
+pnpm db:import         # ได้ฐานข้อมูลเหมือนเครื่องต้นทางทุกแถว
+pnpm dev
+```
+
+`db:import` จะไม่ทับฐานข้อมูลที่มีการจองอยู่แล้ว ถ้าต้องการแทนที่จริงๆ ใช้ `pnpm db:import --replace`
+snapshot อยู่ใน git: ข้อมูลจริงของลูกค้าอย่า export ลง repo สาธารณะ
+
+### พอร์ตถูกใช้อยู่
+
+- `docker compose up` ขึ้นว่า port 5432 is not available: Windows บางครั้งกันช่วงพอร์ตไว้เอง (ดูด้วย `netsh interface ipv4 show excludedportrange protocol=tcp`) ใส่ `DB_PORT=5433` ใน `.env` และเปลี่ยนพอร์ตใน `DATABASE_URL` ให้ตรงกัน หรือรีสตาร์ทเครื่องให้ Windows สุ่มช่วงใหม่
+- มีโปรแกรมอื่นใช้พอร์ต 3000 อยู่: ใส่ `PORT=3001` ใน `.env` ทั้ง API และหน้าเว็บ (proxy ของ Vite) จะย้ายไปใช้พอร์ตนั้น
+- 5173 ไม่ว่าง: Vite จะเลือก 5174, 5175 … เอง ดูพอร์ตจริงที่บรรทัด `Local:` ตอนรัน `pnpm dev`
+
 ## คำสั่ง
 
 | คำสั่ง | ทำอะไร |
 |---|---|
 | `pnpm dev` | รัน API และเว็บพร้อมกัน (โหลดใหม่อัตโนมัติเมื่อแก้โค้ด) |
 | `pnpm test` | ชุดทดสอบ API 112 กรณี กับฐานข้อมูล `sporthub_test` (ล้างใหม่ทุกครั้ง) |
+| `pnpm db:export` / `pnpm db:import` | บันทึก / โหลดฐานข้อมูลทั้งก้อนผ่าน `apps/api/db/snapshot/` (ย้ายไปเครื่องอื่น) |
 | `pnpm db:reset` | **ลบข้อมูลทั้งหมดในฐานข้อมูลพัฒนา** แล้วสร้างข้อมูลตัวอย่างใหม่ (ใช้ก่อนสาธิต) |
 | `pnpm build` | build เว็บไปที่ `apps/web/dist` (API จะเสิร์ฟให้เองในโหมด production) |
 | `pnpm --filter api openapi:export` | เขียน `apps/api/openapi.json` และบอก endpoint ที่ยังไม่มีตัวอย่าง |
