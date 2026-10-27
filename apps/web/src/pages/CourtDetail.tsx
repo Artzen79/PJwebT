@@ -1,11 +1,114 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router';
-import { api, ok, type Slot, useMe, useSettings } from '../api';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
+import { api, errorText, ok, type Slot, useMe, useSettings } from '../api';
 import { DateStrip } from '../components/Pickers';
-import { Empty, ErrorNote, Field, LinkButton, Loading, PageHeader, Panel, Select, SportArt, Stars } from '../components/ui';
+import { Badge, Button, Empty, ErrorNote, Field, Input, LinkButton, Loading, PageHeader, Panel, Select, SportArt, Stars } from '../components/ui';
+import { useCart, useCartActions } from '../lib/cart';
 import { baht, bangkokDate, dateTh, hourLabel, timeRange } from '../lib/format';
 import { useSlotPicker } from '../lib/pick';
+
+// Rent this sport's equipment with the court: the rental covers the hours already picked on this court
+// that day (first start to last end), so players get the gear for exactly the time they play.
+function CourtEquipment({ courtId, sportId, sportName, date }: { courtId: number; sportId: number; sportName: string; date: string }) {
+  const me = useMe().data;
+  const navigate = useNavigate();
+  const cart = useCart(Boolean(me)).data;
+  const { addEquipment } = useCartActions();
+  const [qty, setQty] = useState<Record<number, number>>({});
+  const items = useQuery({
+    queryKey: ['equipment', sportId],
+    queryFn: () => ok(api.GET('/api/v1/equipment', { params: { query: { sport: sportId } } })),
+  }).data;
+  const picked = (cart?.slots ?? []).filter((s) => s.courtId === courtId && bangkokDate(new Date(s.startAt)) === date);
+  const range = picked.length
+    ? {
+        startAt: picked.reduce((a, s) => (s.startAt < a ? s.startAt : a), picked[0].startAt),
+        endAt: picked.reduce((a, s) => (s.endAt > a ? s.endAt : a), picked[0].endAt),
+      }
+    : null;
+  const stock = useQueries({
+    queries: (items ?? []).map((e) => ({
+      queryKey: ['equipment-stock', e.id, range?.startAt, range?.endAt],
+      queryFn: () => ok(api.GET('/api/v1/equipment/{id}/availability', { params: { path: { id: e.id }, query: { startAt: range!.startAt, endAt: range!.endAt } } })),
+      enabled: range !== null,
+    })),
+  });
+  if (!items?.length) return null;
+
+  const add = (equipmentId: number, name: string, n: number) => {
+    if (!me) return navigate(`/login?next=/courts/${courtId}`);
+    if (!range) return;
+    addEquipment.mutate(
+      { equipmentId, qty: n, ...range },
+      { onSuccess: () => toast.success(`เพิ่ม ${name} × ${n} ลงตะกร้าแล้ว`), onError: (err) => toast.error(errorText(err)) },
+    );
+  };
+
+  return (
+    <Panel className="h-fit space-y-3 p-5">
+      <h2 className="text-lg">ยืมอุปกรณ์{sportName}</h2>
+      <p className="text-sm text-muted">
+        {!me
+          ? 'เข้าสู่ระบบแล้วเลือกเวลาสนามก่อน จึงยืมอุปกรณ์ไปพร้อมกันได้'
+          : range
+            ? `ยืมช่วง ${timeRange(range.startAt, range.endAt)} ตามเวลาสนามที่เลือกไว้ ค่าเช่าคิดต่อชิ้นต่อการจอง`
+            : 'เลือกเวลาสนามด้านบนก่อน แล้วอุปกรณ์จะใช้ช่วงเวลาเดียวกัน'}
+      </p>
+      <ul className="space-y-2">
+        {items.map((e, i) => {
+          const available = stock[i]?.data?.available;
+          const n = Math.max(1, qty[e.id] ?? 1);
+          const inCart = (cart?.equipment ?? [])
+            .filter((c) => c.equipmentId === e.id && c.startAt === range?.startAt && c.endAt === range?.endAt)
+            .reduce((sum, c) => sum + c.qty, 0);
+          return (
+            <li key={e.id} className="space-y-2 rounded-xl bg-sunken p-3">
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-semibold">
+                  {e.sportIcon} {e.name}
+                </span>
+                <span className="num shrink-0 font-semibold">{baht(e.rentPrice)}/ชิ้น</span>
+              </div>
+              <p className="text-xs text-muted">
+                {e.deposit > 0 ? `มัดจำ ${baht(e.deposit)}/ชิ้น` : 'ไม่มีมัดจำ'}
+                {range && available !== undefined && ` · ว่าง ${available} จาก ${e.totalQty} ชิ้น`}
+                {inCart > 0 && (
+                  <>
+                    {' '}
+                    <Badge tone="mark">ในตะกร้า × {inCart}</Badge>
+                  </>
+                )}
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  min={1}
+                  max={Math.max(available ?? e.totalQty, 1)}
+                  value={n}
+                  onChange={(ev) => setQty({ ...qty, [e.id]: Number(ev.target.value) })}
+                  className="h-9 max-w-20 py-0"
+                  aria-label={`จำนวน ${e.name}`}
+                />
+                <Button
+                  size="sm"
+                  variant="primary"
+                  className="h-9 flex-1"
+                  disabled={Boolean(me) && (!range || available === undefined || n > available)}
+                  pending={addEquipment.isPending && addEquipment.variables?.equipmentId === e.id}
+                  onClick={() => add(e.id, e.name, n)}
+                >
+                  {available === 0 ? 'หมดช่วงนี้' : 'เพิ่มลงตะกร้า'}
+                </Button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </Panel>
+  );
+}
 
 const hourClass: Record<Slot['status'], string> = {
   free: 'border-turf/40 bg-turf-soft text-turf hover:border-turf',
@@ -86,7 +189,8 @@ export default function CourtDetail() {
         </section>
       </div>
 
-      <Panel className="h-fit space-y-4 p-5 lg:sticky lg:top-28">
+      <div className="h-fit space-y-4">
+      <Panel className="space-y-4 p-5">
         <h2 className="text-lg">เลือกเวลา</h2>
         <DateStrip value={date} onChange={(d) => setParams({ date: d }, { replace: true })} />
         {maxWeeks > 1 && (
@@ -129,6 +233,8 @@ export default function CourtDetail() {
           </LinkButton>
         )}
       </Panel>
+      <CourtEquipment courtId={c.id} sportId={c.sportId} sportName={c.sportName} date={date} />
+      </div>
     </div>
     </div>
   );
