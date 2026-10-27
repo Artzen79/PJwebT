@@ -12,7 +12,7 @@
 ต้องมี Node.js 24, pnpm และ Docker Desktop
 
 ```bash
-docker compose up -d   # PostgreSQL 18 (:5432)
+docker compose up -d   # PostgreSQL 18 (:5433)
 pnpm install
 pnpm db:migrate        # สร้างตาราง
 pnpm db:seed           # ข้อมูลตัวอย่าง: กีฬา 19 ประเภท สนาม 31 สนาม อุปกรณ์ 26 รายการ และประวัติการจอง 2 สัปดาห์

@@ -11,7 +11,7 @@ export const env = {
   prod,
   test: process.env.NODE_ENV === 'test',
   port: Number(process.env.PORT ?? 3000),
-  databaseUrl: process.env.DATABASE_URL ?? 'postgres://sporthub:sporthub@localhost:5432/sporthub',
+  databaseUrl: process.env.DATABASE_URL ?? 'postgres://sporthub:sporthub@localhost:5433/sporthub',
   jwtSecret: new TextEncoder().encode(process.env.JWT_SECRET ?? 'dev-only-secret-do-not-use-in-prod'),
   // optional: without it emails live only in the web app (member inbox, admin mail log)
   get smtpUrl() {
