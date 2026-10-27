@@ -36,6 +36,9 @@ export default function AdminLayout() {
         <NavLink to="/admin/catalog" className={tab}>
           จัดการข้อมูล
         </NavLink>
+        <NavLink to="/admin/coupons" className={tab}>
+          คูปอง
+        </NavLink>
         <NavLink to="/admin/users" className={tab}>
           สมาชิก
         </NavLink>

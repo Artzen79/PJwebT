@@ -1,7 +1,7 @@
 // Copy the whole database to another machine.
 //   pnpm db:export            writes db/snapshot/: a pg_dump of this database (schema, data, migration ledger)
 //                             plus every uploaded file the data points at (slips, avatars, photos)
-//   pnpm db:import            loads that snapshot here and restores the files
+//   pnpm db:import            loads that snapshot here, restores the files and runs any newer migrations
 //   pnpm db:import --replace  same, even if this database already has bookings (they are replaced)
 // pg_dump and psql run inside the docker compose "db" container, so nothing else needs installing.
 import { spawn } from 'node:child_process';
@@ -10,6 +10,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool, query } from './db';
 import { env } from './env';
+import { migrate } from './migrate';
 
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url));
 const snapshotDir = fileURLToPath(new URL('../db/snapshot/', import.meta.url));
@@ -79,6 +80,8 @@ async function importSnapshot(replace: boolean) {
   // one transaction: either the whole snapshot loads or nothing changes; notices like "does not exist, skipping" stay quiet
   await inDb(['psql', '-q', '-v', 'ON_ERROR_STOP=1', '--single-transaction', '-c', 'SET client_min_messages = warning', '-f', '-'], { stdin: sqlFile });
   if (existsSync(filesDir)) cpSync(filesDir, env.uploadDir, { recursive: true });
+  // a snapshot made before newer migrations still works: bring the schema up to date
+  await migrate();
   const [{ n }] = await query<{ n: number }>('SELECT count(*)::int AS n FROM bookings');
   console.log(`imported ${relative(repoRoot, sqlFile)}: ${n} bookings, uploaded files restored to ${relative(repoRoot, env.uploadDir)}`);
 }

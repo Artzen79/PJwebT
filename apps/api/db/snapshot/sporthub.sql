@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict xrTc2xn6bPvkB5Ct3erNQQAHF3jYLGb8e6E10pVUePNrrHY0rhdfoLREwZIChwg
+\restrict boZMBqczu3zAnppmh0oqnBilFJ4c2MIosUva7znE7UhlHtXWq1x5T7YyPmiIHP0
 
 -- Dumped from database version 18.6 (Debian 18.6-1.pgdg13+2)
 -- Dumped by pg_dump version 18.6 (Debian 18.6-1.pgdg13+2)
@@ -267,11 +267,14 @@ CREATE TABLE public.coupons (
     expires_at timestamp with time zone,
     is_active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
+    name text DEFAULT ''::text NOT NULL,
+    per_user_limit integer,
     CONSTRAINT coupons_amount_off_check CHECK ((amount_off > (0)::numeric)),
     CONSTRAINT coupons_check CHECK (((percent_off IS NULL) <> (amount_off IS NULL))),
     CONSTRAINT coupons_code_check CHECK ((code = upper(code))),
     CONSTRAINT coupons_max_uses_check CHECK ((max_uses > 0)),
     CONSTRAINT coupons_min_total_check CHECK ((min_total >= (0)::numeric)),
+    CONSTRAINT coupons_per_user_limit_check CHECK ((per_user_limit > 0)),
     CONSTRAINT coupons_percent_off_check CHECK (((percent_off >= 1) AND (percent_off <= 100)))
 );
 
@@ -691,6 +694,8 @@ COPY public.booking_slots (id, booking_id, court_id, start_at, end_at, price, ac
 65	63	3	2026-10-26 09:00:00+07	2026-10-26 10:00:00+07	150.00	t
 67	64	3	2026-10-26 10:00:00+07	2026-10-26 11:00:00+07	150.00	t
 68	64	3	2026-10-26 11:00:00+07	2026-10-26 12:00:00+07	150.00	t
+91	66	2	2026-10-27 23:00:00+07	2026-10-28 00:00:00+07	1000.00	f
+89	51	1	2026-10-27 23:00:00+07	2026-10-28 00:00:00+07	1500.00	f
 \.
 
 
@@ -742,7 +747,6 @@ COPY public.bookings (id, code, user_id, status, confirmed_at, expires_at, check
 41	202610050041	3	completed	2026-10-05 11:00:00+07	\N	65e34492-f9fc-4015-9314-990c6d551aab	\N	2026-10-05 11:00:00+07	\N	0.00
 42	202610060042	2	completed	2026-10-06 01:00:00+07	\N	0139e02d-82f0-4721-951e-1a76afb766d4	\N	2026-10-06 01:00:00+07	\N	0.00
 57	202610070057	4	expired	2026-10-07 11:37:47.742204+07	\N	24557677-d60a-4d8b-b0aa-c72e8c8366f7	\N	2026-10-07 11:37:28.896455+07	1	450.00
-51	202610070051	1	cart	\N	\N	\N	\N	2026-10-07 11:17:45.454786+07	\N	0.00
 49	202610070049	2	completed	2026-10-07 11:17:43.470426+07	\N	ef8a5258-cd1f-4f65-90ea-5b2d0c4ae111	\N	2026-10-07 11:17:39.817552+07	1	36.00
 48	202610070048	5	expired	2026-10-07 10:47:35.264+07	\N	61da5575-427e-4a32-8a7e-3b2387f1b48d	\N	2026-10-07 10:47:35.264+07	\N	0.00
 54	202610070054	3	cart	\N	\N	\N	\N	2026-10-07 11:37:23.494719+07	\N	0.00
@@ -764,6 +768,8 @@ COPY public.bookings (id, code, user_id, status, confirmed_at, expires_at, check
 65	202610260065	2	cart	\N	\N	\N	\N	2026-10-26 04:25:30.297746+07	\N	0.00
 64	202610260064	2	completed	2026-10-26 04:25:30.280922+07	\N	41d0e1ba-49a1-4fbf-b6b6-6bd15f3b81c4	\N	2026-10-26 04:14:30.731323+07	1	36.00
 47	202610070047	2	completed	2026-10-07 10:47:35.261+07	\N	c01a9821-360a-4129-ba16-4ef49b5f1d63	\N	2026-10-07 10:47:35.261+07	\N	0.00
+66	202610270066	1	cart	\N	\N	\N	\N	2026-10-27 22:27:49.824386+07	\N	0.00
+51	202610070051	1	cancelled	2026-10-27 22:27:49.802702+07	\N	39d989c4-f2eb-4874-96b8-2344cf89e120	\N	2026-10-07 11:17:45.454786+07	\N	0.00
 \.
 
 
@@ -771,9 +777,9 @@ COPY public.bookings (id, code, user_id, status, confirmed_at, expires_at, check
 -- Data for Name: coupons; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.coupons (id, code, percent_off, amount_off, min_total, max_uses, used_count, expires_at, is_active, created_at) FROM stdin;
-2	BAHT50	\N	50.00	0.00	100	0	\N	t	2026-10-07 11:17:35.078638+07
-1	WELCOME10	10	\N	300.00	\N	6	\N	t	2026-10-07 11:17:35.078638+07
+COPY public.coupons (id, code, percent_off, amount_off, min_total, max_uses, used_count, expires_at, is_active, created_at, name, per_user_limit) FROM stdin;
+2	BAHT50	\N	50.00	0.00	100	0	\N	t	2026-10-07 11:17:35.078638+07	ลดทันที 50 บาท	\N
+1	WELCOME10	10	\N	300.00	\N	6	\N	t	2026-10-07 11:17:35.078638+07	ต้อนรับสมาชิกใหม่	\N
 \.
 
 
@@ -843,6 +849,8 @@ COPY public.emails (id, user_id, booking_id, kind, to_address, subject, html, st
 20	2	64	confirmed	member@sporthub.local	[SportHub] ยืนยันการจอง #202610260064 — กรุณาชำระเงินภายใน 15 นาที	<div style="font-family:sans-serif;max-width:560px">\n  <h2 style="color:#0f766e">ได้รับการจองแล้ว</h2>\n  <p>สวัสดีคุณ สมชาย ใจดี</p>\n  <p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน 15 นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>\n  <p><b>เลขที่การจอง:</b> 202610260064<br><b>ยอดรวม:</b> 324 บาท</p>\n  <ul><li>คอร์ทแบด 1 — 26 ต.ค. 2569 10:00 - 11:00</li><li>คอร์ทแบด 1 — 26 ต.ค. 2569 11:00 - 12:00</li><li>ไม้แบดมินตัน × 2 — 26 ต.ค. 2569 10:00 - 12:00</li></ul>\n  <p><a href="http://localhost:5173/bookings/64">ดูรายละเอียดการจอง</a></p>\n  <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>	web	\N	\N	2026-10-26 04:25:30.293903+07
 21	2	64	approved	member@sporthub.local	[SportHub] ชำระเงินสำเร็จ #202610260064	<div style="font-family:sans-serif;max-width:560px">\n  <h2 style="color:#0f766e">ชำระเงินสำเร็จ</h2>\n  <p>สวัสดีคุณ สมชาย ใจดี</p>\n  <p>แสดง QR นี้ที่เคาน์เตอร์เพื่อเช็คอิน</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAklEQVR4AewaftIAAAbKSURBVO3BgY0bSRAEwawG/Xe5XhbMChitqPvOiPQXJK00SFprkLTWIGmtQdJag6S1BklrDZLWGiSt9eE3JGGDttxIwq223EjCSVueJOGkLW9LwklbbiRhg7acDJLWGiStNUhaa5C01iBprUHSWoOktT78AW351yXhbW25lYQ3JeFtSThpy5O2fFtb/nVJuDFIWmuQtNYgaa1B0lqDpLUGSWsNktb68Bck4W1teVsSTtpykoQnbTlJwo22PEnCSRJO2nKShFtt+bYkvK0tbxokrTVIWmuQtNYgaa1B0lqDpLUGSWsNktb6oD8mCSdteZKEk7bcSMLbknCrLXrfIGmtQdJag6S1BklrDZLWGiStNUha64P+mLacJOFJW06ScNKWk7a8LQm3knCjLXo2SFprkLTWIGmtQdJag6S1BklrDZLW+vAXtGWDJNxKwrcl4UZbNmjLTzdIWmuQtNYgaa1B0lqDpLUGSWsNktb68AckQdCWkyQ8actJEm4k4UlbTpJwIwlP2nKShJO23ErC/90gaa1B0lqDpLUGSWsNktYaJK01SFprkLRW+gv6LUn4trbcSMKTtnxbEm60Rc8GSWsNktYaJK01SFprkLTWIGmtQdJaH35DEk7acpKEn6AtJ225kYQnbTlJwklbTtryJAknbTlJwq22nCThRhJ+gra8aZC01iBprUHSWoOktQZJaw2S1hokrfXhD0jCt7XlbUl4WxJO2nKShFttOUnCSVtuJeGkLW9ry0kSTtrytiSctOVkkLTWIGmtQdJag6S1BklrDZLWGiStlf7CgySctOUkCU/acpKEt7XlRhL0rC1vS8JJW54k4UZbbiXhpC03BklrDZLWGiStNUhaa5C01iBprUHSWoOktdJf+AGScKMtT5LwprY8ScJJW06ScNKWJ0k4acuNJNxqy7cl4UZbniThpC03BklrDZLWGiStNUhaa5C01iBprUHSWh9+QxJO2vKvS8Lb2vJtbTlJwq0k3GjL25Jw0pZbbbmRhCdtedMgaa1B0lqDpLUGSWsNktYaJK01SFrrw29oy40k3GrLtyXhp2vLtyXh25LwbW15koQbbTkZJK01SFprkLTWIGmtQdJag6S1BklrffgNSfjpknCrLSdJeFsSTtpyKwknbTlJwq22nCThpC0nSfgJ2vKmQdJag6S1BklrDZLWGiStNUhaa5C01iBprQ9/QFtuJeFGEk7acisJJ225lYQ3JeFtbTlJwre1RTBIWmuQtNYgaa1B0lqDpLUGSWsNktb68BvacpKEk7Z8WxKetOXb2vKmttxKwo22PEnCSVtOknDSlidJOGnLSRLe1pYbg6S1BklrDZLWGiStNUhaa5C01iBprQ+/IQk3kvBtbfk/SMLb2nLSlhtJeFtbTpLwpC0nSThpy9uScNKWk0HSWoOktQZJaw2S1hokrTVIWmuQtFb6Cw+ScNKWkyTcasuNJNxqy40kPGnLjSS8rS2CJNxoy5MknLTlxiBprUHSWoOktQZJaw2S1hokrTVIWmuQtNaHv6AtT5JwIwknbXmShJMknLTlpC3f1pZvS8K3teVJEv7vBklrDZLWGiStNUhaa5C01iBprUHSWukvPEjCSVveloSTtpwk4UlbTpLwbW25kYRbbTlJwq22nCThX9eWkyQ8acubBklrDZLWGiStNUhaa5C01iBprUHSWukv6Lck4aQtGyThpC1vS8JJW96WhJO2vC0JJ205GSStNUhaa5C01iBprUHSWoOktQZJa334DUnYoC0nbXlbEk7a8rYkvCkJ35aEJ215UxJuteXGIGmtQdJag6S1BklrDZLWGiStNUhaa5C01oc/oC3/uiTcSsKNtjxpy0kSTtpykoQnbXlTW54k4U1teVsSTtryJAlvGiStNUhaa5C01iBprUHSWoOktQZJa334C5LwtrZs0JYbbXmShG9ry0kSTpLwbW05ScKTtrxpkLTWIGmtQdJag6S1BklrDZLWGiSt9UF/TFtOkvATtOWna8utJJy05UZbniThRltOBklrDZLWGiStNUhaa5C01iBprUHSWh/017TlSRJO2nIjCU+ScNKWb2vLSRJuteUkCTfacqstNwZJaw2S1hokrTVIWmuQtNYgaa1B0lqDpLU+/AVt+T9oy0/XlltJOGnL25Jw0pZbSbjRln/dIGmtQdJag6S1BklrDZLWGiStNUha68MfkIQNknCjLW9LwklbniThpC0nSThpy5MknLTlJAlva8uNJDxpy5sGSWsNktYaJK01SFprkLTWIGmtQdJa6S9IWmmQtNYgaa1B0lqDpLUGSWsNktYaJK31Hy6HPhP+G3WIAAAAAElFTkSuQmCC" width="200" alt="QR เช็คอิน">\n  <p><b>เลขที่การจอง:</b> 202610260064<br><b>ยอดรวม:</b> 324 บาท</p>\n  <ul><li>คอร์ทแบด 1 — 26 ต.ค. 2569 10:00 - 11:00</li><li>คอร์ทแบด 1 — 26 ต.ค. 2569 11:00 - 12:00</li><li>ไม้แบดมินตัน × 2 — 26 ต.ค. 2569 10:00 - 12:00</li></ul>\n  <p><a href="http://localhost:5173/bookings/64">ดูรายละเอียดการจอง</a></p>\n  <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>	web	\N	2026-10-26 04:25:51.403339+07	2026-10-26 04:25:33.327897+07
 22	2	47	approved	member@sporthub.local	[SportHub] ชำระเงินสำเร็จ #202610070047	<div style="font-family:sans-serif;max-width:560px">\n  <h2 style="color:#0f766e">ชำระเงินสำเร็จ</h2>\n  <p>สวัสดีคุณ สมชาย ใจดี</p>\n  <p>แสดง QR นี้ที่เคาน์เตอร์เพื่อเช็คอิน</p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAklEQVR4AewaftIAAAbTSURBVO3BgW0cSRAEwazG+e9yvSyYFTBckfzOiPQPJK00SFprkLTWIGmtQdJag6S1BklrDZLWGiSt9eEvJGGDtrwpCbfacpKEk7Y8ScJJW96WhJO23EjCBm05GSStNUhaa5C01iBprUHSWoOktQZJa334Am356ZLwG7TlTUm4lYQbbXnSlpMknLTlVlt+uiTcGCStNUhaa5C01iBprUHSWoOktQZJa334B5Lwtra8LQknbbmVhDe15bsl4UlbTtry3ZLwtra8aZC01iBprUHSWoOktQZJaw2S1hokrTVIWuuDvkwSbrXlTUn4P0jCSVv0bJC01iBprUHSWoOktQZJaw2S1hokrfVBX6Ytb0vCSVtO2vK2JNxKwklbdG+QtNYgaa1B0lqDpLUGSWsNktYaJK314R9oi75GW96WhJO2nLTlbUk4acvb2vLbDZLWGiStNUhaa5C01iBprUHSWoOktT58gSToWRKetOUkCSdtOUnCk7acJOGkLSdJeNKW75aE/7tB0lqDpLUGSWsNktYaJK01SFprkLTWIGmtD3+hLbrXlltt+e3acqstN9oiGCStNUhaa5C01iBprUHSWoOktQZJa6V/8CAJJ205ScJv0JYbSbjVlpMknLTlVhK+W1velITfoC1vGiStNUhaa5C01iBprUHSWoOktQZJa334C215W1tOknDSlrcl4aQtJ0m41ZaTJNxqy3dLwm/XlltJuNGWk0HSWoOktQZJaw2S1hokrTVIWmuQtNaHv5CEG235bkl40pYbSfg/SMJJW97WlhtJOGnLrSScJOGkLU/a8qZB0lqDpLUGSWsNktYaJK01SFprkLTWIGmtD1+gLbeS8Ka2PEnCjbacJOG7teVJEk6ScNKWkyTcastJW75bW366QdJag6S1BklrDZLWGiStNUhaa5C01oe/0JYbSbjVlpMk3GrLjSS8LQknbTlJwq22nCThpC1vS8JJW54k4aQtJ0l4W1tuDJLWGiStNUhaa5C01iBprUHSWoOktdI/uJSEk7a8LQknbXmShDe15f8gCSdtOUnCb9CWkySctOUkCU/acpKEk7acDJLWGiStNUhaa5C01iBprUHSWoOktdI/uJSEDdpykoRbbfluSbjRlrcl4aQtJ0l40pYbSThpy5MknLTlxiBprUHSWoOktQZJaw2S1hokrTVIWmuQtNaHv5CE364tT5JwkoQbbXmShBttOUnCrbb8dm15koQbbfnpBklrDZLWGiStNUhaa5C01iBprUHSWh++QFtOknCrLSdJOEnC29ry07XlSRJOknCjLU+ScNKWkySctOVWW06S8NMNktYaJK01SFprkLTWIGmtQdJag6S1PvwDbXmShJMk3GjL25Lw3ZJwqy1vSsLb2nKShCdtOUnCSVtOkvCkLSdJOGnLySBprUHSWoOktQZJaw2S1hokrTVIWiv9gwdJOGnLSRKetOUkCd+tLTeS8KQtN5LwtracJOGkLbeScNKWW0k4acvbknDSlhuDpLUGSWsNktYaJK01SFprkLTWIGmtQdJa6R88SMJJW96WhBtteZKEG225lYSTtpwk4aQtt5Jw0paTJDxpy40knLTlVhJO2vK2JJy05WSQtNYgaa1B0lqDpLUGSWsNktYaJK2V/sGDJJy05VYSbrTlJAlP2nIjCSdt+W5JuNWWkyTo32jLjUHSWoOktQZJaw2S1hokrTVIWmuQtFb6B/orSXhbW366JJy05VYSbrTlbUk4acutJNxoy8kgaa1B0lqDpLUGSWsNktYaJK01SFrrw19IwgZtOWnLjSQ8ScKNttxKwv9dEp605U1JeNKWNw2S1hokrTVIWmuQtNYgaa1B0lqDpLUGSWt9+AJt+emScCsJv10SvlsSnrTlJAk32vLd2vIkCSdtuTFIWmuQtNYgaa1B0lqDpLUGSWsNktb68A8k4W1t+W5teVsSbrTlSRJuJOG7JeG7JeFWW940SFprkLTWIGmtQdJag6S1BklrDZLW+qBfpS03kvCkLTeScNKW79aWJ0k4acvbknCjLSeDpLUGSWsNktYaJK01SFprkLTWIGmtD/pnkvAbJOGkLSdtOUnCk7actOVGEp605SQJN9pyqy03BklrDZLWGiStNUhaa5C01iBprUHSWoOktT78A235P2jLjbY8ScJ3a8ub2vIkCW9qy5Mk3GjLTzdIWmuQtNYgaa1B0lqDpLUGSWsNktb68AWSsEESTtrytrbcSMKTJJy05SQJJ2150pafri03kvCkLW8aJK01SFprkLTWIGmtQdJag6S1BklrpX8gaaVB0lqDpLUGSWsNktYaJK01SFprkLTWf8qQVug1nqhlAAAAAElFTkSuQmCC" width="200" alt="QR เช็คอิน">\n  <p><b>เลขที่การจอง:</b> 202610070047<br><b>ยอดรวม:</b> 620 บาท</p>\n  <ul><li>สนามบาสในร่ม — 9 ต.ค. 2569 11:00 - 12:00</li><li>ลูกขนไก่ (หลอด 12 ลูก) × 1 — 9 ต.ค. 2569 11:00 - 12:00</li></ul>\n  <p><a href="http://localhost:5173/bookings/47">ดูรายละเอียดการจอง</a></p>\n  <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>	web	\N	\N	2026-10-26 16:11:29.107173+07
+23	1	51	confirmed	admin@sporthub.local	[SportHub] ยืนยันการจอง #202610070051 — กรุณาชำระเงินภายใน 15 นาที	<div style="font-family:sans-serif;max-width:560px">\n  <h2 style="color:#0f766e">ได้รับการจองแล้ว</h2>\n  <p>สวัสดีคุณ ผู้ดูแลระบบ</p>\n  <p>กรุณาสแกน QR PromptPay และแนบสลิปภายใน 15 นาที ไม่เช่นนั้นการจองจะถูกยกเลิกอัตโนมัติ</p>\n  <p><b>เลขที่การจอง:</b> 202610070051<br><b>ยอดรวม:</b> 1,500 บาท</p>\n  <ul><li>สนามหญ้าเทียม A (7 คน) — 27 ต.ค. 2569 23:00 - 00:00</li></ul>\n  <p><a href="http://localhost:5173/bookings/51">ดูรายละเอียดการจอง</a></p>\n  <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>	web	\N	2026-10-27 22:29:34.112829+07	2026-10-27 22:27:49.817279+07
+24	1	51	cancelled	admin@sporthub.local	[SportHub] การจอง #202610070051 ถูกยกเลิก	<div style="font-family:sans-serif;max-width:560px">\n  <h2 style="color:#0f766e">การจองถูกยกเลิก</h2>\n  <p>สวัสดีคุณ ผู้ดูแลระบบ</p>\n  <p>ยกเลิกตามคำขอของคุณ</p>\n  <p><b>เลขที่การจอง:</b> 202610070051<br><b>ยอดรวม:</b> 1,500 บาท</p>\n  <ul><li>สนามหญ้าเทียม A (7 คน) — 27 ต.ค. 2569 23:00 - 00:00</li></ul>\n  <p><a href="http://localhost:5173/bookings/51">ดูรายละเอียดการจอง</a></p>\n  <p style="color:#64748b;font-size:12px">SportHub — ระบบจองสนามกีฬาและยืมอุปกรณ์</p></div>	web	\N	\N	2026-10-27 22:36:25.162691+07
 \.
 
 
@@ -889,6 +897,7 @@ COPY public.migrations (name, run_at) FROM stdin;
 002_peak_pricing.sql	2026-10-07 11:17:34.794976+07
 003_coupons.sql	2026-10-07 11:17:34.798892+07
 004_mail_and_settings.sql	2026-10-07 11:17:34.804368+07
+005_coupon_campaigns.sql	2026-10-27 22:40:39.105477+07
 \.
 
 
@@ -1005,15 +1014,15 @@ COPY public.reviews (id, booking_id, user_id, court_id, rating, comment, created
 --
 
 COPY public.settings (key, value, updated_by, updated_at) FROM stdin;
-promptpayId	"0812345678"	1	2026-10-07 11:37:52.796876+07
-payWithinMinutes	15	1	2026-10-07 11:37:52.798624+07
-checkinEarlyMinutes	1440	1	2026-10-07 11:37:52.799876+07
-cancelBeforeHours	24	1	2026-10-07 11:37:52.801235+07
-maxDaysAhead	1	1	2026-10-07 11:37:52.802469+07
-announcement	""	1	2026-10-07 11:37:52.803685+07
-contactPhone	""	1	2026-10-07 11:37:52.804895+07
-contactLine	""	1	2026-10-07 11:37:52.806224+07
-address	""	1	2026-10-07 11:37:52.807504+07
+promptpayId	"0842327670"	1	2026-10-27 22:28:48.523267+07
+payWithinMinutes	15	1	2026-10-27 22:28:48.525789+07
+checkinEarlyMinutes	1440	1	2026-10-27 22:28:48.527088+07
+cancelBeforeHours	24	1	2026-10-27 22:28:48.528363+07
+maxDaysAhead	1	1	2026-10-27 22:28:48.529708+07
+announcement	""	1	2026-10-27 22:28:48.53102+07
+contactPhone	""	1	2026-10-27 22:28:48.532389+07
+contactLine	""	1	2026-10-27 22:28:48.538637+07
+address	""	1	2026-10-27 22:28:48.54014+07
 \.
 
 
@@ -1064,28 +1073,28 @@ COPY public.users (id, email, password_hash, name, phone, avatar_url, role, stat
 -- Name: booking_equipment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.booking_equipment_id_seq', 34, true);
+SELECT pg_catalog.setval('public.booking_equipment_id_seq', 35, true);
 
 
 --
 -- Name: booking_slots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.booking_slots_id_seq', 88, true);
+SELECT pg_catalog.setval('public.booking_slots_id_seq', 95, true);
 
 
 --
 -- Name: bookings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.bookings_id_seq', 65, true);
+SELECT pg_catalog.setval('public.bookings_id_seq', 66, true);
 
 
 --
 -- Name: coupons_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.coupons_id_seq', 6, true);
+SELECT pg_catalog.setval('public.coupons_id_seq', 7, true);
 
 
 --
@@ -1099,7 +1108,7 @@ SELECT pg_catalog.setval('public.courts_id_seq', 33, true);
 -- Name: emails_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.emails_id_seq', 22, true);
+SELECT pg_catalog.setval('public.emails_id_seq', 24, true);
 
 
 --
@@ -1450,5 +1459,5 @@ ALTER TABLE ONLY public.settings
 -- PostgreSQL database dump complete
 --
 
-\unrestrict xrTc2xn6bPvkB5Ct3erNQQAHF3jYLGb8e6E10pVUePNrrHY0rhdfoLREwZIChwg
+\unrestrict boZMBqczu3zAnppmh0oqnBilFJ4c2MIosUva7znE7UhlHtXWq1x5T7YyPmiIHP0
 

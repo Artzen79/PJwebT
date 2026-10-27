@@ -26,6 +26,7 @@ const Payments = lazy(() => import('./pages/admin/Payments'));
 const Checkin = lazy(() => import('./pages/admin/Checkin'));
 const AdminBookings = lazy(() => import('./pages/admin/AdminBookings'));
 const Catalog = lazy(() => import('./pages/admin/Catalog'));
+const Coupons = lazy(() => import('./pages/admin/Coupons'));
 const Users = lazy(() => import('./pages/admin/Users'));
 const Emails = lazy(() => import('./pages/admin/Emails'));
 const System = lazy(() => import('./pages/admin/System'));
@@ -77,6 +78,7 @@ const router = createBrowserRouter([
               { path: 'checkin', element: <Checkin /> },
               { path: 'bookings', element: <AdminBookings /> },
               { path: 'catalog', element: <Catalog /> },
+              { path: 'coupons', element: <Coupons /> },
               { path: 'users', element: <Users /> },
               { path: 'users/:id', element: <UserDetail /> },
               { path: 'emails', element: <Emails /> },

@@ -134,6 +134,38 @@ describe('coupons', () => {
     await api().post('/api/v1/cart/confirm').set(bearer(other.token)).expect(200);
     expect((await apply(once)).body.error.code).toBe('COUPON_USED_UP');
   });
+
+  it('limits uses per member and reports who used a coupon', async () => {
+    const court = await newCourt();
+    const code = uniqueCode('per');
+    const c = (await createCoupon({ code, name: 'โปรทดสอบ', amountOff: 20, maxUses: 10, perUserLimit: 1 })).body;
+    expect(c).toMatchObject({ name: 'โปรทดสอบ', perUserLimit: 1, usedCount: 0, userCount: 0, discountGiven: 0 });
+
+    const first = await member();
+    await api().post('/api/v1/cart/slots').set(bearer(first.token)).send({ courtId: court.id, startAt: at(day(7), 10) });
+    await api().post('/api/v1/cart/coupon').set(bearer(first.token)).send({ code }).expect(200);
+    const booking = (await api().post('/api/v1/cart/confirm').set(bearer(first.token)).expect(200)).body;
+    // the same member cannot use it again, another member still can
+    await api().post('/api/v1/cart/slots').set(bearer(first.token)).send({ courtId: court.id, startAt: at(day(7), 12) });
+    expect((await api().post('/api/v1/cart/coupon').set(bearer(first.token)).send({ code })).body.error.code).toBe('COUPON_USER_LIMIT');
+    const second = await member();
+    await api().post('/api/v1/cart/slots').set(bearer(second.token)).send({ courtId: court.id, startAt: at(day(7), 14) });
+    await api().post('/api/v1/cart/coupon').set(bearer(second.token)).send({ code }).expect(200);
+    await api().post('/api/v1/cart/confirm').set(bearer(second.token)).expect(200);
+
+    const report = (await api().get(`/api/v1/coupons/${c.id}/usage`).set(bearer(adminToken)).expect(200)).body;
+    expect(report.coupon).toMatchObject({ usedCount: 2, userCount: 2, discountGiven: 40 });
+    expect(report.uses).toHaveLength(2);
+    expect(report.uses.find((u: { code: string }) => u.code === booking.code)).toMatchObject({
+      userEmail: first.email,
+      status: 'pending_payment',
+      subtotal: 150,
+      discount: 20,
+      total: 130,
+    });
+    expect((await api().get(`/api/v1/coupons/${c.id}/usage`).set(bearer(first.token))).status).toBe(403);
+    expect((await api().get('/api/v1/coupons/999999/usage').set(bearer(adminToken))).status).toBe(404);
+  });
 });
 
 describe('peak pricing', () => {

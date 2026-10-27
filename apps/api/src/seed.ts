@@ -193,8 +193,8 @@ async function seed() {
        WHERE sport_id IN (SELECT id FROM sports WHERE name IN ('ฟุตบอล', 'เทนนิส'))`,
     );
     await db.query(
-      `INSERT INTO coupons (code, percent_off, amount_off, min_total, max_uses) VALUES
-         ('WELCOME10', 10, NULL, 300, NULL), ('BAHT50', NULL, 50, 0, 100)`,
+      `INSERT INTO coupons (code, name, percent_off, amount_off, min_total, max_uses) VALUES
+         ('WELCOME10', 'ต้อนรับสมาชิกใหม่', 10, NULL, 300, NULL), ('BAHT50', 'ลดทันที 50 บาท', NULL, 50, 0, 100)`,
     );
     const equipmentRows: { id: number; rent: number }[] = await query('SELECT id, rent_price AS rent FROM equipment ORDER BY id', [], db);
 

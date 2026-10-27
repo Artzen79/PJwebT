@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { api, type Body, type Court, type Equipment, errorText, ok, type Sport, upload } from '../../api';
 import { useSports } from '../../components/Pickers';
 import { Badge, Button, ErrorNote, Field, Input, Loading, Modal, PageHeader, Select, SportArt, Stars, Textarea } from '../../components/ui';
-import { baht, bangkokDate, dateTh, dateTimeTh, hourLabel } from '../../lib/format';
+import { baht, dateTimeTh, hourLabel } from '../../lib/format';
 import { formData } from '../../lib/pick';
 
 type Def = { name: string; label: string; kind?: 'text' | 'number' | 'optional-number' | 'textarea' | 'sport' | 'checkbox'; min?: number; max?: number; step?: number; hint?: string };
@@ -330,134 +330,6 @@ function SportsTable() {
   );
 }
 
-type CouponRow = { id: number; code: string; percentOff: number | null; amountOff: number | null; minTotal: number; maxUses: number | null; expiresAt: string | null; isActive: boolean };
-type CouponValues = Omit<Body<'/api/v1/coupons', 'post'>, 'code'> & { code?: string };
-
-// One form for creating and editing a coupon; the code is fixed once created.
-function CouponForm({ coupon, pending, error, onSubmit }: { coupon?: CouponRow; pending: boolean; error: unknown; onSubmit: (v: CouponValues) => void }) {
-  return (
-    <form
-      className={`grid gap-3 ${coupon ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}
-      onSubmit={(e) => {
-        const f = formData(e);
-        const value = Number(f.get('value'));
-        const expires = String(f.get('expires'));
-        onSubmit({
-          ...(coupon ? { isActive: f.get('isActive') === 'on' } : { code: String(f.get('code')) }),
-          percentOff: f.get('type') === 'percent' ? value : null,
-          amountOff: f.get('type') === 'amount' ? value : null,
-          minTotal: Number(f.get('minTotal') || 0),
-          maxUses: f.get('maxUses') ? Number(f.get('maxUses')) : null,
-          expiresAt: expires ? `${expires}T23:59:59+07:00` : null,
-        });
-      }}
-    >
-      <Field label="รหัสคูปอง" hint={coupon ? 'แก้รหัสไม่ได้' : 'A-Z 0-9 3-30 ตัว'}>
-        <Input name="code" required pattern="[A-Za-z0-9_\-]{3,30}" className="uppercase" defaultValue={coupon?.code} readOnly={Boolean(coupon)} />
-      </Field>
-      <Field label="ประเภทส่วนลด">
-        <Select name="type" defaultValue={coupon?.amountOff ? 'amount' : 'percent'}>
-          <option value="percent">ลดเป็นเปอร์เซ็นต์</option>
-          <option value="amount">ลดเป็นบาท</option>
-        </Select>
-      </Field>
-      <Field label="มูลค่า" hint="1-100 สำหรับเปอร์เซ็นต์">
-        <Input name="value" type="number" min={1} required defaultValue={coupon ? (coupon.percentOff ?? coupon.amountOff ?? '') : ''} />
-      </Field>
-      <Field label="ยอดขั้นต่ำ (บาท)">
-        <Input name="minTotal" type="number" min={0} defaultValue={coupon?.minTotal ?? 0} />
-      </Field>
-      <Field label="ใช้ได้กี่ครั้ง" hint="เว้นว่าง = ไม่จำกัด">
-        <Input name="maxUses" type="number" min={1} defaultValue={coupon?.maxUses ?? ''} />
-      </Field>
-      <Field label="หมดอายุ" hint="เว้นว่าง = ไม่มีวันหมดอายุ">
-        <Input name="expires" type="date" defaultValue={coupon?.expiresAt ? bangkokDate(new Date(coupon.expiresAt)) : ''} />
-      </Field>
-      {coupon && (
-        <label className="flex items-center gap-2 sm:col-span-full">
-          <input type="checkbox" name="isActive" defaultChecked={coupon.isActive} className="size-4 accent-[var(--turf)]" />
-          เปิดใช้คูปอง
-        </label>
-      )}
-      <div className="sm:col-span-full">
-        <ErrorNote error={error} />
-      </div>
-      <div className="flex justify-end sm:col-span-full">
-        <Button type="submit" variant="primary" pending={pending}>
-          {coupon ? 'บันทึก' : 'สร้างคูปอง'}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-function CouponsTable() {
-  const qc = useQueryClient();
-  const [editing, setEditing] = useState<CouponRow | null>(null);
-  const coupons = useQuery({ queryKey: ['coupons'], queryFn: () => ok(api.GET('/api/v1/coupons')) });
-  const refresh = () => qc.invalidateQueries({ queryKey: ['coupons'] });
-  const create = useMutation({
-    mutationFn: (body: CouponValues) => ok(api.POST('/api/v1/coupons', { body: body as Body<'/api/v1/coupons', 'post'> })),
-    onSuccess: (c) => {
-      toast.success(`สร้างคูปอง ${c.code} แล้ว`);
-      refresh();
-    },
-  });
-  const update = useMutation({
-    mutationFn: ({ id, body }: { id: number; body: CouponValues }) => ok(api.PATCH('/api/v1/coupons/{id}', { params: { path: { id } }, body })),
-    onSuccess: (c) => {
-      toast.success(`บันทึกคูปอง ${c.code} แล้ว`);
-      setEditing(null);
-      refresh();
-    },
-  });
-  // used coupons can't be deleted (409 IN_USE); the toast tells the admin to switch it off instead
-  const remove = useMutation({
-    mutationFn: (id: number) => ok(api.DELETE('/api/v1/coupons/{id}', { params: { path: { id } } })),
-    onSuccess: () => {
-      toast('ลบคูปองแล้ว');
-      refresh();
-    },
-    onError: (e) => toast.error(errorText(e)),
-  });
-  if (coupons.isPending) return <Loading />;
-  return (
-    <div className="space-y-4">
-      <ul className="divide-y divide-line rounded-xl border-2 border-line bg-surface">
-        {coupons.data?.length === 0 && <li className="p-4 text-muted">ยังไม่มีคูปอง</li>}
-        {coupons.data?.map((c) => (
-          <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 p-3">
-            <span className="num min-w-28 font-semibold">{c.code}</span>
-            <span>{c.percentOff !== null ? `ลด ${c.percentOff}%` : `ลด ${baht(c.amountOff ?? 0)}`}</span>
-            <span className="text-sm text-muted">
-              {c.minTotal > 0 && `ขั้นต่ำ ${baht(c.minTotal)} `}
-              ใช้แล้ว {c.usedCount}
-              {c.maxUses !== null && `/${c.maxUses}`} ครั้ง {c.expiresAt ? `หมดอายุ ${dateTh(c.expiresAt)}` : 'ไม่มีวันหมดอายุ'}
-            </span>
-            <span className="ml-auto flex items-center gap-1">
-              {!c.isActive && <Badge tone="danger">ปิดอยู่</Badge>}
-              <Button size="sm" variant="quiet" onClick={() => setEditing(c)}>
-                แก้ไข
-              </Button>
-              <Button size="sm" variant="quiet-danger" onClick={() => window.confirm(`ลบคูปอง ${c.code}?`) && remove.mutate(c.id)}>
-                ลบ
-              </Button>
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="rounded-xl border-2 border-dashed border-line p-4">
-        <h2 className="mb-3 font-semibold">สร้างคูปองใหม่</h2>
-        {/* remount after each create so the form clears */}
-        <CouponForm key={coupons.data?.length} pending={create.isPending} error={create.error} onSubmit={(v) => create.mutate(v)} />
-      </div>
-      <Modal open={editing !== null} onClose={() => setEditing(null)} title={`แก้ไขคูปอง ${editing?.code ?? ''}`}>
-        {editing && <CouponForm key={editing.id} coupon={editing} pending={update.isPending} error={update.error} onSubmit={(body) => update.mutate({ id: editing.id, body })} />}
-      </Modal>
-    </div>
-  );
-}
-
 function ReviewsTable() {
   const qc = useQueryClient();
   const [rating, setRating] = useState<number>();
@@ -521,12 +393,11 @@ export default function Catalog() {
     ['courts', 'สนาม'],
     ['equipment', 'อุปกรณ์'],
     ['sports', 'ประเภทกีฬา'],
-    ['coupons', 'คูปอง'],
     ['reviews', 'รีวิว'],
   ];
   return (
     <div className="space-y-5">
-      <PageHeader title="จัดการข้อมูล" sub="เพิ่ม แก้ไข และลบสนาม อุปกรณ์ ประเภทกีฬา คูปอง และรีวิว เลือกหมวดจากแท็บด้านล่าง" />
+      <PageHeader title="จัดการข้อมูล" sub="เพิ่ม แก้ไข และลบสนาม อุปกรณ์ ประเภทกีฬา และรีวิว เลือกหมวดจากแท็บด้านล่าง (คูปองอยู่ที่เมนู คูปอง)" />
       <div className="flex gap-1 overflow-x-auto rounded-xl bg-sunken p-1 sm:w-fit" role="tablist">
         {tabs.map(([key, label]) => (
           <button
@@ -543,8 +414,6 @@ export default function Catalog() {
       </div>
       {tab === 'sports' ? (
         <SportsTable />
-      ) : tab === 'coupons' ? (
-        <CouponsTable />
       ) : tab === 'reviews' ? (
         <ReviewsTable />
       ) : (

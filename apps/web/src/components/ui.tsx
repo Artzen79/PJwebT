@@ -182,7 +182,7 @@ export function Loading({ label = 'กำลังโหลด' }: { label?: str
 }
 
 // Native <dialog>: focus trap, Esc to close and inert background come for free.
-export function Modal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: ReactNode }) {
+export function Modal({ open, onClose, title, wide, children }: { open: boolean; onClose: () => void; title: string; wide?: boolean; children: ReactNode }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -193,7 +193,7 @@ export function Modal({ open, onClose, title, children }: { open: boolean; onClo
     <dialog
       ref={ref}
       onClose={onClose}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-[20px] border-2 border-line-hi bg-panel p-0 text-ink shadow-[0_0_0_4px_var(--frame),0_18px_50px_rgb(0_0_0/0.6)]"
+      className={`m-auto ${wide ? "w-[min(60rem,calc(100vw-2rem))]" : "w-[min(32rem,calc(100vw-2rem))]"} rounded-[20px] border-2 border-line-hi bg-panel p-0 text-ink shadow-[0_0_0_4px_var(--frame),0_18px_50px_rgb(0_0_0/0.6)]`}
     >
       <div className="m-2 flex items-center justify-between gap-3 rounded-xl bg-sunken/70 px-4 py-2.5">
         <h2 className="text-lg">{title}</h2>

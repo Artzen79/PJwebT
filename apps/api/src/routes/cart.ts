@@ -97,12 +97,12 @@ route({
   body: z.object({ code: z.string().trim().min(1).toUpperCase().describe('รหัสคูปอง') }),
   response: Booking,
   errors: {
-    400: 'ไม่พบคูปอง (INVALID_COUPON) หมดอายุ (COUPON_EXPIRED) ใช้ครบจำนวนแล้ว (COUPON_USED_UP) หรือยอดไม่ถึงขั้นต่ำ (COUPON_MIN_TOTAL)',
+    400: 'ไม่พบคูปอง (INVALID_COUPON) หมดอายุ (COUPON_EXPIRED) ใช้ครบจำนวนแล้ว (COUPON_USED_UP) คุณใช้ครบสิทธิ์ต่อคนแล้ว (COUPON_USER_LIMIT) หรือยอดไม่ถึงขั้นต่ำ (COUPON_MIN_TOTAL)',
   },
   handler: async ({ user, body }) => {
     const cartId = await cartIdFor(user!.id);
     const coupon = await one('SELECT * FROM coupons WHERE code = $1 AND is_active', [body.code]);
-    checkCoupon(coupon, (await one('SELECT subtotal FROM booking_totals WHERE booking_id = $1', [cartId])).subtotal);
+    checkCoupon(coupon, (await one('SELECT subtotal FROM booking_totals WHERE booking_id = $1', [cartId])).subtotal, await usesBy(user!.id, coupon?.id));
     await query('UPDATE bookings SET coupon_id = $2 WHERE id = $1', [cartId, coupon.id]);
     return getBooking(cartId);
   },
@@ -124,12 +124,21 @@ route({
 
 const dayMonth = new Intl.DateTimeFormat('th-TH', { day: 'numeric', month: 'short', timeZone: 'Asia/Bangkok' });
 
-type CouponRow = { id: number; min_total: number; max_uses: number | null; used_count: number; expires_at: Date | null };
+type CouponRow = { id: number; min_total: number; max_uses: number | null; per_user_limit: number | null; used_count: number; expires_at: Date | null };
 
-function checkCoupon(coupon: CouponRow | undefined, subtotal: number): asserts coupon is CouponRow {
+// how many of this member's confirmed bookings already used the coupon
+async function usesBy(userId: number, couponId: number | undefined, db?: Parameters<typeof one>[2]) {
+  if (couponId === undefined) return 0;
+  return (await one("SELECT count(*)::int AS n FROM bookings WHERE user_id = $1 AND coupon_id = $2 AND status <> 'cart'", [userId, couponId], db)).n as number;
+}
+
+function checkCoupon(coupon: CouponRow | undefined, subtotal: number, usedByUser: number): asserts coupon is CouponRow {
   if (!coupon) fail(400, 'INVALID_COUPON', 'ไม่พบคูปองนี้หรือคูปองถูกปิดใช้งาน');
   if (coupon.expires_at && coupon.expires_at.getTime() <= Date.now()) fail(400, 'COUPON_EXPIRED', 'คูปองนี้หมดอายุแล้ว');
   if (coupon.max_uses !== null && coupon.used_count >= coupon.max_uses) fail(400, 'COUPON_USED_UP', 'คูปองนี้ถูกใช้ครบจำนวนแล้ว');
+  if (coupon.per_user_limit !== null && usedByUser >= coupon.per_user_limit) {
+    fail(400, 'COUPON_USER_LIMIT', `คูปองนี้ใช้ได้คนละ ${coupon.per_user_limit} ครั้ง และคุณใช้ครบแล้ว`);
+  }
   if (subtotal < coupon.min_total) fail(400, 'COUPON_MIN_TOTAL', `ใช้คูปองนี้ได้เมื่อยอดถึง ${coupon.min_total.toLocaleString('th-TH')} บาท`);
 }
 
@@ -257,7 +266,7 @@ route({
         db,
       );
       if (coupon) {
-        checkCoupon(coupon.is_active ? coupon : undefined, coupon.subtotal);
+        checkCoupon(coupon.is_active ? coupon : undefined, coupon.subtotal, await usesBy(user!.id, coupon.id, db));
         await db.query('UPDATE coupons SET used_count = used_count + 1 WHERE id = $1', [coupon.id]);
       }
       await db.query('UPDATE bookings SET discount = (SELECT discount FROM booking_totals WHERE booking_id = $1) WHERE id = $1', [cart.id]);
