@@ -73,14 +73,18 @@ body{margin:0;padding:20px 24px;background:#18121f;color:#fff;line-height:1.65}
 body,body *{font-family:Kanit,Prompt,sans-serif!important}
 body>div{max-width:none!important}
 h2{margin:0 0 12px;color:#f5c542!important;font-size:22px;text-transform:uppercase}
-a{color:#f5c542}
+a{display:inline-block;padding:8px 18px;border-radius:8px;background:linear-gradient(#ffd975,#f5c542);color:#2b1d05;font-weight:600;text-decoration:none;box-shadow:inset 0 -3px 0 rgb(0 0 0/.22)}a:hover{filter:brightness(1.05)}
 ul{margin:12px 0;padding:12px 12px 12px 32px;border:2px solid #7a68cc;border-radius:12px;background:#463774}
 li{margin:4px 0}
 p[style*="color"]{margin-top:20px;padding-top:12px;border-top:1px solid #7a68cc;color:#bdb3dc!important}
 img{padding:8px;border-radius:12px;background:#fff}
 </style><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&display=swap">`;
 
-// Opens one email. The HTML renders in a sandboxed frame (no scripts); links open in a new tab.
+// A stored email links to its booking with the absolute APP_URL of the day it was sent, which may be another
+// host or port than this page (dev ports move). Here those links open the booking in this app, same tab.
+const inApp = (html: string) => html.replace(/href="[^"]*?(\/bookings\/\d+)"/g, 'href="$1" target="_top"');
+
+// Opens one email. The HTML renders in a sandboxed frame (no scripts); other links open in a new tab.
 export function MailReader({ id, actions }: { id: number | null; actions?: (mail: { id: number; status: string }) => ReactNode }) {
   const qc = useQueryClient();
   const mail = useQuery({
@@ -117,8 +121,8 @@ export function MailReader({ id, actions }: { id: number | null; actions?: (mail
       </div>
       <iframe
         title={m.subject}
-        sandbox="allow-popups allow-popups-to-escape-sandbox"
-        srcDoc={`<base target="_blank">${mailTheme}${m.html}`}
+        sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+        srcDoc={`<base target="_blank">${mailTheme}${inApp(m.html)}`}
         className="h-[32rem] w-full bg-sunken"
       />
     </Panel>
